@@ -12,9 +12,6 @@
     "lint": "biome check .",
     "check-types": "tsc --noEmit"
   },
-  "dependencies": {
-    "@repo/ui": "*"
-  },
   "devDependencies": {
     "@repo/typescript-config": "*",
     "@types/node": "^22.15.3",
