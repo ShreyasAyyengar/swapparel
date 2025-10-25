@@ -7,5 +7,10 @@
         "useSortedAttributes": "off"
       }
     }
+  },
+  "json": {
+    "parser": {
+      "allowComments": true
+    }
   }
 }
