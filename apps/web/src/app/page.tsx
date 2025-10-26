@@ -1,43 +1,51 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import Image, { type ImageProps } from "next/image";
-import { auth_client } from "../lib/auth-client";
-
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+import { router } from "next/client";
+import Image from "next/image";
+import { authClient } from "../lib/auth-client";
 
 export default function Home() {
+  const {
+    data: session,
+    isPending, //loading state
+    error, //error object
+    refetch, //refetch the session
+  } = authClient.useSession();
+
   return (
     <div className="min-h-screen p-8">
-      <Button
-        onClick={() => {
-          auth_client.signIn.social({
-            provider: "google",
-            callbackURL: "http://localhost:3000",
-          });
-        }}
-      >
-        Click me
-      </Button>
+      {session == null ? (
+        <Button
+          onClick={() => {
+            authClient.signIn.social({
+              provider: "google",
+              callbackURL: "http://localhost:3000",
+            });
+          }}
+        >
+          Sign In!
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            authClient.signOut({
+              fetchOptions: {
+                onSuccess: async () => {
+                  await router.push("/");
+                },
+              },
+            });
+          }}
+        >
+          Sign Out!
+        </Button>
+      )}
+
       <main className="flex flex-col items-center justify-center gap-8">
-        <ThemeImage
+        <Image
           className="mb-4"
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
+          src="/turborepo-dark.svg"
           alt="Turborepo logo"
           width={180}
           height={38}
