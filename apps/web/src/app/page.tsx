@@ -1,4 +1,8 @@
+"use client";
+
+import { Button } from "@repo/ui/components/button";
 import Image, { type ImageProps } from "next/image";
+import { auth_client } from "../lib/auth-client";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -19,6 +23,16 @@ const ThemeImage = (props: Props) => {
 export default function Home() {
   return (
     <div className="min-h-screen p-8">
+      <Button
+        onClick={() => {
+          auth_client.signIn.social({
+            provider: "google",
+            callbackURL: "http://localhost:3000",
+          });
+        }}
+      >
+        Click me
+      </Button>
       <main className="flex flex-col items-center justify-center gap-8">
         <ThemeImage
           className="mb-4"
