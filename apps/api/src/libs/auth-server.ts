@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { databaseConnection } from "../database/database";
 import { env } from "../env";
 
-const database = databaseConnection.getClient().db();
+const database = databaseConnection.getClient().db("swapparel");
 
 export const auth_server: ReturnType<typeof betterAuth> = betterAuth({
   database: mongodbAdapter(database),
