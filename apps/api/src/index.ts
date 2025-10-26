@@ -1,7 +1,7 @@
 import cors from "@elysiajs/cors";
 import Elysia from "elysia";
 import { env } from "./env";
-import { auth_server } from "./libs/auth-server";
+import { authServer } from "./libs/auth-server";
 import { logger } from "./libs/logger";
 
 const port = 3001;
@@ -15,7 +15,7 @@ new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     })
   )
-  .mount(auth_server.handler)
+  .mount(authServer.handler)
   .listen(port, (server) => {
     logger.info(`API server started | http://localhost:${server.port}`);
   });
