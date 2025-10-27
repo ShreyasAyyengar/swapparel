@@ -38,14 +38,15 @@ swapparel/
    cd ../packages/ui && bun install
    ```
 
-If you receive errors like `the term 'bun' was not recognized`. Restart your editor app and/or your machine, and try again.
+If you receive errors like `the term 'bun' was not recognized`. Restart your editor app and/or your machine and try again.
 
 8. To start the development servers, run the following command, in the base, `swapparel` directory:
 9. ```sh
    bun dev
    ```
-10. This will start the development servers for both the `web` and `api` applications. You can access them at `http://localhost:3000` and
-    `http://localhost:3001`, respectively.
+10. This will start the development servers for both the `web` and `api` applications. You can access them
+    at [http://localhost:3000](http://localhost:3000) and
+    [http://localhost:3001](http://localhost:3001) respectively (but don't expect to see anything at `3001`).
 
 ## What's inside?
 
@@ -83,7 +84,7 @@ more sense of the flow for this.
 When a user navigates to a page:
 
 1. the `web` acknowledges the navigation, and understands it needs more data from the backend to deliver the content of the website (like maybe,
-   cloth listings)
+   clothing listings)
 2. the `web` sends a request to the `api` for the required data (via REST)
 4. the `api`, through ElysiaJS, receives the request, and processes it, checking for authentication, validation, etc.
 5. goes through multiple steps to find where the data needs to be obtained from (like maybe, a database)
