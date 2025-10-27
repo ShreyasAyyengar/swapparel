@@ -8,9 +8,10 @@ This allows for easier collaboration and sharing of code between projects, with 
 To ensure the entire setup works properly, please follow these steps:
 
 1. Clone this repository by running `git clone https://github.com/shreyasayyengar/swapparel.git`.
-2. Navigate to the root directory of the repository, and create a `.env` file.
-3. Copy the [posted credentials](https://discord.com/channels/1429645080716775457/1431808580847407207/1431809307045003417) into the `.env` file.
-4. If correct, the project structure should look like this:
+2. Open the `swapparel` directory in your preferred code editor.
+3. Navigate to the root directory of the repository, and create a `.env` file.
+4. Copy the [posted credentials](https://discord.com/channels/1429645080716775457/1431808580847407207/1431809307045003417) into the `.env` file.
+5. If correct, the project structure should look like this:
 
 ```aiignore
 swapparel/
