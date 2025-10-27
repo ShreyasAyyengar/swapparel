@@ -1,134 +1,109 @@
-# Turborepo starter
+# Swapparel Repository
 
-This Turborepo starter is maintained by the Turborepo core team.
+This is the monorepo for Swapparel. A monorepo is a single repository that contains multiple projects and packages.
+This allows for easier collaboration and sharing of code between projects, with only one directory to navigate.
 
-## Using this example
+## Getting Started:
 
-Run the following command:
+To ensure the entire setup works properly, please follow these steps:
 
-```sh
-npx create-turbo@latest
+1. Clone this repository by running `git clone https://github.com/shreyasayyengar/swapparel.git`.
+2. Navigate to the root directory of the repository, and create a `.env` file.
+3. Copy the [posted credentials](https://discord.com/channels/1429645080716775457/1431808580847407207/1431809307045003417) into the `.env` file.
+4. If correct, the project structure should look like this:
+
+```aiignore
+swapparel/
+├── apps/
+│   ├── api/
+│   └── web/
+├── packages/
+│   └── contracts/
+│   └── ...
+│...
+├── .env (<- the newly created .env file with the posted credentials)
+├── .gitignore
+├── README.md
+└── turbo.json
 ```
+
+5. If you do not already have [`Bun`](https://bun.sh/) and [`Node.js`](https://nodejs.org/), please install them. (Click on links)
+6. Run the following commands to install dependencies. **Ensure you are in the `swapparel` directory**:
+7. ```sh
+   bun install
+   cd apps/api && bun install
+   cd ../web && bun install
+   cd ../packages/contracts && bun install
+   cd ../packages/ui && bun install
+   ```
+
+If you receive errors like `the term 'bun' was not recognized`. Restart your editor app and/or your machine, and try again.
+
+8. To start the development servers, run the following command, in the base, `swapparel` directory:
+9. ```sh
+   bun dev
+   ```
+10. This will start the development servers for both the `web` and `api` applications. You can access them at `http://localhost:3000` and
+    `http://localhost:3001`, respectively.
 
 ## What's inside?
 
-This Turborepo includes the following packages/apps:
+The monorepo mainly concerns 3 directories/distinct parts:
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `web`: The frontend application built with [Next.js](https://nextjs.org/).
+- `api`: The backend application built with [Elysia](https://elysiajs.com/).
+- `packages`: Contains shared packages and utilities used by both `web` and `api`.
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-### Utilities
+### Web (frontend)
 
-This Turborepo has some additional tools already setup for you:
+The `web` directory is a [Next.js](https://nextjs.org/)-built application. This component is responsible for rendering the user interface,
+web pages, layouts, navigation, and handling client-side logic. It uses [React](https://reactjs.org/) for building UI components
+and [Tailwind CSS](https://tailwindcss.com/) for styling them. The `web` application communicates with the `api` application
+via [RESTful APIs](https://restfulapi.net/) (this is **not** a library, it's a technique for designing APIs).
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [Biome](https://biomejs.dev) for code linting and formatting
-- [Ultracite](https://www.npmjs.com/package/ultracite) for documentation/linting utilities
+Additionally, some libraries and utilities used by the `web` application include:
 
-### Build
+- [TanStack (React) Query](https://tanstack.com/query/latest): For managing data fetching and caching.
+- [TanStack Form](https://tanstack.com/form/latest): For handling form validation and submission.
+- [TanStack Table](https://tanstack.com/table/latest): For displaying and interacting with tabular data.
+- [ShadCN UI](https://ui.shadcn.com/): For building UI components and layouts.
 
-To build all apps and packages, run the following command:
+### API (backend)
 
-```
-cd my-turborepo
+The `api` directory contains the backend application built with [Elysia](https://elysiajs.com/). Think of the API as the 'brain' of the
+application,
+responsible for handling server-side logic and API endpoints. The API itself is just an HTTP server that responds to requests from the `web`
+application,
+but there are many steps for that response to happen, such as authentication, validation, and business logic. See the Excalidraw diagram to make
+more sense of the flow for this.
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+When a user navigates to a page:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+1. the `web` acknowledges the navigation, and understands it needs more data from the backend to deliver the content of the website (like maybe,
+   cloth listings)
+2. the `web` sends a request to the `api` for the required data (via REST)
+4. the `api`, through ElysiaJS, receives the request, and processes it, checking for authentication, validation, etc.
+5. goes through multiple steps to find where the data needs to be obtained from (like maybe, a database)
+6. returns the requested data to the `web` application
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Packages
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+The `packages` directory contains shared packages and utilities used by both `web` and `api`. These packages help to keep code DRY (Don't Repeat
+Yourself) and promote code reuse.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- [Zod](https://zod.dev/): For data validation and type safety.
+- [oRPC](https://orpc.unnoq.com/): I'm too lazy to describe this cuz it's a bit complicated, but it's basically a library for building the
+  business logic and API contracts for the `api` application. It provides a way to define and enforce exactly what an API endpoint will input,
+  output,
+  and the errors that may occur which helps with consistency and makes it easier to understand and use the API.
 
-### Develop
+### Code Formatting & Linting
 
-To develop all apps and packages, run the following command:
+To keep code quality and formatting consistent, we use [Biome](https://biomejs.dev) for code linting and formatting.
+This generally means that if you see yellow or red underlines in your code editor, you are likely violating
+a linting rule or formatting guideline. Please fix these issues before committing your code.
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+If you're using VSCode, install the [Biome extension](https://biomejs.dev/reference/vscode) so you can see these errors and receive automatic
+fixes.
