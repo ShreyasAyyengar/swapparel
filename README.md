@@ -86,7 +86,7 @@ When a user navigates to a page:
 1. the `web` acknowledges the navigation, and understands it needs more data from the backend to deliver the content of the website (like maybe,
    clothing listings)
 2. the `web` sends a request to the `api` for the required data (via REST)
-4. the `api`, through ElysiaJS, receives the request, and processes it, checking for authentication, validation, etc.
+4. the `api`, through Elysia, receives the request, and processes it, checking for authentication, validation, etc.
 5. goes through multiple steps to find where the data needs to be obtained from (like maybe, a database)
 6. returns the requested data to the `web` application
 
