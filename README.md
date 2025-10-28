@@ -32,10 +32,6 @@ swapparel/
 6. Run the following commands to install dependencies. **Ensure you are in the `swapparel` directory**:
 7. ```sh
    bun install
-   cd apps/api && bun install
-   cd ../web && bun install
-   cd ../packages/contracts && bun install
-   cd ../packages/ui && bun install
    ```
 
 If you receive errors like `the term 'bun' was not recognized`. Restart your editor app and/or your machine and try again.
