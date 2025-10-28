@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import { router } from "next/client";
 import Image from "next/image";
 import { authClient } from "../lib/auth-client";
 
@@ -31,8 +30,8 @@ export default function Home() {
           onClick={() => {
             authClient.signOut({
               fetchOptions: {
-                onSuccess: async () => {
-                  await router.push("/");
+                onSuccess: () => {
+                  console.log("Sign out successful");
                 },
               },
             });
