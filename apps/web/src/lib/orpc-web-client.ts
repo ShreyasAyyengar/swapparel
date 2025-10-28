@@ -2,7 +2,7 @@ import { createORPCClient } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
-import { contract } from "@repo/contracts/orpc/orpc-contracts";
+import { contract } from "@repo/contracts/orpc/contracts";
 import type { appRouter } from "../../../api/src"; // NOTE: importing relative path as this is just a type
 import { env } from "../env";
 
