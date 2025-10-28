@@ -6,11 +6,11 @@ export type CreateContextOptions = {
 };
 
 export async function createContext({ context }: CreateContextOptions) {
-  return await authServer.api.getSession({
+  const session = await authServer.api.getSession({
     headers: context.request.headers,
   });
+
+  return session ?? { session: null, user: null };
 }
 
-export type AuthContext = NonNullable<
-  Awaited<ReturnType<typeof createContext>>
->;
+export type AuthContext = Awaited<ReturnType<typeof createContext>>;
