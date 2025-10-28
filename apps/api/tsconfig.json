@@ -5,8 +5,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "outDir": "dist",
+    "baseUrl": ".",
+    "rootDir": "src",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
+  "references": [
+    { "path": "../../apps/web" },
+    { "path": "../../packages/contracts" }
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",
@@ -14,7 +22,5 @@
     "next.config.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

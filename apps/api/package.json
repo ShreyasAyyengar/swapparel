@@ -13,8 +13,6 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@repo/typescript-config": "*",
-    "@repo/contracts": "*",
     "@types/node": "^22.15.3",
     "typescript": "5.9.2"
   },

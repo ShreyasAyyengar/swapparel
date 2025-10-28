@@ -19,3 +19,5 @@ new Elysia()
   .listen(port, (server) => {
     logger.info(`API server started | http://localhost:${server.port}`);
   });
+
+export type { appRouter } from "./app-router";

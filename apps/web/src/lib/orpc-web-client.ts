@@ -3,8 +3,8 @@ import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import { contract } from "@repo/contracts/orpc/contracts";
-import type { appRouter } from "api/app-router";
+import { contract } from "@repo/contracts";
+import type { appRouter } from "../../../api/src"; // NOTE: importing relative path as this is just a type
 import { env } from "../env";
 
 const link = new OpenAPILink(contract, {
@@ -17,7 +17,6 @@ const link = new OpenAPILink(contract, {
   },
 });
 
-const client: JsonifiedClient<ContractRouterClient<typeof appRouter>> =
-  createORPCClient(link);
+const client: JsonifiedClient<ContractRouterClient<typeof appRouter>> = createORPCClient(link);
 
 export const orpc = createTanstackQueryUtils(client);

@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
     "strictNullChecks": true
-  }
+  },
+  "references": [
+    { "path": "./apps/web" }, // web
+    { "path": "./apps/api" }, // api
+    { "path": "./packages/ui" }, // shadcn ui
+    { "path": "./packages/contracts" } // oRPC contracts
+  ]
 }
