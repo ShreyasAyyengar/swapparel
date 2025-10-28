@@ -25,6 +25,10 @@
     "packages/*"
   ],
   "dependencies": {
+    "@orpc/client": "^1.10.2",
+    "@orpc/contract": "^1.10.2",
+    "@orpc/openapi-client": "^1.10.2",
+    "@orpc/server": "^1.10.2",
     "@t3-oss/env-core": "^0.13.8",
     "pino": "^10.1.0",
     "zod": "^4.1.12"
