@@ -2,7 +2,7 @@ import { createORPCClient } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
-import { contract } from "@repo/contracts/orpc/contracts";
+import { contract } from "@swapparel/contracts/orpc/contracts";
 import { headers } from "next/headers";
 import type { appRouter } from "../../../api/src";
 import { env } from "../env";

@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/nextjs.json",
+  "extends": "@swapparel/typescript-config/nextjs.json",
   "compilerOptions": {
     "plugins": [
       {
@@ -9,12 +9,9 @@
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "moduleResolution": "bundler"
   },
-  "references": [
-    { "path": "../../apps/web" },
-    { "path": "../../packages/contracts" }
-  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",

@@ -11,10 +11,10 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@repo/ui/components",
-    "utils": "@repo/ui/lib/utils",
-    "hooks": "@repo/ui/hooks",
-    "lib": "@repo/ui/lib",
-    "ui": "@repo/ui/components"
+    "components": "@swapparel/shad-ui/components",
+    "utils": "@swapparel/shad-ui/lib/utils",
+    "hooks": "@swapparel/shad-ui/hooks",
+    "lib": "@swapparel/shad-ui/lib",
+    "ui": "@swapparel/shad-ui/components"
   }
 }

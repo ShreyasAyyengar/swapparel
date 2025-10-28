@@ -1,5 +1,5 @@
 {
-  "name": "@repo/ui",
+  "name": "@swapparel/shad-ui",
   "version": "0.0.0",
   "type": "module",
   "private": true,
@@ -24,7 +24,7 @@
     "@types/node": "^20.19.9",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
-    "@repo/typescript-config": "workspace:*",
+    "@swapparel/typescript-config": "workspace:*",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2"
   },

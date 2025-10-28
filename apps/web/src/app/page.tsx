@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@swapparel/shad-ui/components/button";
 import Image from "next/image";
 import { authClient } from "../lib/auth-client";
 
@@ -42,20 +42,10 @@ export default function Home() {
       )}
 
       <main className="flex flex-col items-center justify-center gap-8">
-        <Image
-          className="mb-4"
-          src="/turborepo-dark.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
+        <Image className="mb-4" src="/turborepo-dark.svg" alt="Turborepo logo" width={180} height={38} priority />
         <ol className="list-inside list-decimal space-y-2 text-center">
           <li>
-            Get started by editing{" "}
-            <code className="rounded bg-gray-100 px-2 py-1">
-              apps/web/app/page.tsx
-            </code>
+            Get started by editing <code className="rounded bg-gray-100 px-2 py-1">apps/web/app/page.tsx</code>
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
@@ -67,13 +57,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Image
-              className="mr-2"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
+            <Image className="mr-2" src="/vercel.svg" alt="Vercel logomark" width={20} height={20} />
             Deploy now
           </a>
           <a
@@ -93,13 +77,7 @@ export default function Home() {
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
+          <Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
           Examples
         </a>
         <a
@@ -108,13 +86,7 @@ export default function Home() {
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
+          <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
           Go to turborepo.com →
         </a>
       </footer>

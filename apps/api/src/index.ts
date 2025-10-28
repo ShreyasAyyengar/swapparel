@@ -25,6 +25,7 @@ new Elysia()
     async ({ request }: { request: Request }) => {
       const { response } = await handler.handle(request, {
         prefix: "/rpc",
+        context: undefined,
       });
 
       return response ?? new Response("Not Found", { status: 404 });
