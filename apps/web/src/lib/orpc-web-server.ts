@@ -4,7 +4,6 @@ import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { contract } from "@swapparel/contracts/orpc/contracts";
 import { headers } from "next/headers";
-import type { appRouter } from "../../../api/src";
 import { env } from "../env";
 
 const link = new OpenAPILink(contract, {
@@ -22,4 +21,4 @@ const link = new OpenAPILink(contract, {
   },
 });
 
-export const webServerORPC: JsonifiedClient<ContractRouterClient<typeof appRouter>> = createORPCClient(link);
+export const webServerORPC: JsonifiedClient<ContractRouterClient<typeof contract>> = createORPCClient(link);
