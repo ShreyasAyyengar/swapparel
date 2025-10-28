@@ -1,9 +1,10 @@
 import cors from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
-import Elysia from "elysia";
+import Elysia, { type Context as ElysiaContext } from "elysia";
 import { appRouter } from "./app-router";
 import { env } from "./env";
 import { authServer } from "./libs/auth-server";
+import { createContext } from "./libs/http-context";
 import { logger } from "./libs/logger";
 
 const port = 3001;
@@ -23,12 +24,23 @@ new Elysia()
   .all(
     "/rpc*",
     async ({ request }: { request: Request }) => {
-      const { response } = await handler.handle(request, {
+      const elysiaContext: ElysiaContext = { request } as ElysiaContext;
+      const authContext = await createContext({ context: elysiaContext });
+
+      const { matched, response } = await handler.handle(request, {
         prefix: "/rpc",
-        context: undefined,
+        context: authContext,
       });
 
-      return response ?? new Response("Not Found", { status: 404 });
+      if (matched) {
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
+      }
+
+      return new Response("Not Found", { status: 404 });
     },
     {
       parse: "none",
