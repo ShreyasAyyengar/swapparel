@@ -25,6 +25,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@elysiajs/cors": "^1.4.0",
+        "@orpc/openapi": "^1.10.2",
         "@zodyac/zod-mongoose": "^4.2.0",
         "better-auth": "^1.3.31",
         "elysia": "^1.4.13",

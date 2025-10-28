@@ -1,10 +1,14 @@
 import cors from "@elysiajs/cors";
+import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import Elysia from "elysia";
+import { appRouter } from "./app-router";
 import { env } from "./env";
 import { authServer } from "./libs/auth-server";
 import { logger } from "./libs/logger";
 
 const port = 3001;
+
+const handler = new OpenAPIHandler(appRouter);
 
 new Elysia()
   .use(
@@ -16,6 +20,19 @@ new Elysia()
     })
   )
   .mount(authServer.handler)
+  .all(
+    "/rpc*",
+    async ({ request }: { request: Request }) => {
+      const { response } = await handler.handle(request, {
+        prefix: "/rpc",
+      });
+
+      return response ?? new Response("Not Found", { status: 404 });
+    },
+    {
+      parse: "none",
+    }
+  )
   .listen(port, (server) => {
     logger.info(`API server started | http://localhost:${server.port}`);
   });

@@ -14,5 +14,3 @@ export const contract = {
     decrement: oc.output(z.number()),
   },
 };
-
-export type Contract = typeof contract;
