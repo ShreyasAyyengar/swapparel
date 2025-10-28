@@ -2,15 +2,24 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 
 export const contract = {
-  hello: {
-    sayHello: oc
+  counter: {
+    count: oc
       .route({
         method: "GET",
-        path: "/count",
+        path: "/counter/count",
       })
       .output(z.string()),
 
-    increment: oc.output(z.number()),
-    decrement: oc.output(z.number()),
+    increment: oc
+      .route({
+        method: "GET",
+      })
+      .output(z.number()),
+
+    decrement: oc
+      .route({
+        method: "GET",
+      })
+      .output(z.number()),
   },
 };
