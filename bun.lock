@@ -53,6 +53,7 @@
         "react-dom": "^19.1.0",
       },
       "devDependencies": {
+        "@repo/contracts": "*",
         "@repo/typescript-config": "*",
         "@tailwindcss/postcss": "^4.1.11",
         "@types/node": "^22.15.3",

@@ -8,15 +8,8 @@
     "typescript": "^5"
   },
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    }
+    "./zod-types/user": "./src/zod/user.ts",
+    "./orpc/contracts": "./src/orpc/orpc-contracts.ts"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "module": "index.ts",
-
   "private": true
 }

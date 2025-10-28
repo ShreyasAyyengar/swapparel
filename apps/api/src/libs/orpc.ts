@@ -3,6 +3,7 @@ import { contract } from "@repo/contracts/orpc/contracts";
 import type { AuthContext } from "./http-context";
 
 export const os = implement(contract).$context<AuthContext>();
+
 export const publicProcedure = os;
 
 export const protectedProcedure = os.use(({ context, next }) => {
