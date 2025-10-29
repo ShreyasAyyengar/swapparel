@@ -12,8 +12,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Create Next App",
-  description: "Gnerated by create next app",
+  title: "Swapparel",
+  description: "Swapparel is a clothes exchange service!", // TODO: make this better
 };
 
 export default function RootLayout({
