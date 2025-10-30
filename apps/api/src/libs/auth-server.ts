@@ -5,7 +5,18 @@ import { env } from "../env";
 
 const database = databaseConnection.getClient().db("swapparel");
 
-export const authServer: ReturnType<typeof betterAuth> = betterAuth({
+export const authServer = betterAuth({
+  user: {
+    additionalFields: {
+      displayName: {
+        type: "string",
+      },
+      restricted: {
+        type: "boolean",
+        defaultValue: true,
+      },
+    },
+  },
   database: mongodbAdapter(database),
   trustedOrigins: [env.NEXT_PUBLIC_WEBSITE_URL],
   socialProviders: {
