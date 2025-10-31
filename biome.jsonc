@@ -17,5 +17,15 @@
     "parser": {
       "allowComments": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/contracts/src/zod/**/*"],
+      "javascript": {
+        "formatter": {
+          "lineWidth": 70
+        }
+      }
+    }
+  ]
 }
