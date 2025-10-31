@@ -14,14 +14,17 @@ export const authServer = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       accessType: "offline",
-      // mapProfileToUser: (profile) => {
-      //   const email = profile.email;
-      //   if (!email?.endsWith("@example.com")) {
-      //     throw new APIError("BAD_REQUEST", {
-      //       message: "Email must end with @example.com",
-      //     });
-      //   }
-      // },
+      mapProfileToUser: (profile) => {
+        const email = profile.email;
+        if (!email?.endsWith("@example.com")) {
+          const headers = new Headers();
+          headers.set("location", `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error?message=invalid_email_domain`);
+          throw new APIError("FOUND", undefined, headers);
+          // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
+        }
+
+        return profile;
+      },
     },
   },
   // THIS IS USELESS UNLESS BETTERAUTH CAN FIX THEIR ROUTING. IF WORKS, MOVE DOMAIN LOGIC TO mapProfileToUser
@@ -40,24 +43,5 @@ export const authServer = betterAuth({
         defaultValue: true,
       },
     },
-  },
-
-  databaseHooks: {
-    user: {
-      create: {
-        // biome-ignore lint/suspicious/useAwait: <explanation>
-        before: async (user, ctx) => {
-          const email = user.email;
-
-          if (!email?.endsWith("@ucsc.edu")) {
-            throw new APIError("BAD_REQUEST", {
-              message: "Email must end with @ucsc.edu",
-            });
-          }
-        },
-      },
-    },
-
-    // TODO: set default displayName
   },
 });
