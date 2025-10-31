@@ -26,14 +26,9 @@ export default function SignInOutButton() {
               {
                 provider: "google",
                 callbackURL: "http://localhost:3000",
-                errorCallbackURL: "/sign-in-error",
+                errorCallbackURL: "http://localhost:3000/error",
               },
-              {
-                onError: () => {
-                  // The error will be handled by the sign-in-error page
-                  // This callback is for client-side handling if needed
-                },
-              }
+              {}
             );
           }}
         >
