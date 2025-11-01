@@ -8,8 +8,7 @@
     "typescript": "^5"
   },
   "exports": {
-    "./zod-types/user": "./src/zod/user.ts",
-    "./orpc/contract": "./src/orpc/orpc-contract.ts"
+    "./contracts": "./src/index.ts"
   },
   "private": true
 }
