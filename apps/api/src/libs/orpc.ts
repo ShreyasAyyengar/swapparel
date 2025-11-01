@@ -1,5 +1,5 @@
 import { implement, ORPCError } from "@orpc/server";
-import { contract } from "@swapparel/contracts/orpc/contracts";
+import { contract } from "@swapparel/contracts/orpc/contract";
 import type { AuthContext } from "./http-context";
 
 export const os = implement(contract).$context<AuthContext>();
