@@ -2,7 +2,8 @@ import { createORPCClient } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
-import { contract } from "@swapparel/contracts/contracts";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { contract } from "@swapparel/contracts";
 import { env } from "../env";
 
 const link = new OpenAPILink(contract, {
@@ -15,4 +16,5 @@ const link = new OpenAPILink(contract, {
   },
 });
 
-export const webClientORPC: JsonifiedClient<ContractRouterClient<typeof contract>> = createORPCClient(link);
+const client: JsonifiedClient<ContractRouterClient<typeof contract>> = createORPCClient(link);
+export const webClientORPC = createTanstackQueryUtils(client);

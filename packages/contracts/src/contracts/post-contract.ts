@@ -28,6 +28,8 @@ const qaEntrySchema = z.object({
 
 export const createPostInput = z.object({
   // biome-ignore format: readability
+  id: z.uuid("Post UUID is required."),
+  // biome-ignore format: readability
   createdBy: z.email("Creator's email is required."),
   // biome-ignore format: readability
   description: z
@@ -68,11 +70,16 @@ export const createPostInput = z.object({
     .default([]),
 });
 
-// Type Conversion
-export type CreatePostInput = z.infer<typeof createPostInput>;
-
-export const postContract = {
-  // biome-ignore format: readability
+export const posts = {
   createPost: oc
-    .input(createPostInput),
+    .route({
+      method: "POST",
+    })
+    .input(createPostInput)
+    .output(z.string()),
+  test: oc
+    .route({
+      method: "GET",
+    })
+    .output(z.string()),
 };

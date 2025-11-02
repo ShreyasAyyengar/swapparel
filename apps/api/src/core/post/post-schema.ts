@@ -1,3 +1,4 @@
+import { createPostInput } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
 import { databaseConnection } from "../../database/database.ts";
 

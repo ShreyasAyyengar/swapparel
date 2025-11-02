@@ -1,10 +1,5 @@
-import { publicProcedure } from "./libs/orpc";
+import { postRouter } from "./core/post/post-router.ts";
 
-let count = 0;
 export const appRouter = {
-  counter: {
-    count: publicProcedure.counter.count.handler(async () => count.toString()),
-    increment: publicProcedure.counter.increment.handler(() => ++count),
-    decrement: publicProcedure.counter.decrement.handler(() => --count),
-  },
+  posts: postRouter,
 };
