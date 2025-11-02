@@ -16,7 +16,7 @@ export const authServer = betterAuth({
       accessType: "offline",
       mapProfileToUser: (profile) => {
         const email = profile.email;
-        if (!email?.endsWith("@example.com")) {
+        if (!email?.endsWith("@ucsc.edu")) {
           const headers = new Headers();
           headers.set("location", `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error?message=invalid_email_domain`);
           throw new APIError("FOUND", undefined, headers);
