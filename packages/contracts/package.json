@@ -8,7 +8,7 @@
     "typescript": "^5"
   },
   "exports": {
-    "./contracts": "./src/index.ts"
+    ".": "./src/index.ts"
   },
   "private": true
 }
