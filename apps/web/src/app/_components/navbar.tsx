@@ -46,9 +46,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const animationClass = isScrolled
+    ? "[transition:top_0.2s,border_0.5s_0.3s,box-shadow_0.5s_0.3s,max-width_0.5s_0.3s,background-color_1s]"
+    : "[transition:top_0.2s_0.3s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
+
   return (
     <motion.nav
-      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 backdrop-blur-xl [transition:border_0.5s_0.3s,box-shadow_0.5s_0.3s,top_0.5s,max-width_0.5s_0.3s,background-color_1s] md:my-5 md:rounded-full ${isScrolled ? "top-3 max-w-[48rem] border border-gray-200 shadow-2xl" : "max-w-[80rem]"}
+      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 ${animationClass} md:my-5 md:rounded-full ${isScrolled ? "top-3 max-w-[48rem] border border-gray-200 shadow-2xl backdrop-blur-xl" : "max-w-[80rem]"}
     `}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: 1 }}
