@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Swapparel is a clothes exchange service!", // TODO: make this better
 };
 
-const reactScanEnabled = true;
+const reactScanEnabled = false;
 
 export default function RootLayout({
   children,
