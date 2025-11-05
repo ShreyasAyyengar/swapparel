@@ -47,8 +47,8 @@ export default function Navbar() {
   }, []);
 
   const animationClass = isScrolled
-    ? "[transition:top_0.2s,border_0.5s_0.3s,box-shadow_0.5s_0.3s,max-width_0.5s_0.3s,background-color_1s]"
-    : "[transition:top_0.2s_0.5s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
+    ? "[transition:top_0.2s,border_0.5s_0.1s,box-shadow_0.5s_0.1s,max-width_0.5s_0.1s,background-color_1s]"
+    : "[transition:top_0.2s_0.2s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
 
   return (
     <motion.nav
