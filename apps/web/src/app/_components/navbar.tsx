@@ -48,7 +48,7 @@ export default function Navbar() {
 
   const animationClass = isScrolled
     ? "[transition:top_0.2s,border_0.5s_0.3s,box-shadow_0.5s_0.3s,max-width_0.5s_0.3s,background-color_1s]"
-    : "[transition:top_0.2s_0.3s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
+    : "[transition:top_0.2s_0.5s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
 
   return (
     <motion.nav
@@ -61,7 +61,7 @@ export default function Navbar() {
     >
       <div className="flex w-full items-center justify-between">
         <motion.div className="flex-shrink-0" variants={logoVariants} initial="hidden" animate="visible">
-          <Image src="/simple-banner-slim.png" alt={""} width={200} height={100} />
+          <Image src="/simple-banner-slim.png" alt={""} width={200} height={10} />
         </motion.div>
 
         {/* Desktop Navigation */}
