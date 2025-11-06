@@ -47,12 +47,12 @@ export default function Navbar() {
   }, []);
 
   const animationClass = isScrolled
-    ? "[transition:top_0.2s,border_0.5s_0.1s,box-shadow_0.5s_0.1s,max-width_0.5s_0.1s,background-color_1s]"
-    : "[transition:top_0.2s_0.2s,border_0.5s,box-shadow_0.5s,max-width_0.5s,background-color_1s]"; // "just multiply by -1" astaghfirallah
+    ? "[transition:top_0.2s,border_0.5s,box-shadow_0.5s,max-width_0.5s_0.1s]"
+    : "[transition:top_0.2s_0.2s,border_0.5s,box-shadow_0.5s,max-width_0.5s]"; // "just multiply by -1" astaghfirullah
 
   return (
     <motion.nav
-      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 ${animationClass} md:my-5 md:rounded-full ${isScrolled ? "top-3 max-w-[48rem] border border-gray-200 shadow-2xl backdrop-blur-xl" : "max-w-[80rem]"}
+      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 ${animationClass} md:my-5 md:rounded-full ${isScrolled ? "top-5 max-w-[48rem] border border-white/20 shadow-2xl backdrop-blur-xl" : "max-w-[80rem]"}
     `}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: 1 }}
