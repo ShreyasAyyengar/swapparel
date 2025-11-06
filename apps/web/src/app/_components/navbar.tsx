@@ -1,10 +1,10 @@
-import { Button } from "@swapparel/shad-ui/components/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ScrollLink from "./scroll-link";
+import SignInOutButton from "./sign-in-out-button";
 
 // const geistSans = Geist({
 //   subsets: ["latin"],
@@ -29,11 +29,10 @@ const linkVariants = {
 };
 
 const navLinks = [
-  { name: "Feed", href: "home" },
-  // { name: "Pricing", href: "pricing" },
-  // { name: "Team", href: "team" },
+  // TODO populate more
+  { name: "About", href: "/legal/terms" },
+  { name: "Feed", href: "feed" },
   { name: "Features", href: "features" },
-  // { name: "Contact", href: "contact" },
 ];
 
 export default function Navbar() {
@@ -52,7 +51,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 ${animationClass} md:my-5 md:rounded-full ${isScrolled ? "top-5 max-w-[48rem] border border-white/20 shadow-2xl backdrop-blur-xl" : "max-w-[80rem]"}
+      className={`fixed top-0 right-0 left-0 z-50 mx-auto flex flex-col rounded-none px-8 py-5 ${animationClass} md:my-5 md:rounded-full ${isScrolled ? "top-5 max-w-[52rem] border border-white/20 shadow-2xl backdrop-blur-xl" : "max-w-[80rem]"}
     `}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: 1 }}
@@ -60,13 +59,19 @@ export default function Navbar() {
       style={{ transformOrigin: "center" }}
     >
       <div className="flex w-full items-center justify-between">
-        <motion.div className="flex-shrink-0" variants={logoVariants} initial="hidden" animate="visible">
-          <Image src="/simple-banner-slim.png" alt={""} width={200} height={10} />
+        {/* LEFT: Swapparel Banner*/}
+        <motion.div
+          className={`${isScrolled ? "w-[170px]" : "w-[200px]"} flex-shrink-0 [transition:width_0.3s_ease-in-out]`}
+          variants={logoVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Image src="/simple-banner-slim.png" alt={""} width={10_000_000} height={10} />
         </motion.div>
 
-        {/* Desktop Navigation */}
+        {/* CENTRE: Desktop Navigation */}
         <motion.ul
-          className="hidden items-center gap-8 md:flex"
+          className="-translate-x-1/2 absolute left-1/2 hidden transform items-center gap-8 md:flex"
           initial="hidden"
           animate="visible"
           variants={{
@@ -77,21 +82,20 @@ export default function Navbar() {
         >
           {navLinks.map((link) => (
             <motion.li key={link.name} variants={linkVariants}>
-              <ScrollLink id={link.href} className="text-white/90 transition-colors hover:text-white">
+              <ScrollLink id={link.href} className="text-primary transition-all duration-300 ease-in-out hover:text-primary hover:underline">
                 {link.name}
               </ScrollLink>
             </motion.li>
           ))}
-          <motion.li variants={linkVariants}>
-            <Button asChild variant="default" className="">
-              <Link href="https://dash.carbon.host">Dashboard</Link>
-            </Button>
-          </motion.li>
         </motion.ul>
+
+        <motion.div className="hidden md:block" initial="hidden" animate="visible" variants={linkVariants}>
+          <SignInOutButton />
+        </motion.div>
 
         {/* Mobile Hamburger */}
         <div className="md:hidden">
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="rounded-md p-2 text-white">
+          <button type="button" onClick={() => setMobileOpen(!mobileOpen)} className="rounded-md p-2 text-white">
             {mobileOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
           </button>
         </div>
@@ -115,13 +119,6 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Button asChild variant="default">
-                  <Link href="https://dash.carbon.host" onClick={() => setMobileOpen(false)}>
-                    Dashboard
-                  </Link>
-                </Button>
-              </li>
             </ul>
           </motion.div>
         )}
