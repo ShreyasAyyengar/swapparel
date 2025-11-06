@@ -28,8 +28,6 @@ const qaEntrySchema = z.object({
 
 export const createPostInput = z.object({
   // biome-ignore format: readability
-  id: z.uuid("Post UUID is required."),
-  // biome-ignore format: readability
   createdBy: z.email("Creator's email is required."),
   // biome-ignore format: readability
   description: z
@@ -47,20 +45,21 @@ export const createPostInput = z.object({
   ),
   // biome-ignore format: readability
   material: z
-    .string()
-    .min(1, "Material must be at least 1 character."),
+    .array(
+      z
+        .string()
+        .min(1, "Material must be at least 1 character.")
+    ),
   // biome-ignore format: readability
   images: z
-    .array(z
-      .url()
-      .min(1, "At least one image URL is required.")
-    )
+    .array(z.url())
     .min(1, "At least one image URL is required."),
   // biome-ignore format: readability
   hashtags: z
     .array(
       z
         .string()
+        // .regex() TODO
         .min(1, "Hashtag must be at least 1 character.")
     )
     .default([]),
@@ -76,10 +75,42 @@ export const posts = {
       method: "POST",
     })
     .input(createPostInput)
-    .output(z.string()),
-  test: oc
+    .output(
+      z.object({
+        id: z.uuid(),
+      })
+    ),
+
+  deletePost: oc
+    .route({
+      method: "DELETE",
+    })
+    .input(
+      z.object({
+        id: z.uuid(),
+      })
+    )
+    .output(z.object({ success: z.boolean(), error: z.string().optional() })),
+
+  getPosts: oc
     .route({
       method: "GET",
     })
-    .output(z.string()),
+    .input(
+      z.object({
+        email: z.string().optional(),
+      })
+    )
+    .output(z.array(createPostInput.and(z.object({ id: z.uuid() })))),
+
+  getPost: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        id: z.uuid(),
+      })
+    )
+    .output(createPostInput.and(z.object({ id: z.uuid() }))),
 };
