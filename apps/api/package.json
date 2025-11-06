@@ -26,7 +26,8 @@
     "mongoose": "^8.19.2",
     "mongoose-zod": "https://github.com/ShreyasAyyengar/mongoose-zod",
     "pino": "^10.1.0",
-    "pino-pretty": "^13.1.2"
+    "pino-pretty": "^13.1.2",
+    "uuid": "^13.0.0"
   },
   "exports": {
     "./auth-server": "./src/libs/auth-server.ts"
