@@ -1,6 +1,5 @@
 import { Schema } from "mongoose";
 import { databaseConnection } from "../../database/database.ts";
-import { standardToJSON } from "../../database/mongoose-transforms.ts";
 
 export interface User extends Document {
   // Better-Auth schema
@@ -16,6 +15,6 @@ export interface User extends Document {
   restricted: boolean;
 }
 
-const UserSchema = new Schema<User>({}, { collection: "user", toJSON: standardToJSON });
+const UserSchema = new Schema<User>({}, { collection: "user" });
 
 export const UserCollection = databaseConnection.model("user", UserSchema, "user");
