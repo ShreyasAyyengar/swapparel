@@ -24,14 +24,33 @@ export const postRouter = {
     return { id };
   }),
 
-  deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors }) => {
-    // desired post must be owned by the user
+  deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
+
     if (!post) {
-      throw new NotFoundError(`Post not found with id: ${input.id}`);
+      throw errors.NOT_FOUND();
     }
-    await PostCollection.deleteOne({ id: input.id });
+
+    PostCollection.deleteOne({ id: input.id });
 
     return { success: true };
+  }),
+
+  test: protectedProcedure.posts.test.handler(async () => {
+    const mockPost = {
+      // _id: "123",
+      createdBy: "test@example.com",
+      description: "This is a test post",
+      colour: "red",
+      size: "M",
+      material: ["canvas"],
+      images: ["https://example.com/image.jpg"],
+      hashtags: ["#test", "#post"],
+      qaEntries: [{ question: "What is your name?", answer: "John" }],
+    };
+
+    await PostCollection.insertOne(mockPost);
+
+    return true;
   }),
 };

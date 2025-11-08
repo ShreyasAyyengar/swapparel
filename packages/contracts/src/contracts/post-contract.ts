@@ -93,7 +93,7 @@ export const posts = {
     .output(z.object({ success: z.boolean(), error: z.string().optional() }))
     .errors({
       NOT_FOUND: {
-        message: "Post not found",
+        message: "Post not found with specified id",
         status: 404,
       },
     }),
@@ -118,5 +118,17 @@ export const posts = {
         id: z.uuid(),
       })
     )
-    .output(createPostInput.and(z.object({ id: z.uuid() }))),
+    .output(createPostInput.and(z.object({ id: z.uuid() })))
+    .errors({
+      NOT_FOUND: {
+        message: "Post not found",
+        status: 404,
+      },
+    }),
+
+  test: oc
+    .route({
+      method: "GET",
+    })
+    .output(z.boolean()),
 };
