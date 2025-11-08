@@ -20,7 +20,6 @@
     "@elysiajs/cors": "^1.4.0",
     "@orpc/openapi": "^1.10.2",
     "@swapparel/contracts": "workspace:*",
-    "@zodyac/zod-mongoose": "^4.2.0",
     "better-auth": "^1.3.31",
     "elysia": "^1.4.13",
     "mongoose": "^8.19.2",
