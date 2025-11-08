@@ -36,11 +36,12 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const SCROLL_THRESHOLD = 150;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 150);
+    const handleScroll = () => setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
