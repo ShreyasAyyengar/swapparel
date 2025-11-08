@@ -12,10 +12,6 @@
     "lint": "biome check .",
     "check-types": "tsc --noEmit"
   },
-  "devDependencies": {
-    "@types/node": "^22.15.3",
-    "typescript": "5.9.2"
-  },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
     "@orpc/openapi": "^1.10.2",
