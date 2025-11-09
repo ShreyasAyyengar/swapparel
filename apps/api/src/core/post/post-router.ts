@@ -1,19 +1,16 @@
 import { NotFoundError } from "elysia";
 import { v4 as uuidv4 } from "uuid";
+import { logger } from "../../libs/logger.ts";
 import { protectedProcedure } from "../../libs/orpc.ts";
 import { UserCollection } from "../users/user-schema.ts";
 import { PostCollection } from "./post-schema.ts";
 
 export const postRouter = {
-  createPost: protectedProcedure.posts.createPost.handler(async ({ input }) => {
+  createPost: protectedProcedure.postContract.createPost.handler(async ({ input }) => {
     const userDocument = await UserCollection.findOne({ email: input.createdBy });
     if (!userDocument) {
       throw new NotFoundError(`User not found with email: ${input.createdBy}`);
     }
-
-    userDocument.restricted = false;
-    await userDocument.save();
-
     const id = uuidv4();
 
     await PostCollection.insertOne({
@@ -24,7 +21,7 @@ export const postRouter = {
     return { id };
   }),
 
-  deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors, context }) => {
+  deletePost: protectedProcedure.postContract.deletePost.handler(async ({ input, errors, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
 
     if (!post) {
@@ -36,9 +33,26 @@ export const postRouter = {
     return { success: true };
   }),
 
-  test: protectedProcedure.posts.test.handler(async () => {
+  getPosts: protectedProcedure.postContract.getPosts.handler(({ input, errors, context }) => {
+    logger.info(`Test route called: ${input} | ${context} | ${errors}`);
+
+    return PostCollection.find({});
+  }),
+
+  getPost: protectedProcedure.postContract.getPost.handler(async ({ input, errors: { NOT_FOUND }, context }) => {
+    logger.info(`Test route called: ${input} | ${context} | ${NOT_FOUND}`);
+
+    const post = await PostCollection.findOne({ _id: input.id }).lean();
+
+    if (!post) {
+      throw NOT_FOUND();
+    }
+
+    return post;
+  }),
+  test: protectedProcedure.postContract.test.handler(async ({ input, errors, context }) => {
     const mockPost = {
-      // _id: "123",
+      _id: uuidv4(),
       createdBy: "test@example.com",
       description: "This is a test post",
       colour: "red",
