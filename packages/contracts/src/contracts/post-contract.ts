@@ -75,12 +75,16 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(internalPostSchema.omit({ _id: true }))
+    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id created server-side, createdBy set by auth middleware
     .output(
       z.object({
         id: z.uuid(),
       })
-    ),
+    )
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
+    }),
 
   deletePost: oc
     .route({
@@ -93,10 +97,8 @@ export const postContract = {
     )
     .output(z.object({ success: z.boolean(), error: z.string().optional() }))
     .errors({
-      NOT_FOUND: {
-        message: "Post not found with specified id",
-        status: 404,
-      },
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
     }),
 
   getPosts: oc
@@ -104,7 +106,11 @@ export const postContract = {
       method: "GET",
     })
     .input(internalPostSchema.pick({ createdBy: true }))
-    .output(z.array(internalPostSchema)),
+    .output(z.array(internalPostSchema))
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
+    }),
 
   getPost: oc
     .route({
@@ -113,10 +119,8 @@ export const postContract = {
     .input(internalPostSchema.pick({ _id: true }))
     .output(internalPostSchema)
     .errors({
-      NOT_FOUND: {
-        message: "Post not found",
-        status: 404,
-      },
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
     }),
 
   test: oc

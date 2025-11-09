@@ -1,4 +1,3 @@
-import { NotFoundError } from "elysia";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "../../libs/logger.ts";
 import { protectedProcedure } from "../../libs/orpc.ts";
@@ -6,63 +5,57 @@ import { UserCollection } from "../users/user-schema.ts";
 import { PostCollection } from "./post-schema.ts";
 
 export const postRouter = {
-  createPost: protectedProcedure.posts.createPost.handler(async ({ input }) => {
-    const userDocument = await UserCollection.findOne({ email: input.createdBy });
-    if (!userDocument) {
-      throw new NotFoundError(`User not found with email: ${input.createdBy}`);
-    }
+  createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    const userDocument = await UserCollection.findOne({ email: context.user.email });
+    if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
+
     const id = uuidv4();
 
-    await PostCollection.insertOne({
-      id,
-      ...input,
-    });
+    try {
+      await PostCollection.insertOne({
+        id,
+        ...input,
+      });
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        message: `DB failed to create post with id ${id}. ${error}`,
+      });
+    }
 
     return { id };
   }),
 
-  deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors, context }) => {
+  deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
+    if (!post) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
-    if (!post) {
-      throw errors.NOT_FOUND();
+    if (post.createdBy !== context.user.email) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
+
+    try {
+      await PostCollection.deleteOne({ id: input.id });
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        message: `DB failed to delete post with id ${input.id}. ${error}`,
+      });
     }
-
-    PostCollection.deleteOne({ id: input.id });
 
     return { success: true };
   }),
 
-  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors, context }) => {
-    logger.info(`Test route called: ${input} | ${context} | ${errors}`);
-
+  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    logger.info(`Test route called: ${input} | ${context}`);
     return PostCollection.find({});
   }),
 
-  getPost: protectedProcedure.posts.getPost.handler(async ({ input, errors, context }) => {
+  getPost: protectedProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ _id: input._id }).lean();
-
-    if (!post) {
-      throw errors.NOT_FOUND();
-    }
+    if (!post) throw NOT_FOUND({ message: `Post not found with id ${input._id}` });
 
     return post;
   }),
 
-  test: protectedProcedure.posts.test.handler(async ({ input, errors, context }) => {
-    const mockPost = {
-      _id: uuidv4(),
-      createdBy: "test@example.com",
-      description: "This is a test post",
-      colour: "red",
-      size: "M",
-      material: ["canvas"],
-      images: ["https://example.com/image.jpg"],
-      hashtags: ["#test", "#post"],
-      qaEntries: [{ question: "What is your name?", answer: "John" }],
-    };
-
-    await PostCollection.insertOne(mockPost);
+  test: protectedProcedure.posts.test.handler(({ input, errors, context }) => {
+    console.log("Test route called");
 
     return true;
   }),

@@ -26,6 +26,9 @@
         "noUnusedPrivateClassMembers": "warn",
         "noUnusedVariables": "warn"
       },
+      "style": {
+        "useBlockStatements": "off"
+      },
       "suspicious": {
         "useAwait": "warn",
         "noConsole": "warn"
