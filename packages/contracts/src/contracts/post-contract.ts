@@ -103,22 +103,14 @@ export const postContract = {
     .route({
       method: "GET",
     })
-    .input(
-      z.object({
-        email: z.string().optional(),
-      })
-    )
+    .input(internalPostSchema.pick({ createdBy: true }))
     .output(z.array(internalPostSchema)),
 
   getPost: oc
     .route({
       method: "GET",
     })
-    .input(
-      z.object({
-        id: z.uuid(),
-      })
-    )
+    .input(internalPostSchema.pick({ _id: true }))
     .output(internalPostSchema)
     .errors({
       NOT_FOUND: {

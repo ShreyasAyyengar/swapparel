@@ -1,6 +1,6 @@
 import { postRouter } from "./core/post/post-router.ts";
 
 export const appRouter = {
-  // route: route handlers
+  // routeURL: route handlers
   posts: postRouter,
 };
