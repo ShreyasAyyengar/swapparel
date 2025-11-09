@@ -22,13 +22,13 @@ new Elysia()
   )
   .mount(authServer.handler)
   .all(
-    "/rpc*",
+    "/api*",
     async ({ request }: { request: Request }) => {
       const elysiaContext: ElysiaContext = { request } as ElysiaContext;
       const authContext = await createContext({ context: elysiaContext });
 
       const { matched, response } = await handler.handle(request, {
-        prefix: "/rpc",
+        prefix: "/api",
         context: authContext,
       });
 
