@@ -15,7 +15,7 @@ new Elysia()
   .use(
     cors({
       origin: env.NEXT_PUBLIC_WEBSITE_URL || "",
-      methods: ["GET", "POST", "OPTIONS"],
+      methods: ["POST", "PUT", "GET", "DELETE"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
     })
