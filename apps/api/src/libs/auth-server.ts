@@ -7,6 +7,8 @@ const database = databaseConnection.getClient().db("swapparel");
 
 export const authServer = betterAuth({
   database: mongodbAdapter(database),
+  baseURL: env.NEXT_PUBLIC_API_URL,
+  basePath: "/api/auth",
   trustedOrigins: [env.NEXT_PUBLIC_WEBSITE_URL, "http://localhost:3000"],
   socialProviders: {
     google: {

@@ -20,7 +20,9 @@ new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
     })
   )
-  .mount(authServer.handler)
+  .all("/api/auth*", async ({ request }: { request: Request }) => authServer.handler(request), {
+    parse: "none",
+  })
   .all(
     "/api*",
     async ({ request }: { request: Request }) => {
