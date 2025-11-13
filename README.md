@@ -28,21 +28,27 @@ swapparel/
 └── turbo.json
 ```
 
-5. If you do not already have [`Bun`](https://bun.sh/) and [`Node.js`](https://nodejs.org/), please install them. (Click on links)
-6. Run the following commands to install dependencies. **Ensure you are in the `swapparel` directory**:
-7. ```sh
-   bun install
-   ```
+6. If you do not already have [`Bun`](https://bun.sh/) and [`Node.js`](https://nodejs.org/), please install them. (Click on links)
+7. Run the following commands to install dependencies. **Ensure you are in the `swapparel` directory**:
+
+**ZACH**: If this is you, these are the commands you must run:
+
+```sh
+wsl
+bun dev
+```
+
+The rest of us can just run:
+
+```sh
+   bun dev
+```
 
 If you receive errors like `the term 'bun' was not recognized`. Restart your editor app and/or your machine and try again.
 
-8. To start the development servers, run the following command, in the base, `swapparel` directory:
-9. ```sh
-   bun dev
-   ```
-10. This will start the development servers for both the `web` and `api` applications. You can access them
-    at [http://localhost:3000](http://localhost:3000) and
-    [http://localhost:3001](http://localhost:3001) respectively (but don't expect to see anything at `3001`).
+This will start the development servers for both the `web` and `api` applications. You can access them
+at [http://localhost:3000](http://localhost:3000) and
+[http://localhost:3001](http://localhost:3001) respectively (but don't expect to see anything at `3001`).
 
 ## What's inside?
 
