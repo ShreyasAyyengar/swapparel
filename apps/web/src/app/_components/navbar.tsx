@@ -31,7 +31,7 @@ const linkVariants = {
 const navLinks = [
   // TODO populate more
   { name: "About", href: "/legal/terms" },
-  { name: "Goon", href: "feed" },
+  { name: "Goon 2", href: "feed" },
   { name: "Features", href: "features" },
 ];
 
