@@ -17,5 +17,22 @@
     "parser": {
       "allowComments": true
     }
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "noUnusedFunctionParameters": "warn",
+        "noUnusedLabels": "warn",
+        "noUnusedPrivateClassMembers": "warn",
+        "noUnusedVariables": "warn"
+      },
+      "style": {
+        "useBlockStatements": "off"
+      },
+      "suspicious": {
+        "useAwait": "warn",
+        "noConsole": "warn"
+      }
+    }
   }
 }

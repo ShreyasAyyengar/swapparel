@@ -1,5 +1,6 @@
-import { posts } from "./post-contract";
+import { postContract } from "./post-contract";
 
 export const contract = {
-  posts,
+  // route URL: contract handler
+  posts: postContract,
 };

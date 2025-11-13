@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { env } from "../env";
 
 const link = new OpenAPILink(contract, {
-  url: `${env.NEXT_PUBLIC_API_URL}/rpc`,
+  url: `${env.NEXT_PUBLIC_API_URL}/api`,
   fetch: async (request, init?: RequestInit) => {
     const headersList = await headers();
     return fetch(request, {

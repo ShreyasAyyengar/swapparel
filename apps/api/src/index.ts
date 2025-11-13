@@ -15,20 +15,22 @@ new Elysia()
   .use(
     cors({
       origin: env.NEXT_PUBLIC_WEBSITE_URL || "",
-      methods: ["GET", "POST", "OPTIONS"],
+      methods: ["POST", "PUT", "GET", "DELETE"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
     })
   )
-  .mount(authServer.handler)
+  .all("/api/auth*", async ({ request }: { request: Request }) => authServer.handler(request), {
+    parse: "none",
+  })
   .all(
-    "/rpc*",
+    "/api*",
     async ({ request }: { request: Request }) => {
       const elysiaContext: ElysiaContext = { request } as ElysiaContext;
       const authContext = await createContext({ context: elysiaContext });
 
       const { matched, response } = await handler.handle(request, {
-        prefix: "/rpc",
+        prefix: "/api",
         context: authContext,
       });
 

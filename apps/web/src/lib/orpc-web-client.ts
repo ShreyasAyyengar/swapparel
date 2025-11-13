@@ -7,7 +7,7 @@ import { contract } from "@swapparel/contracts";
 import { env } from "../env";
 
 const link = new OpenAPILink(contract, {
-  url: `${env.NEXT_PUBLIC_API_URL}/rpc`,
+  url: `${env.NEXT_PUBLIC_API_URL}/api`,
   fetch(url, options) {
     return fetch(url, {
       ...options,
