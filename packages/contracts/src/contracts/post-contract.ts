@@ -150,7 +150,7 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id created server-side, createdBy set by auth middleware
+    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id (server-side), createdBy (auth context)
     .output(
       z.object({
         id: z.uuid(),
@@ -198,7 +198,7 @@ export const postContract = {
       INTERNAL_SERVER_ERROR: {},
     }),
 
-  logRandomData: oc
+  addMockPost: oc
     .route({
       method: "GET",
     })
