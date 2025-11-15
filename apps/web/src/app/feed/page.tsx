@@ -1,18 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useQueryState } from "nuqs";
 import { webClientORPC } from "../../lib/orpc-web-client";
 import Header from "./_components/header";
 import Post from "./_components/post";
 import Search from "./_components/search-bar";
 
-export const dynamic = "force-dynamic";
-export const dynamicParams = true;
-export const revalidate = 0;
+// export const dynamic = "force-dynamic";
+// export const dynamicParams = true;
+// export const revalidate = 0;
 
 export default function FeedPage() {
-  const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "" });
+  // const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "" });
 
   const { data } = useQuery(
     webClientORPC.feed.getFeed.queryOptions({
