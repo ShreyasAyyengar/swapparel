@@ -1,8 +1,8 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { internalPostSchema } from "./post-contract.ts";
+import { internalPostSchema } from "./post-contract";
 
-const MIN_FEED_AMOUNT = 25;
+const MIN_FEED_AMOUNT = 15;
 const MAX_FEED_AMOUNT = 100;
 
 export const feedContract = {
@@ -12,7 +12,7 @@ export const feedContract = {
     })
     .input(
       z.object({
-        userId: z.string(), // eliminate seeing own posts
+        userId: z.string().optional(), // eliminate seeing own posts (if signed in)
         amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
       })
     )
