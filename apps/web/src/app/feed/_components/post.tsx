@@ -16,7 +16,7 @@ export default function Post({
 
   const openPost = () => {
     // biome-ignore lint/suspicious/noAlert: <testing>
-    alert("you opened a post");
+    // alert("you opened a post");
     onClickAction(postData._id);
   };
 
