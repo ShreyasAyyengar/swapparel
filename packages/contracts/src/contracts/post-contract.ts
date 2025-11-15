@@ -98,10 +98,10 @@ const colors = [
 export const postFiltersSchema = z.object({
   createdBy: z.string().optional(),
   createdByDisplayName: z.string().optional(),
-  color: z.enum(colors).optional(),
-  material: z.enum(materials).optional(),
-  size: z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"]).optional(),
-  hashtag: z.string().optional(),
+  color: z.array(z.enum(colors)).optional(),
+  material: z.array(z.enum(materials)).optional(),
+  size: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])).optional(),
+  hashtag: z.array(z.string()).optional(),
 });
 
 export const internalPostSchema = z.object({
