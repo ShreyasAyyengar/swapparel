@@ -34,7 +34,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-export function Test() {
-  return <p>This is a test</p>;
-}
