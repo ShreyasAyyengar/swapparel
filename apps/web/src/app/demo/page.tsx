@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-// Small presentational components kept at top-level per project guidelines
+// Small presentational _components kept at top-level per project guidelines
 const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
   <section id={id} className="space-y-4 rounded-lg border border-border bg-card p-6 text-card-foreground">
     <h2 className="font-semibold text-xl">{title}</h2>
