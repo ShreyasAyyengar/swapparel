@@ -6,8 +6,10 @@ import { contract } from "@swapparel/contracts";
 import { headers } from "next/headers";
 import { env } from "../env";
 
+const apiPath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api" : "";
+
 const link = new OpenAPILink(contract, {
-  url: `${env.NEXT_PUBLIC_API_URL}/api`,
+  url: `${env.NEXT_PUBLIC_API_URL}${apiPath}`,
   fetch: async (request, init?: RequestInit) => {
     const headersList = await headers();
     return fetch(request, {

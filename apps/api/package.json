@@ -26,5 +26,8 @@
   },
   "exports": {
     "./auth-server": "./src/libs/auth-server.ts"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.16"
   }
 }

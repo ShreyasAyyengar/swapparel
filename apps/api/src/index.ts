@@ -11,26 +11,33 @@ const port = 3001;
 
 const handler = new OpenAPIHandler(appRouter);
 
+const isDevelopment = process.env.NODE_ENV === "development";
+const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
+
+const apiPrefix = isDevelopment ? "/api" : undefined;
+const authRoute = isDevelopment ? "/api/auth*" : "/auth*";
+const apiRoute = isDevelopment ? "/api*" : "*";
+
 new Elysia()
   .use(
     cors({
-      origin: env.NEXT_PUBLIC_WEBSITE_URL || "",
+      origin: allowedOrigins,
       methods: ["POST", "PUT", "GET", "DELETE"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
     })
   )
-  .all("/api/auth*", async ({ request }: { request: Request }) => authServer.handler(request), {
+  .all(authRoute, async ({ request }: { request: Request }) => authServer.handler(request), {
     parse: "none",
   })
   .all(
-    "/api*",
+    apiRoute,
     async ({ request }: { request: Request }) => {
       const elysiaContext: ElysiaContext = { request } as ElysiaContext;
       const authContext = await createContext({ context: elysiaContext });
 
       const { matched, response } = await handler.handle(request, {
-        prefix: "/api",
+        prefix: apiPrefix,
         context: authContext,
       });
 
@@ -48,8 +55,15 @@ new Elysia()
       parse: "none",
     }
   )
-  .listen(port, (server) => {
-    logger.info(`API server started | http://localhost:${server.port}`);
-  });
+  .listen(
+    {
+      port,
+      hostname: env.NEXT_PUBLIC_HOSTNAME,
+    },
+    (server) => {
+      const protocol = isDevelopment ? "http" : "https";
+      logger.info(`API server started | ${protocol}://${server.hostname}:${server.port}`);
+    }
+  );
 
 export type { appRouter } from "./app-router";

@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --env-file=../../.env next dev --turbopack",
+    "dev": "bun run --env-file=../../.env next dev --turbopack -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",
