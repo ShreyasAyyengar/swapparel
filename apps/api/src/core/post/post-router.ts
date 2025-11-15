@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "../../libs/logger.ts";
-import { protectedProcedure } from "../../libs/orpc.ts";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc.ts";
 import { UserCollection } from "../users/user-schema.ts";
 import { PostCollection } from "./post-schema.ts";
 
@@ -54,8 +54,23 @@ export const postRouter = {
     return post;
   }),
 
-  test: protectedProcedure.posts.test.handler(({ input, errors, context }) => {
-    console.log("Test route called");
+  logRandomData: publicProcedure.posts.logRandomData.handler(async ({ input, errors, context }) => {
+    const materials = ["cotton", "silk", "wood"];
+    const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+
+    const randomPostData = {
+      _id: uuidv4(),
+      createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
+      description: `Random Number: ${Math.random()}`,
+      colour: "some colour",
+      size: "M",
+      // Select random material from: cotton, silk, wood
+      material: [randomMaterial],
+      images: ["https://picsum.photos/200/300"],
+      hashtags: [],
+      qaEntries: [],
+    };
+    await PostCollection.insertOne(randomPostData);
 
     return true;
   }),

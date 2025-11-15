@@ -123,7 +123,7 @@ export const postContract = {
       INTERNAL_SERVER_ERROR: {},
     }),
 
-  test: oc
+  logRandomData: oc
     .route({
       method: "GET",
     })
