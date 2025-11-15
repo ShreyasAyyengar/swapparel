@@ -3,12 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { webClientORPC } from "../../lib/orpc-web-client";
+import ExpandedPost from "./_components/expanded-post";
 import Header from "./_components/header";
 import Post from "./_components/post";
 import Search from "./_components/search-bar";
 
 export default function FeedPage() {
-  const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "155" });
+  const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "" });
 
   const { data } = useQuery(
     webClientORPC.feed.getFeed.queryOptions({
@@ -16,11 +17,12 @@ export default function FeedPage() {
       retry: false,
     })
   );
-  const renderPosts = data?.map((post) => <Post key={post._id} postData={post} />);
+  const renderPosts = data?.map((post) => <Post key={post._id} postData={post} onClickAction={setPeeking} />);
 
   // TODO: customize scroll bar
   return (
     <>
+      {peeking && <ExpandedPost postData={data?.find((p) => p._id === peeking)} />}
       <Header />
       <div className="flex justify-center">
         <Search />

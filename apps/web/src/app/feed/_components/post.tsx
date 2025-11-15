@@ -1,16 +1,23 @@
 "use client";
 
-import type {internalPostSchema} from "@swapparel/contracts";
+import type { internalPostSchema } from "@swapparel/contracts";
 import Image from "next/image";
 import type z from "zod";
 
-export default function Post({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
+export default function Post({
+  postData,
+  onClickAction,
+}: {
+  postData: z.infer<typeof internalPostSchema>;
+  onClickAction: (id: string) => void;
+}) {
   // use effect
   const MAX_STRING_LEN = 10;
 
   const openPost = () => {
     // biome-ignore lint/suspicious/noAlert: <testing>
     alert("you opened a post");
+    onClickAction(postData._id);
   };
 
   return (
