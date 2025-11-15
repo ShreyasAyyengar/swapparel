@@ -1,5 +1,5 @@
-import { feedRouter } from "./core/feed/feed-router.ts";
-import { postRouter } from "./core/post/post-router.ts";
+import { feedRouter } from "./core/feed/feed-router";
+import { postRouter } from "./core/post/post-router";
 
 export const appRouter = {
   // routeURL: route handlers

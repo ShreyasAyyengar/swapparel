@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { logger } from "../../libs/logger.ts";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc.ts";
-import { UserCollection } from "../users/user-schema.ts";
-import { PostCollection } from "./post-schema.ts";
+import { logger } from "../../libs/logger";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc";
+import { UserCollection } from "../users/user-schema";
+import { PostCollection } from "./post-schema";
 
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {

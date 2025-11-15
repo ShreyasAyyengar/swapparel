@@ -1,4 +1,4 @@
-import { feedContract } from "./feed-contract.ts";
+import { feedContract } from "./feed-contract";
 import { postContract } from "./post-contract";
 
 export const contract = {

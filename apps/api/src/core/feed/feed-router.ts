@@ -1,7 +1,7 @@
 import { internalPostSchema } from "@swapparel/contracts";
 import { z } from "zod";
-import { publicProcedure } from "../../libs/orpc.ts";
-import { PostCollection } from "../post/post-schema.ts";
+import { publicProcedure } from "../../libs/orpc";
+import { PostCollection } from "../post/post-schema";
 
 export const feedRouter = {
   getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
