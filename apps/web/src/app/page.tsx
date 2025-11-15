@@ -1,6 +1,5 @@
 "use client";
 
-import { SlidersHorizontal } from "lucide-react";
 import { useQueryState } from "nuqs";
 import Navbar from "./_components/navbar";
 
