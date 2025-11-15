@@ -8,6 +8,7 @@
     ],
     "outDir": "dist",
     "baseUrl": ".",
+    "rootDir": ".",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
