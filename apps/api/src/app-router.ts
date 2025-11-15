@@ -1,4 +1,4 @@
-import { postRouter } from "./core/post/post-router.ts";
+import { postRouter } from "./core/post/post-router";
 
 export const appRouter = {
   // routeURL: route handlers

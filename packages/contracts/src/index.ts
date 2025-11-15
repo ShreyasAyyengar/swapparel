@@ -1,3 +1,3 @@
-export * from "./contracts/orpc-contract.ts";
-export * from "./contracts/post-contract.ts";
-export * from "./contracts/user-contract.ts";
+export * from "./contracts/orpc-contract";
+export * from "./contracts/post-contract";
+export * from "./contracts/user-contract";
