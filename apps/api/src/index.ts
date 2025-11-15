@@ -11,7 +11,7 @@ const port = 3001;
 
 const handler = new OpenAPIHandler(appRouter);
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = env.NEXT_PUBLIC_NODE_ENV === "development";
 const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
 
 const apiPrefix = isDevelopment ? "/api" : undefined;
@@ -63,6 +63,7 @@ new Elysia()
     (server) => {
       const protocol = isDevelopment ? "http" : "https";
       logger.info(`API server started | ${protocol}://${server.hostname}:${server.port}`);
+      logger.info(`isDevelopment: ${env.NEXT_PUBLIC_NODE_ENV === "development"}`);
     }
   );
 
