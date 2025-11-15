@@ -26,6 +26,84 @@ const qaEntrySchema = z.object({
     .optional(),
 });
 
+const materials = [
+  "cotton",
+  "linen",
+  "wool",
+  "silk",
+  "cashmere",
+  "hemp",
+  "bamboo",
+
+  "polyester",
+  "nylon",
+  "spandex",
+  "elastane",
+  "rayon",
+  "viscose",
+  "modal",
+  "lyocell",
+  "tencel",
+  "acrylic",
+
+  "denim",
+  "corduroy",
+  "fleece",
+  "suede",
+  "leather",
+  "felt",
+  "canvas",
+  "jersey",
+  "knit",
+] as const;
+
+const colors = [
+  "red",
+  "blue",
+  "green",
+  "yellow",
+  "orange",
+  "black",
+  "white",
+  "purple",
+  "pink",
+  "brown",
+  "gray",
+  "grey",
+  "cyan",
+  "magenta",
+  "lime",
+  "teal",
+  "navy",
+  "maroon",
+  "olive",
+  "beige",
+  "tan",
+  "turquoise",
+  "gold",
+  "silver",
+  "lavender",
+  "indigo",
+  "violet",
+  "peach",
+  "aqua",
+  "coral",
+  "mint",
+  "burgundy",
+  "charcoal",
+  "cream",
+  "ivory",
+] as const;
+
+export const postFiltersSchema = z.object({
+  createdBy: z.string().optional(),
+  createdByDisplayName: z.string().optional(),
+  color: z.array(z.enum(colors)).optional(),
+  material: z.array(z.enum(materials)).optional(),
+  size: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])).optional(),
+  hashtag: z.array(z.string()).optional(),
+});
+
 export const internalPostSchema = z.object({
   _id: z.uuid(),
   // biome-ignore format: readability
@@ -37,20 +115,17 @@ export const internalPostSchema = z.object({
     .max(DESCRIPTION_MAX_LENGTH, `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`),
   // biome-ignore format: readability
   colour: z
-    .string()
-    .min(1, "Colour must be at least 1 character."),
+    .array(z.enum(colors))
+    .min(1, "At least one provided colour must be selected."),
   // biome-ignore format: readability
   size: z.enum(
-    ["XS", "S", "M", "L", "XL"],
-    "Size must be one of: XS, S, M, L, XL."
+    ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
+    "One provided size must be selected."
   ),
   // biome-ignore format: readability
   material: z
-    .array(
-      z
-        .string()
-        .min(1, "Material must be at least 1 character.")
-    ),
+    .array(z.enum(materials))
+    .min(1, "At least one provided material must be selected."),
   // biome-ignore format: readability
   images: z
     .array(z.url())
@@ -75,7 +150,7 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id created server-side, createdBy set by auth middleware
+    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id (server-side), createdBy (auth context)
     .output(
       z.object({
         id: z.uuid(),
@@ -123,7 +198,7 @@ export const postContract = {
       INTERNAL_SERVER_ERROR: {},
     }),
 
-  test: oc
+  addMockPost: oc
     .route({
       method: "GET",
     })

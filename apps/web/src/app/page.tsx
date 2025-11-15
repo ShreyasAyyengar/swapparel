@@ -1,23 +1,24 @@
 "use client";
 
-import { isDefinedError } from "@orpc/client";
-import { useQuery } from "@tanstack/react-query";
-import { webClientORPC } from "../lib/orpc-web-client";
+import { SlidersHorizontal } from "lucide-react";
+import { useQueryState } from "nuqs";
 import Navbar from "./_components/navbar";
 
 export default function Home() {
-  const { data, error } = useQuery(
-    webClientORPC.posts.deletePost.queryOptions({
-      input: { id: "e842525d-fe2d-4003-a88a-8e1c7da5d436" },
-      retry: false,
-    })
-  );
-  return (
-    <div className={"flex h-[2000px] items-center justify-center p-8 align-middle"}>
-      <p className="top-0 font-bold text-xl">Swapparel</p>
+  const [searchParams] = useQueryState("searchParams", {
+    defaultValue: {},
+    parse: (value) => JSON.parse(value),
+    serialize: (value) => JSON.stringify(value),
+  });
 
-      {error && isDefinedError(error)}
-      <Navbar />
+  return (
+    <div>
+      <div className={"flex items-center justify-center p-8 align-middle"}>
+        <Navbar />
+      </div>
+      <h1 className="mt-8 text-center font-bold text-2xl">SWAP, DON'T SHOP!</h1>
     </div>
   );
 }
+
+// TODO implement middleware

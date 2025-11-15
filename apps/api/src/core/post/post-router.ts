@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { logger } from "../../libs/logger";
-import { protectedProcedure } from "../../libs/orpc";
-import { UserCollection } from "../users/user-schema";
-import { PostCollection } from "./post-schema";
+import { logger } from "../../libs/logger.ts";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc.ts";
+import { UserCollection } from "../users/user-schema.ts";
+import { PostCollection } from "./post-schema.ts";
 
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
@@ -54,8 +54,26 @@ export const postRouter = {
     return post;
   }),
 
-  test: protectedProcedure.posts.test.handler(({ input, errors, context }) => {
-    console.log("Test route called");
+  addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
+    const material = ["cotton", "silk", "wood"][Math.floor(Math.random() * 3)];
+    const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
+
+    try {
+      const randomPostData = {
+        _id: uuidv4(),
+        createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
+        description: `Random Number: ${Math.random()}`,
+        colour: ["red"],
+        size,
+        material: [material],
+        images: ["https://picsum.photos/200/300"],
+        hashtags: [],
+        qaEntries: [],
+      };
+      await PostCollection.insertOne(randomPostData);
+    } catch (error) {
+      logger.error(`Failed to add mock post: ${error}`);
+    }
 
     return true;
   }),

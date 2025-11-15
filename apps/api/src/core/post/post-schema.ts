@@ -1,7 +1,7 @@
 import { internalPostSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
 import { z } from "zod";
-import { databaseConnection } from "../../database/database";
+import { databaseConnection } from "../../database/database.ts";
 
 // Mongoose Schema Definitions for MongoDB
 const PostSchemaMongooseZod = internalPostSchema
