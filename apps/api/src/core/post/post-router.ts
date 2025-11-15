@@ -62,7 +62,7 @@ export const postRouter = {
       _id: uuidv4(),
       createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
       description: `Random Number: ${Math.random()}`,
-      colour: "some colour",
+      colour: ["red"],
       size: "M",
       // Select random material from: cotton, silk, wood
       material: [randomMaterial],
