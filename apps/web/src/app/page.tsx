@@ -1,15 +1,6 @@
-"use client";
-
-import { useQueryState } from "nuqs";
 import Navbar from "./_components/navbar";
 
 export default function Home() {
-  const [searchParams] = useQueryState("searchParams", {
-    defaultValue: {},
-    parse: (value) => JSON.parse(value),
-    serialize: (value) => JSON.stringify(value),
-  });
-
   return (
     <div>
       <div className={"flex items-center justify-center p-8 align-middle"}>
