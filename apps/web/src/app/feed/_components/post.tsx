@@ -1,6 +1,6 @@
 "use client";
 
-import type { internalPostSchema } from "@swapparel/contracts";
+import type {internalPostSchema} from "@swapparel/contracts";
 import Image from "next/image";
 import type z from "zod";
 
@@ -12,7 +12,6 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
     // biome-ignore lint/suspicious/noAlert: <testing>
     alert("you opened a post");
   };
-
 
   return (
     <button
@@ -28,7 +27,7 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
             <span title={postData.size} className="w-[20ch] truncate text-foreground">
               {postData.size.length > MAX_STRING_LEN ? `${postData.size.slice(0, MAX_STRING_LEN)}…` : postData.size}
             </span>
-              <span className="mx-2">|</span> {/* separator */}
+            <span className="mx-2">|</span> {/* separator */}
             <span title={postData.colour.join(", ")} className="w-[20ch] truncate text-foreground">
               {postData.colour.length > MAX_STRING_LEN ? `${postData.colour.slice(0, MAX_STRING_LEN)}…` : postData.colour}
             </span>
@@ -39,7 +38,7 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
             <span title={postData.material.join(", ")} className="w-[20ch] truncate text-foreground">
               {postData.material.length > MAX_STRING_LEN ? `${postData.material.slice(0, MAX_STRING_LEN)}…` : postData.material}
             </span>
-              <span className="mx-2">|</span> {/* separator */}
+            <span className="mx-2">|</span> {/* separator */}
             <span title={postData.createdBy} className="w-[20ch] truncate text-foreground">
               {postData.createdBy.length > MAX_STRING_LEN ? `${postData.createdBy.slice(0, MAX_STRING_LEN)}…` : postData.createdBy}
             </span>
