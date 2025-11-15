@@ -3,7 +3,7 @@ export default function Search() {
     <form className="w-150">
       <input
         type="text"
-        placeholder="Search by Swapparel"
+        placeholder="Search by Gooners"
         className="mt-5 w-full max-w-xl rounded-full border border-foreground bg-secondary-foreground p-3 text-gray-700 placeholder-gray-400 transition duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
       />
     </form>
