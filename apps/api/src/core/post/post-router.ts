@@ -54,23 +54,26 @@ export const postRouter = {
     return post;
   }),
 
-  logRandomData: publicProcedure.posts.logRandomData.handler(async ({ input, errors, context }) => {
-    const materials = ["cotton", "silk", "wood"];
-    const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+  addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
+    const material = ["cotton", "silk", "wood"][Math.floor(Math.random() * 3)];
+    const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 
-    const randomPostData = {
-      _id: uuidv4(),
-      createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
-      description: `Random Number: ${Math.random()}`,
-      colour: ["red"],
-      size: "M",
-      // Select random material from: cotton, silk, wood
-      material: [randomMaterial],
-      images: ["https://picsum.photos/200/300"],
-      hashtags: [],
-      qaEntries: [],
-    };
-    await PostCollection.insertOne(randomPostData);
+    try {
+      const randomPostData = {
+        _id: uuidv4(),
+        createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
+        description: `Random Number: ${Math.random()}`,
+        colour: ["red"],
+        size,
+        material: [material],
+        images: ["https://picsum.photos/200/300"],
+        hashtags: [],
+        qaEntries: [],
+      };
+      await PostCollection.insertOne(randomPostData);
+    } catch (error) {
+      logger.error(`Failed to add mock post: ${error}`);
+    }
 
     return true;
   }),
