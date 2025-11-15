@@ -16,12 +16,9 @@ export const feedRouter = {
       if (input.filters.createdBy && !input.filters.createdBy.includes(post.createdBy)) return false;
       // if (input.filters.createdByDisplayName && !input.filters.createdByDisplayName.includes(post.createdByDisplayName)) return false; TODO betterauth integration
       if (input.filters.size && !input.filters.size.includes(post.size)) return false;
-      // biome-ignore lint/style/noNonNullAssertion: internalPostSchema must guarantee material[0] is defined
-      if (input.filters.material && !input.filters.material.includes(post.material[0]!)) return false;
-      // biome-ignore lint/style/noNonNullAssertion: internalPostSchema must guarantee material[0] is defined
-      if (input.filters.color && !input.filters.color.includes(post.colour[0]!)) return false;
-
-      if (input.filters.hashtag && input.filters.hashtag.length > 1 && !input.filters.hashtag.includes(post.hashtags[0])) return false;
+      if (input.filters.material && !input.filters.material.some((m) => post.material.includes(m))) return false;
+      if (input.filters.color && !input.filters.color.some((c) => post.colour.includes(c))) return false;
+      if (input.filters.hashtag && post.hashtags.length > 0 && !input.filters.hashtag.some((h) => post.hashtags.includes(h))) return false;
       return true;
     });
 
