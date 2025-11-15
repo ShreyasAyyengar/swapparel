@@ -34,7 +34,7 @@ export default function ExpandedPost({ postData, onClose }: { postData: z.infer<
               HashTags: <span className="font-normal">{postData.hashtags}</span>
             </p>
             <hr className="my-2 border-foreground border-t-2" />
-            <p className="font-bold">Q and A:</p>
+            <p className="font-bold">Q&A:</p>
             {/* TODO: IMPLEMENT Q AND A SECTION SPEEED I NEEED THISSSS*/}
           </div>
         </div>
