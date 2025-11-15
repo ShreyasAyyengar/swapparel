@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { webClientORPC } from "../../lib/orpc-web-client";
-import ExpandedPost from "./_components/expanded-post";
 import Header from "./_components/header";
 import Post from "./_components/post";
 import Search from "./_components/search-bar";
@@ -22,7 +21,7 @@ export default function FeedPage() {
   // TODO: customize scroll bar
   return (
     <>
-      {peeking && <ExpandedPost postData={data?.find((p) => p._id === peeking)} />}
+      {/*{peeking && <ExpandedPost postData={data?.find((p) => p._id === peeking)} />}*/}
       <Header />
       <div className="flex justify-center">
         <Search />
