@@ -1,4 +1,4 @@
-import {Menu, MessageCircleMore} from "lucide-react";
+import { Menu, MessageCircleMore } from "lucide-react";
 import Image from "next/image";
 
 export default function Header() {

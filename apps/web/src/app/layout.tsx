@@ -1,4 +1,4 @@
-import type {Metadata} from "next";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@swapparel/shad-ui/globals.css";
 import Providers from "./_components/providers";
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>{reactScanEnabled && <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />}</head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
         {/* TODO: use theme provider */}
         <Providers>{children}</Providers>
       </body>
