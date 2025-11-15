@@ -63,7 +63,6 @@ new Elysia()
     (server) => {
       const protocol = isDevelopment ? "http" : "https";
       logger.info(`API server started | ${protocol}://${server.hostname}:${server.port}`);
-      logger.info(`isDevelopment: ${env.NEXT_PUBLIC_NODE_ENV === "development"}`);
     }
   );
 
