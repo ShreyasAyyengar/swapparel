@@ -14,10 +14,14 @@ export default function FeedPage() {
   );
   const renderPosts = data?.map((post) => <Post key={post._id} postData={post} />);
 
+  // TODO: customize scroll bar
   return (
     <>
       <Header />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{renderPosts}</div>
+        <div className="flex items-center justify-center">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{renderPosts}</div>
+        </div>
+
     </>
   );
 }

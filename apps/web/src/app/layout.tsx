@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>{reactScanEnabled && <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />}</head>
-      <body className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* TODO: use theme provider */}
         <Providers>{children}</Providers>
       </body>
