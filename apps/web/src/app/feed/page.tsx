@@ -7,6 +7,8 @@ import Header from "./_components/header";
 import Post from "./_components/post";
 import Search from "./_components/search-bar";
 
+export const dynamic = "force-dynamic";
+
 export default function FeedPage() {
   const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "" });
 
