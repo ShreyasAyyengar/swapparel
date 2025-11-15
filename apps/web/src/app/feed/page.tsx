@@ -1,5 +1,15 @@
-import Post from "./_components/Post";
+import Post from "./_components/post";
+import { data } from "./_data/data";
 
 export default function FeedPage() {
-  return <Post />;
+  return (
+    <>
+      <Post postData={data} />
+      <Post postData={data} />
+      <Post postData={data} />
+      <Post postData={data} />
+      <Post postData={data} />
+      <Post postData={data} />
+    </>
+  );
 }
