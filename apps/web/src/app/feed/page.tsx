@@ -71,6 +71,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
 
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ filters })); // fetch feed w/ filter
 
+  console.log("feed result", {
+    isSuccess,
+    hasError: !!error,
+    dataType: Array.isArray(data) ? "array" : typeof data,
+    dataSample: Array.isArray(data) ? data[0] : data,
+  });
+
   // TODO: customize scroll bar
   return (
     <>
