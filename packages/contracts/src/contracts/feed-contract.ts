@@ -1,9 +1,51 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { internalPostSchema, postFiltersSchema } from "./post-contract";
+import { colors, internalPostSchema, materials } from "./post-contract";
 
 const MIN_FEED_AMOUNT = 15;
 const MAX_FEED_AMOUNT = 100;
+
+// JS is stupid: Boolean("false") === true.
+// https://github.com/colinhacks/zod/issues/2985#issuecomment-2085239542
+const booleanStringSchema = z.preprocess((value) => {
+  if (typeof value === "boolean") return value;
+  if (value === "true") {
+    return true;
+  }
+  if (value === "false") {
+    return false;
+  }
+  throw new Error("The string must be 'true' or 'false'");
+}, z.boolean());
+
+export const feedFilterSchema = z.object({
+  createdBy: z.string().optional(),
+  createdByDisplayName: z.string().optional(),
+  colour: z
+    .object({
+      value: z.array(z.enum(colors)),
+      only: booleanStringSchema.default(false),
+    })
+    .optional(),
+  material: z
+    .object({
+      value: z.array(z.enum(materials)),
+      only: booleanStringSchema.default(false),
+    })
+    .optional(),
+  size: z
+    .object({
+      value: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])),
+      only: booleanStringSchema.default(false),
+    })
+    .optional(),
+  hashtag: z
+    .object({
+      value: z.array(z.string()),
+      only: booleanStringSchema.default(false),
+    })
+    .optional(),
+});
 
 export const feedContract = {
   getFeed: oc
@@ -14,12 +56,21 @@ export const feedContract = {
       z.object({
         userId: z.string().optional(), // eliminate seeing own posts (if signed in)
         amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
-        filters: postFiltersSchema.optional(),
+        filters: feedFilterSchema.optional(),
       })
     )
     .output(z.array(internalPostSchema))
     .errors({
       NOT_FOUND: {},
       INTERNAL_SERVER_ERROR: {},
+    }),
+
+  testRoute: oc
+    .route({
+      method: "GET",
+    })
+    .output(z.string())
+    .errors({
+      NOT_FOUND: {},
     }),
 };

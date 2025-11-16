@@ -1,3 +1,4 @@
+import { colors, materials } from "@swapparel/contracts";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
@@ -55,24 +56,39 @@ export const postRouter = {
   }),
 
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
-    const material = ["cotton", "silk", "wood"][Math.floor(Math.random() * 3)];
-    const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
+    for (let i = 0; i < 10; i++) {
+      // choose at least 1-3 materials
+      const chosenMaterials = Array.from(
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
+      );
+      const chosenColours = Array.from(
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => colors[Math.floor(Math.random() * colors.length)]))
+      );
+      const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 
-    try {
-      const randomPostData = {
-        _id: uuidv4(),
-        createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
-        description: `Random Number: ${Math.random()}`,
-        colour: ["red"],
-        size,
-        material: [material],
-        images: ["https://picsum.photos/200/300"],
-        hashtags: [],
-        qaEntries: [],
-      };
-      await PostCollection.insertOne(randomPostData);
-    } catch (error) {
-      logger.error(`Failed to add mock post: ${error}`);
+      console.log(chosenMaterials);
+
+      try {
+        const randomPostData = {
+          _id: uuidv4(),
+          createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
+          description: `Random Number: ${Math.random()}`,
+          colour: chosenColours,
+          size,
+          material: chosenMaterials,
+          images: [
+            "https://fastly.picsum.photos/id/436/200/300.jpg?hmac=OuJRsPTZRaNZhIyVFbzDkMYMyORVpV86q5M8igEfM3Y",
+            "https://fastly.picsum.photos/id/72/200/300.jpg?hmac=8tyK7lgBqIQNIGPVnmsVP3SL5bYCsSDmdZtnIJNQv3o",
+            "https://fastly.picsum.photos/id/450/200/300.jpg?hmac=EAnz3Z3i5qXfaz54l0aegp_-5oN4HTwiZG828ZGD7GM",
+            "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U",
+          ],
+          hashtags: [],
+          qaEntries: [],
+        };
+        await PostCollection.insertOne(randomPostData);
+      } catch (error) {
+        logger.error(`Failed to add mock post: ${error}`);
+      }
     }
 
     return true;

@@ -26,7 +26,7 @@ const qaEntrySchema = z.object({
     .optional(),
 });
 
-const materials = [
+export const materials = [
   "cotton",
   "linen",
   "wool",
@@ -57,7 +57,7 @@ const materials = [
   "knit",
 ] as const;
 
-const colors = [
+export const colors = [
   "red",
   "blue",
   "green",
@@ -94,15 +94,6 @@ const colors = [
   "cream",
   "ivory",
 ] as const;
-
-export const postFiltersSchema = z.object({
-  createdBy: z.string().optional(),
-  createdByDisplayName: z.string().optional(),
-  color: z.array(z.enum(colors)).optional(),
-  material: z.array(z.enum(materials)).optional(),
-  size: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])).optional(),
-  hashtag: z.array(z.string()).optional(),
-});
 
 export const internalPostSchema = z.object({
   _id: z.uuid(),
