@@ -1,12 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { MenuIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { webClientORPC } from "../../lib/orpc-web-client";
 import ScrollLink from "./scroll-link";
 import SignInOutButton from "./sign-in-out-button";
 
@@ -40,14 +38,6 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { data, error, isError } = useQuery(
-    webClientORPC.feed.getFeed.queryOptions({
-      input: {
-        userId: 100,
-      },
-    })
-  );
-
   const SCROLL_THRESHOLD = 150;
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -73,7 +63,6 @@ export default function Navbar() {
     >
       <div className="flex w-full items-center justify-between">
         {/* LEFT: Swapparel Banner*/}
-        {isError && <p className="text-red-500">{error?.message}</p>}
         <motion.div
           className={`${isScrolled ? "w-[170px]" : "w-[200px]"} flex-shrink-0 [transition:width_0.3s_ease-in-out]`}
           variants={logoVariants}
