@@ -76,6 +76,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     hasError: !!error,
     dataType: Array.isArray(data) ? "array" : typeof data,
     dataSample: Array.isArray(data) ? data[0] : data,
+    dataFull: data,
   });
 
   // TODO: customize scroll bar
