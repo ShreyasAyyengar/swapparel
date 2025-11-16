@@ -48,7 +48,7 @@ export const postRouter = {
     return PostCollection.find({});
   }),
 
-  getPost: protectedProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+  getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ _id: input._id }).lean();
     if (!post) throw NOT_FOUND({ message: `Post not found with id ${input._id}` });
 

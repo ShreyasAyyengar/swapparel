@@ -1,12 +1,16 @@
 import { safe } from "@orpc/client";
 import { feedFilterSchema } from "@swapparel/contracts";
+import { Search } from "lucide-react";
 import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
 import { webServerORPC } from "../../lib/orpc-web-server";
+import Header from "./_components/header";
+import Post from "./_components/post";
+import { SelectedPostLayer } from "./_components/selected-post-layer";
 
-export const feedFilterParser = {
-  peek: parseAsString,
+const feedFilterParser = {
+  post: parseAsString,
   createdBy: parseAsString,
   createdByDisplayName: parseAsString,
 
@@ -28,7 +32,6 @@ type SearchParams = inferParserType<typeof feedFilterParser>;
 const feedFilterCache = createSearchParamsCache(feedFilterParser);
 
 export default async function Page({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  // const [peeking, setPeeking] = useQueryState("peek", { defaultValue: "" });
   const parsedParams = await feedFilterCache.parse(searchParams); // get search params from URL
   let filters: z.infer<typeof feedFilterSchema>;
 
@@ -68,37 +71,23 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
 
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ filters })); // fetch feed w/ filter
 
-  // const renderPosts = data?.map((post) => <Post key={post._id} postData={post} onClickAction={setPeeking} />);
-
-  // useEffect(() => {
-  //   if (peeking) {
-  //     // Disable scrolling
-  //     document.body.style.overflow = "hidden";
-  //   } else {
-  //     // Re-enable scrolling
-  //     document.body.style.overflow = "";
-  //   }
-  //   return () => {
-  //     document.body.style.overflow = "";
-  //   };
-  // }, [peeking]);
-
-  // const expandedPost = () => {
-  //   const selectedPost = data.find((p) => p._id === peeking);
-  //   return selectedPost ? <ExpandedPost postData={selectedPost} onClose={() => setPeeking("")} /> : null;
-  // };
-
   // TODO: customize scroll bar
   return (
     <>
-      {/*{peeking && expandedPost()}*/}
-      {/*<Header />*/}
-      {/*<div className="flex justify-center">*/}
-      {/*  <Search />*/}
-      {/*</div>*/}
-      {/*<div className="flex items-center justify-center">*/}
-      {/*  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{renderPosts}</div>*/}
-      {/*</div>*/}
+      <SelectedPostLayer initialSelectedPost={parsedParams.post} loadedFeedPosts={data ?? []} />
+      <Header />
+      <div className="flexjustify-center">
+        <Search />
+      </div>
+      {data && (
+        <div className="flex items-center justify-center">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {data?.map((post) => (
+              <Post key={post._id} postData={post} />
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

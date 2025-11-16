@@ -1,6 +1,6 @@
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import {useState} from "react";
+import { useState } from "react";
 
 export default function ExpandedImage({ imageSRC }: { imageSRC: string[] }) {
   const [currentImageCount, setCurrentImageCount] = useState(0);
@@ -19,7 +19,7 @@ export default function ExpandedImage({ imageSRC }: { imageSRC: string[] }) {
     setCurrentImageCount((prev) => prev - 1);
   };
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: <mouse hover is NOT interactive, also SPEEED I NEEED THIS>
+    // biome-ignore lint/a11y/noStaticElementInteractions: mouse hover is NOT interactive
     <div
       className="relative flex-shrink-0 items-center"
       onMouseEnter={() => setIsHovered(true)}

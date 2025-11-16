@@ -1,22 +1,11 @@
-import { Menu, MessageCircleMore } from "lucide-react";
 import Image from "next/image";
+import MenuButton from "./menu-button";
+import MessagesButton from "./messages-button";
 
 export default function Header() {
-  const openMenu = () => {
-    // biome-ignore lint/suspicious/noAlert: <testing>
-    alert("Open Menu");
-  };
-
-  const openMsg = () => {
-    // biome-ignore lint/suspicious/noAlert: <testing>
-    alert("Open Msg");
-  };
-
   return (
     <header className="relative flex items-center bg-secondary p-7">
-      <div className="flex items-center gap-9">
-        <Menu width={50} height={50} onClick={openMenu} className="cursor-pointer" />
-      </div>
+      <MenuButton />
       <Image
         className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2"
         src="/simple-banner-slim.png"
@@ -25,7 +14,7 @@ export default function Header() {
         height={10}
       />
       <div className="ml-auto flex items-center gap-9">
-        <MessageCircleMore width={40} height={40} onClick={openMsg} className="hover:cursor-pointer" />
+        <MessagesButton />
       </div>
     </header>
   );
