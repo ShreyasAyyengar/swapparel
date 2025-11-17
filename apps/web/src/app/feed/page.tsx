@@ -79,6 +79,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     dataFull: data?.toString(),
   });
 
+  console.log(JSON.stringify(data, null, 2));
+
   // TODO: customize scroll bar
   return (
     <>
