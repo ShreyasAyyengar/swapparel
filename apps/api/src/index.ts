@@ -41,12 +41,15 @@ new Elysia()
         context: authContext,
       });
 
+      // if (matched) {
+      //   return new Response(response.body, {
+      //     status: response.status,
+      //     statusText: response.statusText,
+      //     headers: response.headers,
+      //   });
+      // }
       if (matched) {
-        return new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-        });
+        return response;
       }
 
       return new Response("Not Found", { status: 404 });
