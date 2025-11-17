@@ -12,11 +12,18 @@ const link = new OpenAPILink(contract, {
   url: `${env.NEXT_PUBLIC_API_URL}${apiPath}`,
   fetch: async (request, init?: RequestInit) => {
     const headersList = await headers();
+    const incoming = Object.fromEntries(headersList.entries());
+
     return fetch(request, {
       ...init,
       credentials: "include",
       headers: {
-        ...Object.fromEntries(headersList.entries()),
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // ...Object.fromEntries(headersList.entries()),
+        // ...(init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : {}),
+        ...(incoming.cookie ? { cookie: incoming.cookie } : {}),
+        ...(incoming.authorization ? { authorization: incoming.authorization } : {}),
         ...(init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : {}),
       },
     });
