@@ -12,7 +12,11 @@ const port = 3001;
 const handler = new OpenAPIHandler(appRouter);
 
 const isDevelopment = env.NEXT_PUBLIC_NODE_ENV === "development";
-const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
+// const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
+
+const allowedOrigins = isDevelopment
+  ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL]
+  : ["https://swapparel.app", "https://swapparel-web.vercel.app", "https://localhost:3000"];
 
 const apiPrefix = isDevelopment ? "/api" : undefined;
 const authRoute = isDevelopment ? "/api/auth*" : "/auth*";
@@ -41,13 +45,6 @@ new Elysia()
         context: authContext,
       });
 
-      // if (matched) {
-      //   return new Response(response.body, {
-      //     status: response.status,
-      //     statusText: response.statusText,
-      //     headers: response.headers,
-      //   });
-      // }
       if (matched) {
         return response;
       }
