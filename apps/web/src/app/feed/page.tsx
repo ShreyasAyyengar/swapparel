@@ -4,7 +4,6 @@ import { Search } from "lucide-react";
 import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
-import { env } from "../../env";
 import { webServerORPC } from "../../lib/orpc-web-server";
 import Header from "./_components/header";
 import Post from "./_components/post";
@@ -71,19 +70,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   }
 
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ filters })); // fetch feed w/ filter
-
-  // log all env variables
-  console.log("env", env);
-
-  console.log("feed result", {
-    isSuccess,
-    hasError: !!error,
-    dataType: Array.isArray(data) ? "array" : typeof data,
-    dataSample: Array.isArray(data) ? data[0] : data,
-    dataFull: data?.toString(),
-  });
-
-  console.log(JSON.stringify(data, null, 2));
 
   // TODO: customize scroll bar
   return (
