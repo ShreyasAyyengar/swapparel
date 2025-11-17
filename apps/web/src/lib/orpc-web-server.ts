@@ -16,8 +16,8 @@ const link = new OpenAPILink(contract, {
       ...init,
       credentials: "include",
       headers: {
-        ...(init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : {}),
         ...Object.fromEntries(headersList.entries()),
+        ...(init?.headers ? Object.fromEntries(new Headers(init.headers).entries()) : {}),
       },
     });
   },
