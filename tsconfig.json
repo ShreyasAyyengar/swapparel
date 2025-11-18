@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
-    "strictNullChecks": true
+    "target": "ES2020",                     
+    "module": "ESNext",                     
+    "moduleResolution": "Node",             
+    "strict": true,                         
+    "strictNullChecks": true,               
+    "esModuleInterop": true,                
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                    
+    "outDir": "dist",                       
+    "allowJs": true,                         
+    "resolveJsonModule": true,              
+    "isolatedModules": true  
   },
+  "include": ["packages/**/*"] 
 }
