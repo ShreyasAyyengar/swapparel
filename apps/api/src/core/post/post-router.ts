@@ -66,11 +66,10 @@ export const postRouter = {
       );
       const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 
-      console.log(chosenMaterials);
-
       try {
         const randomPostData = {
           _id: uuidv4(),
+          title: `Random Title ${Math.floor(Math.random() * 1000)}`,
           createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
           description: `Random Number: ${Math.random()}`,
           colour: chosenColours,

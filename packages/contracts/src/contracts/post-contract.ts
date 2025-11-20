@@ -3,6 +3,7 @@ import { z } from "zod";
 
 // Magic constants
 const DESCRIPTION_MAX_LENGTH = 1000;
+const TITLE_MAX_LENGTH = 25;
 
 // Internal Schema Definitions
 const qaSimpleSchema = z.object({
@@ -99,6 +100,8 @@ export const internalPostSchema = z.object({
   _id: z.uuid(),
   // biome-ignore format: readability
   createdBy: z.email("Creator's email is required."),
+  // biome-ignore format: readability
+  title: z.string().min(1, "Title must be at least 1 character.").max(TITLE_MAX_LENGTH, "Title must be 25 characters or less."),
   // biome-ignore format: readability
   description: z
     .string()
