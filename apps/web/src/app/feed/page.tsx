@@ -1,12 +1,12 @@
 import { safe } from "@orpc/client";
 import { feedFilterSchema } from "@swapparel/contracts";
-import { Search } from "lucide-react";
 import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
 import { webServerORPC } from "../../lib/orpc-web-server";
 import Header from "./_components/header";
 import Post from "./_components/post";
+import Search from "./_components/search-bar";
 import { SelectedPostLayer } from "./_components/selected-post-layer";
 
 const feedFilterParser = {
@@ -76,7 +76,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     <>
       <SelectedPostLayer initialSelectedPost={parsedParams.post} loadedFeedPosts={data ?? []} />
       <Header />
-      <div className="flexjustify-center">
+      <div className="flex justify-center">
         <Search />
       </div>
       {data && (
