@@ -46,10 +46,10 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
               Size: <span className="font-normal">{post.size}</span>
             </p>
             <p className="font-bold">
-              Material: <span className="font-normal">{post.material}</span>
+              Material: <span className="font-normal">{post.material.join(", ")}</span>
             </p>
             <p className="font-bold">
-              HashTags: <span className="font-normal">{post.hashtags}</span>
+              HashTags: <span className="font-normal">{post.hashtags.join(", ")}</span>
             </p>
             <hr className="my-2 border-foreground border-t-2" />
             <p className="font-bold">Q&A:</p>
