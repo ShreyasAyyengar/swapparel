@@ -7,10 +7,15 @@ import { PostCollection } from "./post-schema";
 
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    // all the uploading,
+    input.images.forEach((image) => image.mimeType);
+
     const userDocument = await UserCollection.findOne({ email: context.user.email });
     if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
 
     const id = uuidv4();
+
+    const imageURLs = [`https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${input}/0.`];
 
     try {
       await PostCollection.insertOne({
@@ -82,7 +87,20 @@ export const postRouter = {
             "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U",
           ],
           hashtags: [],
-          qaEntries: [],
+          qaEntries: [
+            {
+              question: "Why do some birds migrate thousands of miles every year?",
+              answer:
+                "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
+              followUps: [
+                {
+                  question: "How do they know which direction to fly?",
+                  answer:
+                    " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
+                },
+              ],
+            },
+          ],
         };
         await PostCollection.insertOne(randomPostData);
       } catch (error) {

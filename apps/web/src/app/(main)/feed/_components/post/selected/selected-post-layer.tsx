@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import type { z } from "zod";
-import { webClientORPC } from "../../../lib/orpc-web-client";
+import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import SelectedPost from "./selected-post";
 
 type Post = z.infer<typeof internalPostSchema>;

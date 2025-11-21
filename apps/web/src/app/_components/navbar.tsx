@@ -5,8 +5,8 @@ import { MenuIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import ScrollLink from "./scroll-link";
-import SignInOutButton from "./sign-in-out-button";
+import ScrollLink from "../(main)/_components/scroll-link";
+import SignInOutButton from "../(main)/_components/sign-in-out-button";
 
 // const geistSans = Geist({
 //   subsets: ["latin"],

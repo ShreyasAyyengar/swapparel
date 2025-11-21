@@ -27,6 +27,12 @@ const qaEntrySchema = z.object({
     .optional(),
 });
 
+const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
+const uploadPhotoInput = z.object({
+  file: z.file(),
+  mimeType: z.enum(VALID_MIME_TYPES),
+});
+
 export const materials = [
   "cotton",
   "linen",
@@ -144,7 +150,12 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(internalPostSchema.omit({ _id: true, createdBy: true })) // _id (server-side), createdBy (auth context)
+    .input(
+      z.object({
+        postData: internalPostSchema.omit({ _id: true, createdBy: true }),
+        images: z.array(uploadPhotoInput),
+      })
+    ) // _id (server-side), createdBy (auth context)
     .output(
       z.object({
         id: z.uuid(),

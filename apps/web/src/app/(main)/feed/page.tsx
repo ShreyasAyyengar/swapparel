@@ -3,11 +3,10 @@ import { feedFilterSchema } from "@swapparel/contracts";
 import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
-import { webServerORPC } from "../../lib/orpc-web-server";
-import Header from "./_components/header";
-import Post from "./_components/post";
-import Search from "./_components/search-bar";
-import { SelectedPostLayer } from "./_components/selected-post-layer";
+import { webServerORPC } from "../../../lib/orpc-web-server";
+import Post from "./_components/post/post";
+import Search from "./_components/post/search-bar";
+import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 
 const feedFilterParser = {
   post: parseAsString,
@@ -75,7 +74,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   return (
     <>
       <SelectedPostLayer initialSelectedPost={parsedParams.post} loadedFeedPosts={data ?? []} />
-      <Header />
       <div className="flex justify-center">
         <Search />
       </div>

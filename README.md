@@ -111,3 +111,4 @@ a linting rule or formatting guideline. Please fix these issues before committin
 
 If you're using VSCode, install the [Biome extension](https://biomejs.dev/reference/vscode) so you can see these errors and receive automatic
 fixes.
+

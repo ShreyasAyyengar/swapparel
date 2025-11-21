@@ -15,6 +15,7 @@ export const env = createEnv({
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string(),
     CLOUDFLARE_R2_TOKEN_VALUE: z.string(),
     CLOUDFLARE_R2_BUCKET_NAME: z.string(),
+    CLOUDFLARE_R2_PUBLIC_DEVELOPMENT_URL: z.string(),
   },
 
   clientPrefix: "NEXT_PUBLIC_",

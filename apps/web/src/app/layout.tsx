@@ -1,4 +1,4 @@
-import type {Metadata} from "next";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@swapparel/shad-ui/globals.css";
 import Providers from "./_components/providers";
