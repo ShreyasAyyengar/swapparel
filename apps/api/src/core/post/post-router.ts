@@ -40,10 +40,10 @@ export const postRouter = {
     const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
 
     const postData = {
-      ...input.postData,
-      id,
-      createdBy: "sayyenga@ucsc.edu",
+      _id: id,
+      createdBy: "swapparel@example.com",
       images: imageURLs,
+      ...input.postData,
     };
 
     try {
