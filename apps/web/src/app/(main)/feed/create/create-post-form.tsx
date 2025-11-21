@@ -2,14 +2,14 @@
 
 import { internalPostSchema } from "@swapparel/contracts";
 import { FieldGroup } from "@swapparel/shad-ui/components/field";
-import { useForm } from "@tanstack/react-form";
+import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import type z from "zod";
-import { ColorField } from "./(fields)/colour-field";
-import { DescriptionField } from "./(fields)/description-field";
-import { HashtagsField } from "./(fields)/hashtags-field";
-import { MaterialField } from "./(fields)/material-field";
-import { SizeField } from "./(fields)/size-field";
-import { TitleField } from "./(fields)/title-field";
+import ColorField from "./(fields)/colour-field";
+import DescriptionField from "./(fields)/description-field";
+import HashtagsField from "./(fields)/hashtags-field";
+import MaterialField from "./(fields)/material-field";
+import SizeField from "./(fields)/size-field";
+import TitleField from "./(fields)/title-field";
 
 const formValidationSchema = internalPostSchema.pick({
   title: true,
@@ -21,9 +21,23 @@ const formValidationSchema = internalPostSchema.pick({
 });
 
 export type FormValues = z.input<typeof formValidationSchema>;
+export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
+const { useAppForm } = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {
+    // TitleField,
+    // DescriptionField,
+    // SizeField,
+    // ColorField,
+    // MaterialField,
+    // HashtagsField,
+  },
+  formComponents: {},
+});
 
 export default function CreatePostForm() {
-  const form = useForm({
+  const form = useAppForm({
     onSubmit: ({ value }) => {
       console.log(value);
     },
@@ -34,7 +48,7 @@ export default function CreatePostForm() {
       colour: [] as FormValues["colour"],
       material: [] as FormValues["material"],
       hashtags: [] as FormValues["hashtags"],
-    } as FormValues,
+    } satisfies FormValues as FormValues,
     validators: {
       onChange: formValidationSchema,
     },
@@ -51,21 +65,18 @@ export default function CreatePostForm() {
       >
         <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
 
-        {/*
-        useAppForm should be what you need => https://tanstack.com/form/latest/docs/framework/react/guides/form-composition#breaking-big-forms-into-smaller-pieces
-        */}
         <FieldGroup className="p-10">
-          <TitleField form={form} />
+          <form.AppField name="title">{() => <TitleField />}</form.AppField>
 
-          <DescriptionField form={form} />
+          <form.AppField name="description">{() => <DescriptionField />}</form.AppField>
 
-          <SizeField form={form} />
+          <form.AppField name="size">{() => <SizeField />}</form.AppField>
 
-          <ColorField form={form} />
+          <form.AppField name="colour">{() => <ColorField />}</form.AppField>
 
-          <MaterialField form={form} />
+          <form.AppField name="material">{() => <MaterialField />}</form.AppField>
 
-          <HashtagsField form={form} />
+          <form.AppField name="hashtags">{() => <HashtagsField />}</form.AppField>
         </FieldGroup>
       </form>
     </div>
