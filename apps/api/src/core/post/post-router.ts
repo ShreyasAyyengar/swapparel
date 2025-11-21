@@ -1,27 +1,54 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { colors, materials } from "@swapparel/contracts";
 import { v4 as uuidv4 } from "uuid";
+import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
+const S3 = new S3Client({
+  region: "auto",
+  endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
+  credentials: {
+    accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+  },
+});
+
+export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
+  const key = `${postId}/${index}`;
+  // const arrayBuffer = await file.arrayBuffer();
+  // const body = new Uint8Array(arrayBuffer);
+
+  const packageCommand = new PutObjectCommand({
+    Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
+    Key: key,
+    Body: file,
+    ContentType: mimeType,
+  });
+  await S3.send(packageCommand);
+
+  return `https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${postId}/${index}`;
+};
+
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    // all the uploading,
-    input.images.forEach((image) => image.mimeType);
-
     const userDocument = await UserCollection.findOne({ email: context.user.email });
     if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
-
     const id = uuidv4();
 
-    const imageURLs = [`https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${input}/0.`];
+    const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
+
+    const postData = {
+      ...input.postData,
+      id,
+      createdBy: context.user.email,
+      images: imageURLs,
+    };
 
     try {
-      await PostCollection.insertOne({
-        id,
-        ...input,
-      });
+      await PostCollection.insertOne(postData);
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         message: `DB failed to create post with id ${id}. ${error}`,

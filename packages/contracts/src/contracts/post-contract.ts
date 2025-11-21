@@ -152,7 +152,7 @@ export const postContract = {
     })
     .input(
       z.object({
-        postData: internalPostSchema.omit({ _id: true, createdBy: true }),
+        postData: internalPostSchema.omit({ _id: true, createdBy: true, images: true }),
         images: z.array(uploadPhotoInput),
       })
     ) // _id (server-side), createdBy (auth context)
