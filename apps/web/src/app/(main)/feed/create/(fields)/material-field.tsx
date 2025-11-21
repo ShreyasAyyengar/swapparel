@@ -1,6 +1,6 @@
 import { materials } from "@swapparel/contracts";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
-import { MultiSelect, type MultiSelectOption } from "@swapparel/shad-ui/components/multi-select";
+import MultiSelect, { type MultiSelectOption } from "@swapparel/shad-ui/components/multi-select";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
 const materialsSorted = [...materials].sort();
