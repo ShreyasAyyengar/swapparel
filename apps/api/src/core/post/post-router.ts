@@ -17,13 +17,13 @@ const S3 = new S3Client({
 
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
   const key = `${postId}/${index}`;
-  // const arrayBuffer = await file.arrayBuffer();
-  // const body = new Uint8Array(arrayBuffer);
+  const arrayBuffer = await file.arrayBuffer();
+  const body = new Uint8Array(arrayBuffer);
 
   const packageCommand = new PutObjectCommand({
     Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
     Key: key,
-    Body: file,
+    Body: body,
     ContentType: mimeType,
   });
   await S3.send(packageCommand);
