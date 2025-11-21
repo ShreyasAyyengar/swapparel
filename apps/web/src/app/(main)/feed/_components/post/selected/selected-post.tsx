@@ -22,7 +22,7 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
               Q:
               <span className="font-normal"> {followUp.question}</span>
             </p>
-            <p key={indexFollowUp} className="mb-2 font-bold">
+            <p className="mb-2 font-bold">
               A:
               <span className="font-normal"> {followUp.answer}</span>
             </p>
