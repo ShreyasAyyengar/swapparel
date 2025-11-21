@@ -10,8 +10,8 @@ export default function MenuButton() {
     alert("Open Menu");
   };
 
-  const [hoverRotate, setHoverRotate] = useState("rotate-10");
-
+  const [hoverRotate, setHoverRotate] = useState<"rotate-10" | "-rotate-10">("rotate-10");
+// TODO FIX FUCKASS ROTATE
   return (
     <Menu
       width={37.5}

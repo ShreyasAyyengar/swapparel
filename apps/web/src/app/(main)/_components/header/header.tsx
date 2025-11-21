@@ -6,7 +6,7 @@ import MessagesButton from "./messages-button";
 
 export default function Header() {
   return (
-    <header className="relative flex items-center bg-secondary p-3">
+    <header className="sticky inset-0 top-0 flex items-center bg-secondary p-3">
       <MenuButton />
       <Link href={"/feed"}>
         <Image
