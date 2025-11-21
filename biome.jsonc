@@ -20,6 +20,9 @@
   },
   "linter": {
     "rules": {
+      "a11y": {
+        "noNoninteractiveElementInteractions": "warn"
+      },
       "correctness": {
         "noUnusedFunctionParameters": "warn",
         "noUnusedLabels": "warn",
@@ -27,13 +30,15 @@
         "noUnusedVariables": "warn"
       },
       "style": {
-        "useBlockStatements": "off"
+        "useBlockStatements": "off",
+        "noMagicNumbers": "warn"
       },
       "suspicious": {
         "useAwait": "warn",
         "noConsole": "warn"
       },
       "complexity": {
+        "useOptionalChain": "warn",
         "noExcessiveCognitiveComplexity": {
           "options": {
             "maxAllowedComplexity": 20
