@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
-import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
 const S3 = new S3Client({
@@ -33,9 +32,9 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 };
 
 export const postRouter = {
-  createPost: protectedProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const userDocument = await UserCollection.findOne({ email: context.user.email });
-    if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
+  createPost: publicProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    // const userDocument = await UserCollection.findOne({ email: context.user.email });
+    // if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
     const id = uuidv4();
 
     const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
@@ -43,7 +42,7 @@ export const postRouter = {
     const postData = {
       ...input.postData,
       id,
-      createdBy: context.user.email,
+      createdBy: "sayyenga@ucsc.edu",
       images: imageURLs,
     };
 
