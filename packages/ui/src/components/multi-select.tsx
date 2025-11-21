@@ -294,7 +294,7 @@ export interface MultiSelectRef {
   focus: () => void;
 }
 
-export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
+const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
   (
     {
       options,
@@ -361,6 +361,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
       (
         opts: MultiSelectOption[] | MultiSelectGroup[]
       ): opts is MultiSelectGroup[] => {
+        // @ts-ignore
         return opts.length > 0 && "heading" in opts[0];
       },
       []
@@ -1197,6 +1198,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
     );
   }
 );
+export default MultiSelect
 
 MultiSelect.displayName = "MultiSelect";
 export type { MultiSelectOption, MultiSelectGroup, MultiSelectProps };
