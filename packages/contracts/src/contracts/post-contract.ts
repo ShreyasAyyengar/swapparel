@@ -160,8 +160,22 @@ export const postContract = {
       })
     )
     .errors({
-      NOT_FOUND: {},
-      INTERNAL_SERVER_ERROR: {},
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      BAD_REQUEST: {
+        data: z.object({
+          message: z.string(),
+          issues: z.array(z.any()).optional(),
+        }),
+      },
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
     }),
 
   deletePost: oc

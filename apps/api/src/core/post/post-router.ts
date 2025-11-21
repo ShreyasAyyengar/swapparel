@@ -1,9 +1,10 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { colors, materials } from "@swapparel/contracts";
+import { colors, internalPostSchema, materials } from "@swapparel/contracts";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
+import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
 const S3 = new S3Client({
@@ -32,30 +33,49 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 };
 
 export const postRouter = {
-  createPost: publicProcedure.posts.createPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    // const userDocument = await UserCollection.findOne({ email: context.user.email });
-    // if (!userDocument) throw NOT_FOUND({ message: `User not found with email: ${context.user.email}` });
-    const id = uuidv4();
+  createPost: protectedProcedure.posts.createPost.handler(
+    async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
+      const userDocument = await UserCollection.findOne({ email: context.user.email });
+      if (!userDocument) {
+        throw NOT_FOUND({
+          data: { message: `User not found with email: ${context.user.email}` },
+        });
+      }
 
-    const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
+      const id = uuidv4();
+      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
 
-    const postData = {
-      _id: id,
-      createdBy: "swapparel@example.com",
-      images: imageURLs,
-      ...input.postData,
-    };
+      const postData = {
+        _id: id,
+        createdBy: context.user.email,
+        images: imageURLs,
+        ...input.postData,
+      };
 
-    try {
-      await PostCollection.insertOne(postData);
-    } catch (error) {
-      throw INTERNAL_SERVER_ERROR({
-        message: `DB failed to create post with id ${id}. ${error}`,
-      });
+      const tryParse = internalPostSchema.safeParse(postData);
+
+      if (!tryParse.success) {
+        throw BAD_REQUEST({
+          data: {
+            issues: tryParse.error.issues,
+            message: "Invalid Input",
+          },
+        });
+      }
+
+      try {
+        await PostCollection.insertOne(postData);
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: {
+            message: `Failed to insert document by _id: ${id}. ${error}`,
+          },
+        });
+      }
+
+      return { id };
     }
-
-    return { id };
-  }),
+  ),
 
   deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
