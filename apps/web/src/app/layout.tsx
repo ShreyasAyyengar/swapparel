@@ -4,11 +4,11 @@ import "@swapparel/shad-ui/globals.css";
 import Providers from "./_components/providers";
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: "./_fonts/GeistVF.woff",
   variable: "--font-geist-sans",
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "./_fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
 });
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Swapparel is a clothes exchange service!", // TODO: make this better
 };
 
-const reactScanEnabled = false;
+const reactScanEnabled = true;
 
 export default function RootLayout({
   children,
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>{reactScanEnabled && <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />}</head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
         {/* TODO: use theme provider */}
         <Providers>{children}</Providers>
       </body>

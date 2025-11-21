@@ -59,7 +59,7 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
             </p>
             <hr className="my-2 border-foreground border-t-2" />
             <p className="font-bold">Q&A:</p>
-            {entries}
+            {post.qaEntries.length < 1 ? "No Q&A Entries" : entries}
           </div>
         </div>
       </SelectedPostTrigger>

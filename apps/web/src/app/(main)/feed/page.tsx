@@ -62,7 +62,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
           only: parsedParams.hashtagOnly ?? false,
         },
       }),
-    }); // create type-safe post filter
+    }); // create a type-safe post-filter
   } catch (_unused) {
     // if any parsing error, the user injected an invalid URL filter state, default to empty filter
     filters = feedFilterSchema.parse({});

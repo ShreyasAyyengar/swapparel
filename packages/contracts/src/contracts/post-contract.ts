@@ -102,6 +102,8 @@ export const colors = [
   "ivory",
 ] as const;
 
+export const sizeEnum = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
+
 export const internalPostSchema = z.object({
   _id: z.uuid(),
   // biome-ignore format: readability
@@ -118,10 +120,7 @@ export const internalPostSchema = z.object({
     .array(z.enum(colors))
     .min(1, "At least one provided colour must be selected."),
   // biome-ignore format: readability
-  size: z.enum(
-    ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
-    "One provided size must be selected."
-  ),
+  size: z.enum(sizeEnum, "One provided size must be selected."),
   // biome-ignore format: readability
   material: z
     .array(z.enum(materials))
@@ -133,9 +132,8 @@ export const internalPostSchema = z.object({
   // biome-ignore format: readability
   hashtags: z
     .array(
-      z
-        .string()
-        // .regex() TODO
+      z.string()
+        .regex(/^#[a-z]+$/, "Hashtag must only contain letters, numbers, and underscores.")
         .min(1, "Hashtag must be at least 1 character.")
     )
     .default([]),
