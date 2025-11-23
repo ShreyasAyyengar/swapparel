@@ -27,7 +27,9 @@ const qaEntrySchema = z.object({
     .optional(),
 });
 
-const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
+export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
+// TODO fix casing between export const enums and arrays etc materials vs VALID_MIME_TYPES vs colors
+
 const uploadPhotoInput = z.object({
   file: z.file(),
   mimeType: z.enum(VALID_MIME_TYPES),

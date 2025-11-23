@@ -5,6 +5,7 @@ import MenuButton from "./menu-button";
 import MessagesButton from "./messages-button";
 
 export default function Header() {
+  // TODO make header not look like shit-brown on dark mode
   return (
     <header className="sticky inset-0 top-0 flex items-center bg-secondary p-3">
       <MenuButton />

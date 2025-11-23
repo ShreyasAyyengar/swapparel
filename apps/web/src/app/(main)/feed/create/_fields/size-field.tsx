@@ -17,7 +17,7 @@ export default function SizeField() {
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Size</FieldLabel>
       <Select name={field.name} value={field.state.value} onValueChange={(newValue) => field.handleChange(newValue as FormValues["size"])}>
-        <SelectTrigger id={field.name} aria-invalid={isInvalid} className="!w-1/2">
+        <SelectTrigger id={field.name} aria-invalid={isInvalid}>
           <SelectValue placeholder="Select" />
         </SelectTrigger>
         <SelectContent position="item-aligned">{sizeSelectContent.map((item) => item)}</SelectContent>

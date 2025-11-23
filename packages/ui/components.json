@@ -13,8 +13,11 @@
   "aliases": {
     "components": "@swapparel/shad-ui/components",
     "utils": "@swapparel/shad-ui/lib/utils",
-    "hooks": "@swapparel/shad-ui/hooks",
+    "ui": "@swapparel/shad-ui/components",
     "lib": "@swapparel/shad-ui/lib",
-    "ui": "@swapparel/shad-ui/components"
+    "hooks": "@swapparel/shad-ui/hooks"
+  },
+  "registries": {
+    "@wds": "https://wds-shadcn-registry.netlify.app/r/{name}.json"
   }
 }
