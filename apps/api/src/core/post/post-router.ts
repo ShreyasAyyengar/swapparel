@@ -6,7 +6,7 @@ import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
-import heic2any from "heic2any";
+import heicConvert from "heic-convert";
 
 const S3 = new S3Client({
   region: "auto",
@@ -20,18 +20,16 @@ const S3 = new S3Client({
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
     let finalMimeType = mimeType;
   const key = `${postId}/${index}`;
-  let arrayBuffer = await file.arrayBuffer();
-  let body = new Uint8Array(arrayBuffer);
+  const fileBuffer = Buffer.from(await file.arrayBuffer());
+  let body = fileBuffer;
 
   if(mimeType === "image/heic" || mimeType === "image/heif"){
-      const blobFiller = new Blob([body], { type: "image/jpeg" });
-      const convertedBlob = await heic2any({
-          blob: blobFiller,
-          toType: "image/jpeg",
+      body = await heicConvert({
+          buffer: fileBuffer,
+          format: "JPEG",
           quality: 1,
       });
-      arrayBuffer = await (convertedBlob as Blob).arrayBuffer();
-      body= new Uint8Array(arrayBuffer);
+
       finalMimeType= "image/jpeg";
   }
 
