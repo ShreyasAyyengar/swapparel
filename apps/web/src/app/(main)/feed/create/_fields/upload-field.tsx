@@ -1,80 +1,14 @@
-import { VALID_MIME_TYPES } from "@swapparel/contracts";
-import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
-import { Separator } from "@swapparel/shad-ui/components/separator";
-import { cn } from "@swapparel/shad-ui/lib/utils";
-import { ImageUp } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Field, FieldError } from "@swapparel/shad-ui/components/field";
 import { type FormValues, useFieldContext } from "../create-post-form";
-import UploadedImageThumbnail from "./uploaded-image-thumbnail";
+import UploadDropzone from "../upload-dropzone";
 
 export default function UploadField() {
   const field = useFieldContext<FormValues["images"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
-  const [uploads, setUploads] = useState<File[]>([]);
-  const [draggingOver, setDraggingOver] = useState(false);
-
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDraggingOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-
-    // Only set draggingOver false if the relatedTarget is outside the container
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDraggingOver(false);
-  }, []);
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDraggingOver(false);
-    setUploads((prev) => [...prev, ...Array.from(e.dataTransfer.files)]);
-  };
-
-  const onClick = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(","); // TODO this wasn't wrking with alex
-    input.multiple = true;
-    input.click();
-    input.addEventListener("change", () => {
-      if (!input.files) return;
-      setUploads(Array.from(input.files));
-    });
-  }, []);
-
   return (
-    <Field data-invalid={isInvalid}>
-      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-      <div
-        className={cn(
-          "mr-5 ml-5 flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
-          uploads.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
-          draggingOver ? "border-blue-500" : "border-ring"
-        )}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-      >
-        {uploads.length > 0 ? (
-          // TODO do not reload unused elements?
-          <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
-            <UploadedImageThumbnail dialogueOnClick={onClick} />
-            {uploads.map((upload) => (
-              <UploadedImageThumbnail key={upload.name} file={upload} dialogueOnClick={onClick} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center" onClick={onClick} onKeyDown={onClick}>
-            {/*TODO: fix linear easing */}
-            <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_3s_ease-in_infinite]" />
-            <Separator className="my-4" />
-            <p className="text-foreground text-sm">Drag & Drop files here or click to browse</p>
-          </div>
-        )}
-      </div>
+    <Field data-invalid={isInvalid} className="h-full w-full">
+      <UploadDropzone />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
   );

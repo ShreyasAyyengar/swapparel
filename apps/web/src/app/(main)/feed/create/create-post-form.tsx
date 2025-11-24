@@ -6,6 +6,7 @@ import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import type { z } from "zod";
+import { webClientORPC } from "../../../../lib/orpc-web-client";
 import ColorField from "./_fields/colour-field";
 import DescriptionField from "./_fields/description-field";
 import HashtagsField from "./_fields/hashtags-field";
@@ -13,7 +14,6 @@ import MaterialField from "./_fields/material-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
-import UploadDropzone from "./upload-dropzone";
 
 export type FormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
@@ -35,19 +35,20 @@ const { useAppForm } = createFormHook({
 export default function CreatePostForm() {
   const form = useAppForm({
     onSubmit: ({ value }) => {
-      // webClientORPC.posts.createPost.queryOptions({
-      //   inputs: {
-      //     postData: {
-      //       title: value.title,
-      //       description: value.description,
-      //       size: value.size,
-      //       colour: value.colour,
-      //       material: value.material,
-      //       hashtags: value.hashtags,
-      //     },
-      //
-      //   },
-      // });
+      webClientORPC.posts.createPost.queryOptions({
+        // TODO change this to mutationOptions
+        input: {
+          postData: {
+            title: value.postData.title,
+            description: value.postData.description,
+            size: value.postData.size,
+            colour: value.postData.colour,
+            material: value.postData.material,
+            hashtags: value.postData.hashtags,
+          },
+          images: value.images,
+        },
+      });
     },
     defaultValues: {
       postData: {
@@ -67,7 +68,7 @@ export default function CreatePostForm() {
 
   // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
-    <div className="flex h-[calc(100vh-62px)] items-center justify-center border border-lime-300">
+    <div className="flex h-[calc(100vh-62px)] items-center justify-center">
       <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-secondary-100">
         <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
         <Separator className="mt-3" />
@@ -101,8 +102,7 @@ export default function CreatePostForm() {
             {/*UPLOAD PHOTO*/}
             <div className="mt-3 w-1/2 pt-[30px] pb-10">
               <FieldGroup className="h-full w-full">
-                {/*<form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>*/}
-                <UploadDropzone />
+                <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
               </FieldGroup>
             </div>
             {/*UPLOAD PHOTO*/}

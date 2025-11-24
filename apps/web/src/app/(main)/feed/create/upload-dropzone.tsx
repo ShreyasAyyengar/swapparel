@@ -1,12 +1,17 @@
-import { VALID_MIME_TYPES } from "@swapparel/contracts";
+import { uploadPhotoInput, VALID_MIME_TYPES } from "@swapparel/contracts";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { ImageUp } from "lucide-react";
 import { useCallback, useState } from "react";
+import { z } from "zod";
 import UploadedImageThumbnail from "./_fields/uploaded-image-thumbnail";
+import { type FormValues, useFieldContext } from "./create-post-form";
 
 export default function UploadDropzone() {
-  const [uploads, setUploads] = useState<File[]>([]);
+  const field = useFieldContext<FormValues["images"]>();
+
+  const [uploads, setUploads] = useState<z.infer<typeof uploadPhotoInput>[]>([]);
+
   const [draggingOver, setDraggingOver] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -24,7 +29,16 @@ export default function UploadDropzone() {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDraggingOver(false);
-    setUploads((prev) => [...prev, ...Array.from(e.dataTransfer.files)]);
+
+    const newUploads = Array.from(e.dataTransfer.files).map((file) =>
+      uploadPhotoInput.parse({
+        file: z.file().parse(file),
+        mimeType: file.type,
+      })
+    );
+
+    setUploads((prev) => [...prev, ...newUploads]);
+    field.handleChange(newUploads);
   };
 
   const onClick = useCallback(() => {
@@ -35,14 +49,22 @@ export default function UploadDropzone() {
     input.click();
     input.addEventListener("change", () => {
       if (!input.files) return;
-      setUploads(Array.from(input.files));
+
+      const newUploads = Array.from(input.files).map((file) =>
+        uploadPhotoInput.parse({
+          file: z.file().parse(file),
+          mimeType: file.type,
+        })
+      );
+      setUploads((prev) => [...prev, ...newUploads]);
+      field.handleChange(newUploads);
     });
-  }, []);
+  }, [field]);
 
   return (
     <div
       className={cn(
-        "mr-5 ml-5 flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
+        "flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
         uploads.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
         draggingOver ? "border-blue-500" : "border-ring"
       )}
@@ -56,7 +78,7 @@ export default function UploadDropzone() {
         <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
           <UploadedImageThumbnail dialogueOnClick={onClick} />
           {uploads.map((upload) => (
-            <UploadedImageThumbnail key={upload.name} file={upload} dialogueOnClick={onClick} />
+            <UploadedImageThumbnail key={upload.file.name} file={upload.file} dialogueOnClick={onClick} />
           ))}
         </div>
       ) : (

@@ -30,7 +30,7 @@ const qaEntrySchema = z.object({
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
 // TODO fix casing between export const enums and arrays etc materials vs VALID_MIME_TYPES vs colors
 
-const uploadPhotoInput = z.object({
+export const uploadPhotoInput = z.object({
   file: z.file(),
   mimeType: z.enum(VALID_MIME_TYPES),
 });
@@ -154,7 +154,7 @@ export const userFormPostSchema = z.object({
     material: true,
     hashtags: true,
   }),
-  images: z.array(uploadPhotoInput),
+  images: z.array(uploadPhotoInput).min(1, "At least one image is required to create a post."),
 });
 
 export const postContract = {
