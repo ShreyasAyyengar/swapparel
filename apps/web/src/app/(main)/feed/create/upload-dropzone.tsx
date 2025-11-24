@@ -42,7 +42,7 @@ export default function UploadDropzone() {
   return (
     <div
       className={cn(
-        "mr-5 mb-5 ml-5 flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
+        "mr-5 ml-5 flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
         uploads.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
         draggingOver ? "border-blue-500" : "border-ring"
       )}
@@ -64,7 +64,7 @@ export default function UploadDropzone() {
           {/*TODO: fix linear easing */}
           <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_3s_ease-in_infinite]" />
           <Separator className="my-4" />
-          <p className="text-neutral-400 text-sm">Drag & Drop files here or click to browse</p>
+          <p className="text-foreground text-sm">Drag & Drop files here or click to browse</p>
         </div>
       )}
     </div>

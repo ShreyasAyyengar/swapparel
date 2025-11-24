@@ -3,7 +3,7 @@ import { Textarea } from "@swapparel/shad-ui/components/textarea";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
 export default function DescriptionField() {
-  const field = useFieldContext<FormValues["description"]>();
+  const field = useFieldContext<FormValues["postData"]["description"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
-import { internalPostSchema } from "@swapparel/contracts";
+import { userFormPostSchema } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
@@ -11,18 +12,10 @@ import HashtagsField from "./_fields/hashtags-field";
 import MaterialField from "./_fields/material-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
+import UploadField from "./_fields/upload-field";
 import UploadDropzone from "./upload-dropzone";
 
-const formValidationSchema = internalPostSchema.pick({
-  title: true,
-  description: true,
-  size: true,
-  colour: true,
-  material: true,
-  hashtags: true,
-});
-
-export type FormValues = z.input<typeof formValidationSchema>;
+export type FormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
   fieldContext,
@@ -34,6 +27,7 @@ const { useAppForm } = createFormHook({
     ColorField,
     MaterialField,
     HashtagsField,
+    UploadField,
   },
   formComponents: {},
 });
@@ -41,56 +35,96 @@ const { useAppForm } = createFormHook({
 export default function CreatePostForm() {
   const form = useAppForm({
     onSubmit: ({ value }) => {
-      console.log(value);
+      // webClientORPC.posts.createPost.queryOptions({
+      //   inputs: {
+      //     postData: {
+      //       title: value.title,
+      //       description: value.description,
+      //       size: value.size,
+      //       colour: value.colour,
+      //       material: value.material,
+      //       hashtags: value.hashtags,
+      //     },
+      //
+      //   },
+      // });
     },
     defaultValues: {
-      title: "" as FormValues["title"],
-      description: "" as FormValues["description"],
-      size: "" as FormValues["size"],
-      colour: [] as FormValues["colour"],
-      material: [] as FormValues["material"],
-      hashtags: [] as FormValues["hashtags"],
+      postData: {
+        title: "" as FormValues["postData"]["title"],
+        description: "" as FormValues["postData"]["description"],
+        size: "" as FormValues["postData"]["size"],
+        colour: [] as FormValues["postData"]["colour"],
+        material: [] as FormValues["postData"]["material"],
+        hashtags: [] as FormValues["postData"]["hashtags"],
+      },
+      images: [] as FormValues["images"],
     } satisfies FormValues as FormValues,
     validators: {
-      onChange: formValidationSchema,
+      onChange: userFormPostSchema,
     },
   });
 
-  // TODO center lime div to it in the middle of screen
+  // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
-    <div className="mt-10 mb-10 flex justify-center border border-lime-300">
+    <div className="flex h-[calc(100vh-62px)] items-center justify-center border border-lime-300">
       <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-secondary-100">
         <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
         <Separator className="mt-3" />
-        <div className="flex">
-          <form
-            className="mt-3 w-1/2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-          >
-            <FieldGroup className="pr-5 pb-10 pl-5">
-              <form.AppField name="title">{(field) => <field.TitleField />}</form.AppField>
+        <form
+          className="w-full"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          <div className="flex">
+            {/*DROPDOWNS AND TEXT*/}
+            <FieldGroup className="mt-3 w-1/2 pr-5 pb-10 pl-5">
+              <form.AppField name="postData.title">{(field) => <field.TitleField />}</form.AppField>
 
-              <form.AppField name="description">{(field) => <field.DescriptionField />}</form.AppField>
+              <form.AppField name="postData.description">{(field) => <field.DescriptionField />}</form.AppField>
 
               <div className="justify-evenly max-md:space-y-5 md:grid md:grid-cols-2 md:gap-5">
-                <form.AppField name="size">{(field) => <field.SizeField />}</form.AppField>
-                <form.AppField name="colour">{(field) => <field.ColorField />}</form.AppField>
-                <form.AppField name="material">{(field) => <field.MaterialField />}</form.AppField>
-                <form.AppField name="hashtags">{(field) => <field.HashtagsField />}</form.AppField>
+                <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
+                <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
+                <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
+                <form.AppField name="postData.hashtags">{(field) => <field.HashtagsField />}</form.AppField>
               </div>
             </FieldGroup>
-          </form>
-          <div className="h-auto border-1" />
+            {/*DROPDOWNS AND TEXT*/}
 
-          <div className="mt-[43px] mb-10 w-1/2">
-            <UploadDropzone />
+            {/*LINE*/}
+            <div className="h-auto border-1" />
+            {/*LINE*/}
+
+            {/*UPLOAD PHOTO*/}
+            <div className="mt-3 w-1/2 pt-[30px] pb-10">
+              <FieldGroup className="h-full w-full">
+                {/*<form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>*/}
+                <UploadDropzone />
+              </FieldGroup>
+            </div>
+            {/*UPLOAD PHOTO*/}
           </div>
+        </form>
+        <div className="w-auto border-1" />
+        <div className="flex justify-between">
+          <Button className="m-3 mr-5 w-1/8">Cancel</Button>
+
+          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+              <Button
+                className="m-3 mr-5 w-1/8 bg-secondary text-foreground hover:bg-success/30"
+                onClick={form.handleSubmit}
+                disabled={!canSubmit || isSubmitting}
+              >
+                {isSubmitting ? "..." : "Create"}
+              </Button>
+            )}
+          </form.Subscribe>
         </div>
       </div>
-      <div />
     </div>
   );
 }

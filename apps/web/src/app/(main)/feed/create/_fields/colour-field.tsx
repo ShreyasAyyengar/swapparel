@@ -13,13 +13,12 @@ import { type FormValues, useFieldContext } from "../create-post-form";
 const colorsSorted = [...colors].sort();
 
 export default function ColorField() {
-  const field = useFieldContext<FormValues["colour"]>();
+  const field = useFieldContext<FormValues["postData"]["colour"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Color</FieldLabel>
-      <MultiSelect>
+      <MultiSelect values={field.state.value} onValuesChange={(newValues) => field.handleChange(newValues as FormValues["postData"]["colour"])}>
         <MultiSelectTrigger className="w-full max-w-[400px]">
           <MultiSelectValue placeholder="Select colours..." />
         </MultiSelectTrigger>

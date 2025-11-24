@@ -3,7 +3,7 @@ import { Input } from "@swapparel/shad-ui/components/input";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
 export default function HashtagsField() {
-  const field = useFieldContext<FormValues["hashtags"]>();
+  const field = useFieldContext<FormValues["postData"]["hashtags"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
@@ -14,7 +14,7 @@ export default function HashtagsField() {
         name={field.name}
         value={field.state.value}
         onChange={(e) => {
-          const values = e.target.value.split(",").map((value) => value.trim()) as FormValues["hashtags"];
+          const values = e.target.value.split(",").map((value) => value.trim()) as FormValues["postData"]["hashtags"];
           field.handleChange(values);
         }}
         placeholder="#plaided #shirt"

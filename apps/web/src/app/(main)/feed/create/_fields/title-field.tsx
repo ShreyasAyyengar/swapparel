@@ -3,7 +3,7 @@ import { Input } from "@swapparel/shad-ui/components/input";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
 export default function TitleField() {
-  const field = useFieldContext<FormValues["title"]>();
+  const field = useFieldContext<FormValues["postData"]["title"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (

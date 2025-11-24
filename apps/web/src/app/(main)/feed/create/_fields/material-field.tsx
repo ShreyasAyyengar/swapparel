@@ -13,12 +13,15 @@ import { type FormValues, useFieldContext } from "../create-post-form";
 const materialsSorted = [...materials].sort();
 
 export default function MaterialField() {
-  const field = useFieldContext<FormValues["material"]>();
+  const field = useFieldContext<FormValues["postData"]["material"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Material</FieldLabel>
-      <MultiSelect>
+      <MultiSelect
+        values={field.state.value}
+        onValuesChange={(newValues) => field.handleChange(newValues as FormValues["postData"]["material"])}
+      >
         <MultiSelectTrigger className="w-full max-w-[400px]">
           <MultiSelectValue placeholder="Select material..." />
         </MultiSelectTrigger>

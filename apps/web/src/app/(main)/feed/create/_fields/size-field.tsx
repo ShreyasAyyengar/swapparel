@@ -10,13 +10,17 @@ const sizeSelectContent = sizeEnum.map((size, index) => (
 ));
 
 export default function SizeField() {
-  const field = useFieldContext<FormValues["size"]>();
+  const field = useFieldContext<FormValues["postData"]["size"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Size</FieldLabel>
-      <Select name={field.name} value={field.state.value} onValueChange={(newValue) => field.handleChange(newValue as FormValues["size"])}>
+      <Select
+        name={field.name}
+        value={field.state.value}
+        onValueChange={(newValue) => field.handleChange(newValue as FormValues["postData"]["size"])}
+      >
         <SelectTrigger id={field.name} aria-invalid={isInvalid}>
           <SelectValue placeholder="Select" />
         </SelectTrigger>

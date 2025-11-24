@@ -145,17 +145,24 @@ export const internalPostSchema = z.object({
     .default([]),
 });
 
+export const userFormPostSchema = z.object({
+  postData: internalPostSchema.pick({
+    title: true,
+    description: true,
+    size: true,
+    colour: true,
+    material: true,
+    hashtags: true,
+  }),
+  images: z.array(uploadPhotoInput),
+});
+
 export const postContract = {
   createPost: oc
     .route({
       method: "POST",
     })
-    .input(
-      z.object({
-        postData: internalPostSchema.omit({ _id: true, createdBy: true, images: true }),
-        images: z.array(uploadPhotoInput),
-      })
-    ) // _id (server-side), createdBy (auth context)
+    .input(userFormPostSchema) // _id (server-side), createdBy (auth context)
     .output(
       z.object({
         id: z.uuid(),
