@@ -2,26 +2,19 @@
 
 import { MonitorCog, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function ThemeChanger() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
-  console.log("resolvedTheme:", resolvedTheme);
+  useEffect(() => setMounted(true), []);
 
-  if (resolvedTheme === "system")
+  if (!mounted) return null;
+
+  if (theme === "system")
     return (
       <MonitorCog
-        width={37.5}
-        height={37.5}
-        className={
-          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
-        }
-        onClick={() => setTheme("dark")}
-      />
-    );
-  if (resolvedTheme === "dark")
-    return (
-      <Moon
         width={37.5}
         height={37.5}
         className={
@@ -30,14 +23,26 @@ export default function ThemeChanger() {
         onClick={() => setTheme("light")}
       />
     );
-  return (
-    <Sun
-      width={37.5}
-      height={37.5}
-      className={
-        "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
-      }
-      onClick={() => setTheme("system")}
-    />
-  );
+  if (theme === "dark")
+    return (
+      <Moon
+        width={37.5}
+        height={37.5}
+        className={
+          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+        }
+        onClick={() => setTheme("system")}
+      />
+    );
+  if (theme === "light")
+    return (
+      <Sun
+        width={37.5}
+        height={37.5}
+        className={
+          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+        }
+        onClick={() => setTheme("dark")}
+      />
+    );
 }
