@@ -35,7 +35,7 @@ const sidebarTokens = [
 ] as const;
 
 const buttonTokens = [
-  { label: "Primary", cls: "bg-primary text-accent-foreground" },
+  { label: "Primary", cls: "bg-primary text-primary-foreground" },
   { label: "Secondary", cls: "bg-secondary text-secondary-foreground" },
   { label: "Accent", cls: "bg-accent text-accent-foreground" },
   { label: "Destructive", cls: "bg-destructive text-white font-bold" },
@@ -43,7 +43,7 @@ const buttonTokens = [
 ] as const;
 
 const DemoPage = () => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   return (
     <div className="px-6 py-10">

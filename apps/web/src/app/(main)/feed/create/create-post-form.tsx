@@ -5,6 +5,8 @@ import { Button } from "@swapparel/shad-ui/components/button";
 import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import ColorField from "./_fields/colour-field";
@@ -33,21 +35,26 @@ const { useAppForm } = createFormHook({
 });
 
 export default function CreatePostForm() {
+  const router = useRouter();
+
+  const createPostMutation = useMutation(
+    webClientORPC.posts.createPost.mutationOptions({
+      onSuccess: (data) => router.push(`/feed?post=${data.id}`),
+    })
+  );
+
   const form = useAppForm({
     onSubmit: ({ value }) => {
-      webClientORPC.posts.createPost.queryOptions({
-        // TODO change this to mutationOptions
-        input: {
-          postData: {
-            title: value.postData.title,
-            description: value.postData.description,
-            size: value.postData.size,
-            colour: value.postData.colour,
-            material: value.postData.material,
-            hashtags: value.postData.hashtags,
-          },
-          images: value.images,
+      createPostMutation.mutate({
+        postData: {
+          title: value.postData.title,
+          description: value.postData.description,
+          size: value.postData.size,
+          colour: value.postData.colour,
+          material: value.postData.material,
+          hashtags: value.postData.hashtags,
         },
+        images: value.images,
       });
     },
     defaultValues: {
@@ -100,7 +107,7 @@ export default function CreatePostForm() {
             {/*LINE*/}
 
             {/*UPLOAD PHOTO*/}
-            <div className="mt-3 w-1/2 pt-[30px] pb-10">
+            <div className="mt-3 w-1/2 pt-[30px] pr-5 pb-10 pl-5">
               <FieldGroup className="h-full w-full">
                 <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
               </FieldGroup>

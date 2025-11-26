@@ -35,7 +35,7 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <SelectedPostTrigger post={post}>
-        <div className="ml-8 flex h-130 w-90 flex-col overflow-auto border-2 border-primary p-2">
+        <div className="ml-8 flex h-130 w-90 flex-col overflow-auto border-2 border-foreground p-2">
           <p title="username">{post.createdBy}</p>
           <hr className="my-2 border-foreground border-t-2" />
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CopyPlus } from "lucide-react";
 import random from "random";
 import { useState } from "react";
@@ -18,7 +19,10 @@ export default function CreatePostButton() {
       height={37.5}
       onClick={openCreatePost}
       onMouseEnter={() => setHoverRotate(random.boolean() ? "-rotate-10" : "rotate-10")}
-      className={`hover:${hoverRotate} duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary`}
+      className={cn(
+        "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
+        `hover:${hoverRotate}`
+      )}
     />
   );
 }

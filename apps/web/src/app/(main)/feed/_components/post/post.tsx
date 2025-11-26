@@ -8,36 +8,23 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
 
   return (
     <PostTrigger postId={postData._id}>
+      <p className="font-bold">{postData.title}</p>
+      <span title={postData.createdBy} className="w-[20ch] truncate text-foreground">
+        {postData.createdBy}
+      </span>
       <Image src={postData.images[0] ?? ""} alt="thumbnail" width={200} height={200} className="rounded-md border-2 border-[#6F4D3880]" />
-      <div className="flex w-full flex-col gap-2">
-        <p>{postData.title}</p>
-        <div className="flex w-full flex-col justify-between text-sm">
-          {/* Row 1 */}
-          <div className="flex w-full justify-between text-sm">
-            <span title={postData.size} className="w-[20ch] truncate text-foreground">
-              {postData.size.length > MAX_STRING_LEN ? `${postData.size.slice(0, MAX_STRING_LEN)}…` : postData.size}
-            </span>
-            <span className="mx-2">|</span> {/* separator */}
-            <span title={postData.colour.join(", ")} className="w-[20ch] truncate text-foreground">
-              {postData.colour.join(", ").length > MAX_STRING_LEN
-                ? `${postData.colour.join(", ").slice(0, MAX_STRING_LEN)}…`
-                : postData.colour.join(", ")}
-            </span>
-          </div>
-
-          {/* Row 2 */}
-          <div className="flex w-full justify-between text-sm">
-            <span title={postData.material.join(", ")} className="w-[20ch] truncate text-foreground">
-              {postData.material.join(", ").length > MAX_STRING_LEN
-                ? `${postData.material.join(", ").slice(0, MAX_STRING_LEN)}…`
-                : postData.material}
-            </span>
-            <span className="mx-2">|</span> {/* separator */}
-            <span title={postData.createdBy} className="w-[20ch] truncate text-foreground">
-              {postData.createdBy.length > MAX_STRING_LEN ? `${postData.createdBy.slice(0, MAX_STRING_LEN)}…` : postData.createdBy}
-            </span>
-          </div>
-        </div>
+      <div className="flex flex-col border border-lime-300">
+        {/* Row 1 */}
+        <p title={postData.size} className="w-[20ch] truncate text-foreground">
+          {postData.size}
+        </p>
+        <p title={postData.colour.join(", ")} className="w-[20ch] justify-start truncate text-foreground">
+          {postData.colour.join(", ")}
+        </p>
+        {/* Row 2 */}
+        <p title={postData.material.join(", ")} className="w-[20ch] truncate text-foreground">
+          {postData.material}
+        </p>
       </div>
     </PostTrigger>
   );
