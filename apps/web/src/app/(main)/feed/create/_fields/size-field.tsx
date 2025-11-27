@@ -15,6 +15,7 @@ export default function SizeField() {
 
   return (
     <Field data-invalid={isInvalid}>
+      {/*TODO: fix highlighting bug*/}
       <FieldLabel htmlFor={field.name}>Size</FieldLabel>
       <Select
         name={field.name}
