@@ -25,10 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>{reactScanEnabled && <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />}</head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* TODO: use theme provider */}
         <Providers>{children}</Providers>
       </body>
     </html>
