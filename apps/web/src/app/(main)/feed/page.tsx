@@ -68,7 +68,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     filters = feedFilterSchema.parse({});
   }
 
-  const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ filters })); // fetch feed w/ filter
+  const { data, isSuccess } = await safe(webServerORPC.feed.getFeed({ filters })); // fetch feed w/ filter
 
   // TODO: customize scroll bar
   return (
@@ -77,13 +77,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
       <div className="flex justify-center">
         <Search />
       </div>
-      {data && (
-        <div className="flex items-center justify-center">
+      {data && data.length > 0 && isSuccess ? (
+        <div className="flex flex-1 items-center justify-center">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {data?.map((post) => (
               <Post key={post._id} postData={post} />
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="flex h-screen flex-1 items-center justify-center">
+          <h1 className="mt-10 font-bold text-2xl text-foreground">No posts found</h1>
         </div>
       )}
     </>
