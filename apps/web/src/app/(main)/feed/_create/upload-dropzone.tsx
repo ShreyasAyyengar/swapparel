@@ -1,4 +1,4 @@
-import { uploadPhotoInput, VALID_MIME_TYPES } from "@swapparel/contracts";
+import { uploadPhotoInput } from "@swapparel/contracts";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { ImageUp } from "lucide-react";
@@ -13,6 +13,16 @@ export default function UploadDropzone() {
   const [uploads, setUploads] = useState<FormValues["images"]>([]);
 
   const [draggingOver, setDraggingOver] = useState(false);
+
+  // function logFieldValue() {
+  //   console.log("------------------");
+  //   console.log("field.state.meta.errors:", field.state.meta.errors);
+  // }
+  //
+  // useEffect(() => {
+  //   const interval = setInterval(logFieldValue, 1000);
+  //   return () => clearInterval(interval);
+  // }, [field.state.value]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -41,28 +51,38 @@ export default function UploadDropzone() {
     field.handleChange(newUploads);
   };
 
-  const onClick = useCallback(() => {
+  const onClick = () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(",");
+    // input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(",");
     input.multiple = true;
     input.click();
     input.addEventListener("change", () => {
       if (!input.files) return;
+      const newUploads = Array.from(input.files).map((file) => ({
+        file: z.file().parse(file),
+        mimeType: file.type,
+      }));
 
-      const newUploads = Array.from(input.files).map((file) =>
-        uploadPhotoInput.parse({
-          file: z.file().parse(file),
-          mimeType: file.type,
-        })
-      );
+      console.log("newUploads:", newUploads);
 
-      setUploads((prev) => [...prev, ...newUploads]);
-      field.handleChange(newUploads);
+      field.state.meta.errors.push("Invalid MIME type");
+
+      // TODO fwd invalid MIME type to TanStack form field.state.meta.errors
+
+      // Combine with existing uploads
+      const allUploads = [...uploads, ...newUploads];
+
+      // Let TanStack Form validate - this will populate field.state.meta.errors if invalid
+      field.handleChange(allUploads);
+
+      console.log("field.state.value:", field.state.value);
+
+      // Only update local state if validation passes
+      const validationResult = uploadPhotoInput.array().safeParse(allUploads);
+      if (validationResult.success) setUploads(allUploads);
     });
-  }, [field]);
-
-  // TODO fwd invalid MIME type to TanStack form field.state.meta.errors
+  };
 
   return (
     <div

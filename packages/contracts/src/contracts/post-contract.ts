@@ -31,8 +31,8 @@ export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image
 // TODO fix casing between export const enums and arrays etc materials vs VALID_MIME_TYPES vs colors
 
 export const uploadPhotoInput = z.object({
-  file: z.file(),
-  mimeType: z.enum(VALID_MIME_TYPES),
+  file: z.file("Invalid file."),
+  mimeType: z.enum(VALID_MIME_TYPES, "Invalid file type."),
 });
 
 export const materials = [
@@ -162,7 +162,7 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(userFormPostSchema) // _id (server-side), createdBy (auth context)
+    .input(userFormPostSchema)
     .output(
       z.object({
         id: z.uuid(),

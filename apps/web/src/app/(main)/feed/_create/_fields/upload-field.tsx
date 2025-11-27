@@ -8,6 +8,7 @@ export default function UploadField() {
 
   return (
     <Field data-invalid={isInvalid} className="h-full w-full">
+      <p>Field State: {JSON.stringify(field.state, null, 2)}</p>
       <UploadDropzone />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>

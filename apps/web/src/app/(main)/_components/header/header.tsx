@@ -8,7 +8,7 @@ import ThemeChanger from "./theme-changer";
 export default function Header() {
   // TODO make header not look like shit-brown on dark mode
   return (
-    <header className="sticky inset-0 top-0 flex items-center bg-primary-800 p-3 dark:bg-foreground">
+    <header className="sticky inset-0 top-0 z-1 flex items-center bg-primary-800 p-3 dark:bg-foreground">
       <Link href={"/feed"}>
         <SlimBanner // TODO figure out stroke widths
           className="-translate-x-1/2 -translate-y-1/2 stroke absolute top-1/2 left-1/2 fill-background p-2 transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"

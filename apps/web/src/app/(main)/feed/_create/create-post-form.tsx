@@ -1,0 +1,163 @@
+"use client";
+
+import { userFormPostSchema } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
+import { FieldGroup } from "@swapparel/shad-ui/components/field";
+import { Separator } from "@swapparel/shad-ui/components/separator";
+import { cn } from "@swapparel/shad-ui/lib/utils";
+import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import type { z } from "zod";
+import { webClientORPC } from "../../../../lib/orpc-web-client";
+import ColorField from "./_fields/colour-field";
+import DescriptionField from "./_fields/description-field";
+import HashtagsField from "./_fields/hashtags-field";
+import MaterialField from "./_fields/material-field";
+import SizeField from "./_fields/size-field";
+import TitleField from "./_fields/title-field";
+import UploadField from "./_fields/upload-field";
+
+export type FormValues = z.input<typeof userFormPostSchema>;
+export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
+const { useAppForm } = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {
+    TitleField,
+    DescriptionField,
+    SizeField,
+    ColorField,
+    MaterialField,
+    HashtagsField,
+    UploadField,
+  },
+  formComponents: {},
+});
+
+export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
+  const router = useRouter();
+
+  const createPostMutation = useMutation(
+    webClientORPC.posts.createPost.mutationOptions({
+      onSuccess: (data) => {
+        closeAction();
+        router.push(`/feed?post=${data.id}`);
+      },
+    })
+  );
+
+  const form = useAppForm({
+    onSubmit: ({ value }) => {
+      createPostMutation.mutate({
+        postData: {
+          title: value.postData.title,
+          description: value.postData.description,
+          size: value.postData.size,
+          colour: value.postData.colour,
+          material: value.postData.material,
+          hashtags: value.postData.hashtags,
+        },
+        images: value.images,
+      });
+    },
+    defaultValues: {
+      postData: {
+        title: "" as FormValues["postData"]["title"],
+        description: "" as FormValues["postData"]["description"],
+        size: "" as FormValues["postData"]["size"],
+        colour: [] as FormValues["postData"]["colour"],
+        material: [] as FormValues["postData"]["material"],
+        hashtags: [] as FormValues["postData"]["hashtags"],
+      },
+      images: [] as FormValues["images"],
+    } satisfies FormValues as FormValues,
+    validators: {
+      onChange: ({ formApi }) => {
+        const errors = formApi.parseValuesWithSchema(userFormPostSchema);
+        console.log("onChange errors:", JSON.stringify(errors, null, 2));
+        return errors;
+      },
+    },
+  });
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  // TODO: maybe find better way to center form (make h-<size> be exact)
+  return (
+    <div className="flex h-[calc(100vh-61.5px)] items-center justify-center">
+      <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-background">
+        <div className="rounded-2xl bg-primary-200/40">
+          <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
+          <Separator className="mt-3" />
+          <form
+            className="w-full"
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+          >
+            <div className="flex">
+              {/*DROPDOWNS AND TEXT*/}
+              <FieldGroup className="mt-3 w-1/2 pr-5 pb-10 pl-5">
+                <form.AppField name="postData.title">{(field) => <field.TitleField />}</form.AppField>
+
+                <form.AppField name="postData.description">{(field) => <field.DescriptionField />}</form.AppField>
+
+                <div className="justify-evenly max-md:space-y-5 md:grid md:grid-cols-2 md:gap-5">
+                  <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
+                  <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
+                  <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
+                  <form.AppField name="postData.hashtags">{(field) => <field.HashtagsField />}</form.AppField>
+                </div>
+              </FieldGroup>
+              {/*DROPDOWNS AND TEXT*/}
+
+              {/*LINE*/}
+              <div className="h-auto border-1" />
+              {/*LINE*/}
+
+              {/*UPLOAD PHOTO*/}
+              <div className="mt-3 w-1/2 pt-[30px] pr-5 pb-10 pl-5">
+                <FieldGroup className="h-full w-full">
+                  <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
+                </FieldGroup>
+              </div>
+              {/*UPLOAD PHOTO*/}
+            </div>
+          </form>
+          <div className="w-auto border-1" />
+          <div className="flex justify-between">
+            <Button className="m-3 mr-5 w-1/8" onClick={closeAction}>
+              Cancel
+            </Button>
+
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting, data]) => {
+                console.log(JSON.stringify(data, null, 2));
+                return (
+                  <Button
+                    className={cn(
+                      "m-3 mr-5 w-1/8 text-background",
+                      `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:cursor-not-allowed hover:bg-foreground/50"}`
+                    )}
+                    onClick={form.handleSubmit}
+                    // disabled={!canSubmit || isSubmitting}
+                  >
+                    {isSubmitting ? "..." : "Create"}
+                  </Button>
+                );
+              }}
+            </form.Subscribe>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

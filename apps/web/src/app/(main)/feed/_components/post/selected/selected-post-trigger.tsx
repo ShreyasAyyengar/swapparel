@@ -20,10 +20,10 @@ export default function SelectedPostTrigger({ post, children }: { post: z.infer<
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-1 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={onClose} />
 
-      <div className="relative z-10 flex h-150 w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
+      <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <ExpandedImage imageSRC={post.images} />
         {children}
       </div>

@@ -4,7 +4,7 @@ import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
 import { webServerORPC } from "../../../lib/orpc-web-server";
-import FilterButton from "./_components/post/filter-button";
+import FilterButton from "./_components/filters/filter-button";
 import Post from "./_components/post/post";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 
@@ -26,7 +26,7 @@ const feedFilterParser = {
   hashtagOnly: parseAsBoolean.withDefault(false),
 };
 
-type SearchParams = inferParserType<typeof feedFilterParser>;
+export type SearchParams = inferParserType<typeof feedFilterParser>;
 
 const feedFilterCache = createSearchParamsCache(feedFilterParser);
 
@@ -74,12 +74,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   return (
     <>
       <SelectedPostLayer initialSelectedPost={parsedParams.post} loadedFeedPosts={data ?? []} />
-      <div className="flex justify-center">
-        <Search />
+      <div className="m-3">
+        <FilterButton />
       </div>
       {data && data.length > 0 && isSuccess ? (
-        <div className="flex items-center justify-center">
+        <div className="mt-15 flex items-center justify-center">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {/*TODO: fix multirendering*/}
             {data?.map((post) => (
               <Post key={post._id} postData={post} />
             ))}

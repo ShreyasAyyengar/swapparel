@@ -19,7 +19,6 @@ export default function ExpandedImage({ imageSRC }: { imageSRC: string[] }) {
     setCurrentImageCount((prev) => prev - 1);
   };
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: mouse hover is NOT interactive
     <div
       className="relative flex-shrink-0 items-center"
       onMouseEnter={() => setIsHovered(true)}
