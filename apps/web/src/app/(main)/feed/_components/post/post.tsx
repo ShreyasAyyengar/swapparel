@@ -4,8 +4,6 @@ import type z from "zod";
 import PostTrigger from "./post-trigger";
 
 export default function Post({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
-  const MAX_STRING_LEN = 10;
-
   return (
     <PostTrigger postId={postData._id}>
       <p className="font-bold">{postData.title}</p>
