@@ -4,6 +4,7 @@ import { userFormPostSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -75,8 +76,8 @@ export default function CreatePostForm() {
 
   // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
-    <div className="flex h-[calc(100vh-62px)] items-center justify-center">
-      <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-secondary-100">
+    <div className="flex h-[calc(100vh-61.5px)] items-center justify-center">
+      <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-primary-200/40">
         <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
         <Separator className="mt-3" />
         <form
@@ -122,7 +123,10 @@ export default function CreatePostForm() {
           <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <Button
-                className="m-3 mr-5 w-1/8 bg-secondary text-foreground hover:bg-success/30"
+                className={cn(
+                  "m-3 mr-5 w-1/8 text-background",
+                  `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:cursor-not-allowed hover:bg-foreground/50"}`
+                )}
                 onClick={form.handleSubmit}
                 disabled={!canSubmit || isSubmitting}
               >

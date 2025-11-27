@@ -10,7 +10,7 @@ import { type FormValues, useFieldContext } from "./create-post-form";
 export default function UploadDropzone() {
   const field = useFieldContext<FormValues["images"]>();
 
-  const [uploads, setUploads] = useState<z.infer<typeof uploadPhotoInput>[]>([]);
+  const [uploads, setUploads] = useState<FormValues["images"]>([]);
 
   const [draggingOver, setDraggingOver] = useState(false);
 
@@ -44,7 +44,7 @@ export default function UploadDropzone() {
   const onClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(","); // TODO this wasn't wrking with alex
+    input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(",");
     input.multiple = true;
     input.click();
     input.addEventListener("change", () => {
@@ -56,15 +56,18 @@ export default function UploadDropzone() {
           mimeType: file.type,
         })
       );
+
       setUploads((prev) => [...prev, ...newUploads]);
       field.handleChange(newUploads);
     });
   }, [field]);
 
+  // TODO fwd invalid MIME type to TanStack form field.state.meta.errors
+
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-2xl border-2 bg-accent [transition:border_0.3s]",
+        "flex items-center justify-center rounded-2xl border-2 bg-popover [transition:border_0.3s]",
         uploads.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
         draggingOver ? "border-blue-500" : "border-ring"
       )}
@@ -76,9 +79,13 @@ export default function UploadDropzone() {
       {uploads.length > 0 ? (
         // TODO do not reload unused elements?
         <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
-          <UploadedImageThumbnail dialogueOnClick={onClick} />
+          <UploadedImageThumbnail uploadDialogueClickHandler={onClick} />
           {uploads.map((upload) => (
-            <UploadedImageThumbnail key={upload.file.name} file={upload.file} dialogueOnClick={onClick} />
+            <UploadedImageThumbnail
+              key={upload.file.name}
+              file={upload.file}
+              removeClickHandler={() => setUploads((prev) => prev.filter((u) => u.file.name !== upload.file.name))}
+            />
           ))}
         </div>
       ) : (

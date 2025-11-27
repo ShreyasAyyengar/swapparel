@@ -2,13 +2,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@swapparel/shad-ui/comp
 import { CircleFadingPlus, ImageOff, X } from "lucide-react";
 import Image from "next/image";
 
-export default function UploadedImageThumbnail({ file, dialogueOnClick }: { file?: File; dialogueOnClick?: () => void }) {
+export default function UploadedImageThumbnail({
+  file,
+  uploadDialogueClickHandler,
+  removeClickHandler,
+}: {
+  file?: File;
+  uploadDialogueClickHandler?: () => void;
+  removeClickHandler?: () => void;
+}) {
   const onClick = () => {
     if (file === undefined) {
-      dialogueOnClick?.();
+      uploadDialogueClickHandler?.();
     } else {
-      // biome-ignore lint/suspicious/noAlert: <gay>
-      alert("Handle delete!");
+      removeClickHandler?.();
     }
   };
 

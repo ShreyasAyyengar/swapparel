@@ -4,8 +4,8 @@ import type { inferParserType } from "nuqs";
 import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsString } from "nuqs/server";
 import type { z } from "zod";
 import { webServerORPC } from "../../../lib/orpc-web-server";
+import FilterButton from "./_components/post/filter-button";
 import Post from "./_components/post/post";
-import Search from "./_components/post/search-bar";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 
 const feedFilterParser = {
@@ -78,7 +78,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
         <Search />
       </div>
       {data && data.length > 0 && isSuccess ? (
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex items-center justify-center">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {data?.map((post) => (
               <Post key={post._id} postData={post} />
@@ -86,7 +86,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
           </div>
         </div>
       ) : (
-        <div className="flex h-screen flex-1 items-center justify-center">
+        <div className="flex h-[calc(100vh-131.5px)] items-center justify-center">
           <h1 className="mt-10 font-bold text-2xl text-foreground">No posts found</h1>
         </div>
       )}
