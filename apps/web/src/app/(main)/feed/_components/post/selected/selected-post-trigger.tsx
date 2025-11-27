@@ -9,7 +9,6 @@ import ExpandedImage from "./expanded-image";
 
 export default function SelectedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString.withOptions({ shallow: false }));
-  console.log("Children:", children);
   const onClose = async () => {
     await setSelectedPost(null);
   };
