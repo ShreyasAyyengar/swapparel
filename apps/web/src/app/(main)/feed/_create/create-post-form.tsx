@@ -21,7 +21,7 @@ import UploadField from "./_fields/upload-field";
 
 export type FormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
-const { useAppForm } = createFormHook({
+export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {
@@ -73,12 +73,15 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
       },
       images: [] as FormValues["images"],
     } satisfies FormValues as FormValues,
+    // validators: {
+    //   onChange: ({ formApi }) => {
+    //     const errors = formApi.parseValuesWithSchema(userFormPostSchema);
+    //     console.log("onChange errors:", JSON.stringify(errors, null, 2));
+    //     return errors;
+    //   },
+    // },
     validators: {
-      onChange: ({ formApi }) => {
-        const errors = formApi.parseValuesWithSchema(userFormPostSchema);
-        console.log("onChange errors:", JSON.stringify(errors, null, 2));
-        return errors;
-      },
+      onChange: userFormPostSchema,
     },
   });
 

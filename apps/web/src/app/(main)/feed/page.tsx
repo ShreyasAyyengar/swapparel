@@ -9,7 +9,6 @@ import Post from "./_components/post/post";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 
 const feedFilterParser = {
-  post: parseAsString,
   createdBy: parseAsString,
   createdByDisplayName: parseAsString,
 
@@ -73,7 +72,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   // TODO: customize scroll bar
   return (
     <>
-      <SelectedPostLayer initialSelectedPost={parsedParams.post} loadedFeedPosts={data ?? []} />
+      {/*<SelectedPostWrapper loadedFeedPosts={data ?? []} />*/}
+      <SelectedPostLayer loadedFeedPosts={data ?? []} />
       <div className="m-3">
         <FilterButton />
       </div>

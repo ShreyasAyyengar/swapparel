@@ -48,7 +48,8 @@
             "maxAllowedComplexity": 20
           },
           "level": "warn"
-        }
+        },
+        "noForEach": "off"
       }
     }
   }

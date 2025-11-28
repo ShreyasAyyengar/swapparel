@@ -4,6 +4,7 @@ import UploadDropzone from "../upload-dropzone";
 
 export default function UploadField() {
   const field = useFieldContext<FormValues["images"]>();
+  console.log(JSON.stringify(field.form.getAllErrors(), null, 2));
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (

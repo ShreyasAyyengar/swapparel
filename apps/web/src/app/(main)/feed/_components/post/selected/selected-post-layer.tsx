@@ -10,10 +10,10 @@ import SelectedPost from "./selected-post";
 
 type Post = z.infer<typeof internalPostSchema>;
 
-export function SelectedPostLayer({ initialSelectedPost, loadedFeedPosts }: { initialSelectedPost: string | null; loadedFeedPosts: Post[] }) {
-  const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString.withDefault(initialSelectedPost ?? ""));
+export function SelectedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: Post[] }) {
+  const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
 
-  const postFromFeed = useMemo(() => loadedFeedPosts.find((p) => p._id === selectedPost), [loadedFeedPosts, selectedPost]);
+  const tryFromFeed = useMemo(() => loadedFeedPosts.find((p) => p._id === selectedPost), [loadedFeedPosts, selectedPost]);
 
   const {
     data: fetchedPost,
@@ -21,12 +21,12 @@ export function SelectedPostLayer({ initialSelectedPost, loadedFeedPosts }: { in
     isLoading,
   } = useQuery(
     webClientORPC.posts.getPost.queryOptions({
-      input: { _id: selectedPost },
-      enabled: !!selectedPost && !postFromFeed,
+      input: { _id: selectedPost as string }, // Note: this will always be a defined string, see next line.
+      enabled: !!selectedPost && !tryFromFeed,
     })
   );
 
-  const currentSelectedPost = postFromFeed ?? fetchedPost ?? undefined;
+  const currentSelectedPost = tryFromFeed ?? fetchedPost ?? undefined;
 
   useEffect(() => {
     if (fetchedError) setSelectedPost(null);

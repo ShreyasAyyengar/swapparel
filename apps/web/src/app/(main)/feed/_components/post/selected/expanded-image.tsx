@@ -40,6 +40,7 @@ export default function ExpandedImage({ imageSRC }: { imageSRC: string[] }) {
           onClick={increaseImageCount}
         />
       )}
+
       <p>
         {currentImageCount + 1} / {imageSRC.length}
       </p>
