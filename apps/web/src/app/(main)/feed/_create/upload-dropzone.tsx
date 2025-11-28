@@ -11,18 +11,7 @@ export default function UploadDropzone() {
   const field = useFieldContext<FormValues["images"]>();
 
   const [uploads, setUploads] = useState<FormValues["images"]>([]);
-
   const [draggingOver, setDraggingOver] = useState(false);
-
-  // function logFieldValue() {
-  //   console.log("------------------");
-  //   console.log("field.state.meta.errors:", field.state.meta.errors);
-  // }
-  //
-  // useEffect(() => {
-  //   const interval = setInterval(logFieldValue, 1000);
-  //   return () => clearInterval(interval);
-  // }, [field.state.value]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,22 +25,20 @@ export default function UploadDropzone() {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) setDraggingOver(false);
   }, []);
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  // TODO check useEffect proper usage
+  // biome-ignore lint/correctness/useExhaustiveDependencies: processUploads is not used in the callback
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDraggingOver(false);
 
-    const newUploads = Array.from(e.dataTransfer.files).map((file) =>
-      uploadPhotoInput.parse({
-        file: z.file().parse(file),
-        mimeType: file.type,
-      })
-    );
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      processUploads(e.dataTransfer.files);
+    }
+  }, []);
 
-    setUploads((prev) => [...prev, ...newUploads]);
-    field.handleChange(newUploads);
-  };
-
-  const onClick = () => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: processUploads is not used in the callback
+  const onClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     // input.accept = VALID_MIME_TYPES.map((type) => type.replace("image/", ".")).join(",");
@@ -59,30 +46,29 @@ export default function UploadDropzone() {
     input.click();
     input.addEventListener("change", () => {
       if (!input.files) return;
-      const newUploads = Array.from(input.files).map((file) => ({
+      processUploads(input.files);
+    });
+  }, [field]);
+
+  const processUploads = useCallback(
+    (files: FileList) => {
+      const newUploads = Array.from(files).map((file) => ({
         file: z.file().parse(file),
-        mimeType: file.type,
+        mimeType: file.type as FormValues["images"][number]["mimeType"],
       }));
 
-      console.log("newUploads:", newUploads);
+      field.handleChange(newUploads as FormValues["images"]);
 
-      field.state.meta.errors.push("Invalid MIME type");
+      const validUploads = newUploads.filter((upload) => uploadPhotoInput.safeParse(upload).success);
 
-      // TODO fwd invalid MIME type to TanStack form field.state.meta.errors
+      setUploads((prev) => [...prev, ...validUploads]);
 
-      // Combine with existing uploads
-      const allUploads = [...uploads, ...newUploads];
-
-      // Let TanStack Form validate - this will populate field.state.meta.errors if invalid
-      field.handleChange(allUploads);
-
-      console.log("field.state.value:", field.state.value);
-
-      // Only update local state if validation passes
-      const validationResult = uploadPhotoInput.array().safeParse(allUploads);
-      if (validationResult.success) setUploads(allUploads);
-    });
-  };
+      if (uploads.length > 0) {
+        field.state.meta.isValid = true;
+      }
+    },
+    [field]
+  );
 
   return (
     <div

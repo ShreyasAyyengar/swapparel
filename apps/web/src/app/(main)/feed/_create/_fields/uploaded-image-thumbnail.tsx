@@ -40,7 +40,7 @@ export default function UploadedImageThumbnail({
             <TooltipTrigger asChild>
               <div className="group relative h-full w-full rounded-2xl border border-foreground">
                 <div className="flex h-full w-full items-center justify-center">
-                  <ImageOff size={50} className="rounded-2xl" />
+                  <ImageOff size={50} className="rounded-2xl text-foreground" />
                 </div>
                 <X
                   size={20}

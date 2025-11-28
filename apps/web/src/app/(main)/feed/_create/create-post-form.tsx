@@ -73,13 +73,6 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
       },
       images: [] as FormValues["images"],
     } satisfies FormValues as FormValues,
-    // validators: {
-    //   onChange: ({ formApi }) => {
-    //     const errors = formApi.parseValuesWithSchema(userFormPostSchema);
-    //     console.log("onChange errors:", JSON.stringify(errors, null, 2));
-    //     return errors;
-    //   },
-    // },
     validators: {
       onChange: userFormPostSchema,
     },
@@ -142,8 +135,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
             </Button>
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting, data]) => {
-                console.log(JSON.stringify(data, null, 2));
+              {([canSubmit, isSubmitting]) => {
                 return (
                   <Button
                     className={cn(
