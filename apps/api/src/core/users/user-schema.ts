@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { type Document, Schema } from "mongoose";
 import { databaseConnection } from "../../database/database";
 
 export interface User extends Document {
