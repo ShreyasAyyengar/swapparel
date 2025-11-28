@@ -23,7 +23,7 @@ const useMasonry = () => {
       if (!items || items.length < 1) return;
       let gapSize = 0;
       if (masonryContainer.current) {
-        gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"));
+        gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"), 10);
       }
       items.forEach((el) => {
         if (!(el instanceof HTMLElement)) return;
