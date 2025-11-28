@@ -2,7 +2,7 @@
 
 import { Menu } from "lucide-react";
 
-export default function MenuButton() {
+export default function MenuHeaderButton() {
   const openMenu = () => {
     // biome-ignore lint/suspicious/noAlert: <testing>
     alert("Open Menu");

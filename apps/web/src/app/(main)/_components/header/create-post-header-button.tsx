@@ -2,11 +2,11 @@
 
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CopyPlus } from "lucide-react";
+import random from "random";
 import { useState } from "react";
 import { useCreateFormOpenStore } from "../../feed/_hooks/state/create-form-open-store";
-import random from "random";
 
-export default function CreatePostButton() {
+export default function CreatePostHeaderButton() {
   const [bool, setBool] = useState(false);
   const { setIsOpen } = useCreateFormOpenStore();
 

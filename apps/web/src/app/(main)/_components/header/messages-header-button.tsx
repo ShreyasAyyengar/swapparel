@@ -5,7 +5,7 @@ import { MessageCircleMore } from "lucide-react";
 import random from "random";
 import { useState } from "react";
 
-export default function MessagesButton() {
+export default function MessagesHeaderButton() {
   const openMsg = () => {
     // biome-ignore lint/suspicious/noAlert: <testing>
     alert("Open Messages");

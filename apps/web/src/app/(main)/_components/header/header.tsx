@@ -1,7 +1,7 @@
 import Link from "next/link";
-import CreatePostButton from "./create-post-button";
-import MenuButton from "./menu-button";
-import MessagesButton from "./messages-button";
+import CreatePostHeaderButton from "./create-post-header-button";
+import MenuHeaderButton from "./menu-header-button";
+import MessagesHeaderButton from "./messages-header-button";
 import SlimBanner from "./simple-banner-slim.svg";
 import ThemeChanger from "./theme-changer";
 
@@ -16,11 +16,11 @@ export default function Header() {
           width={175}
         />
       </Link>
-      <MenuButton />
+      <MenuHeaderButton />
       <div className="ml-auto flex items-center gap-6">
         <ThemeChanger />
-        <CreatePostButton />
-        <MessagesButton />
+        <CreatePostHeaderButton />
+        <MessagesHeaderButton />
       </div>
     </header>
   );
