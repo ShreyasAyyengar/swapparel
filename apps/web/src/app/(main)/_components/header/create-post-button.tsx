@@ -2,15 +2,13 @@
 
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CopyPlus } from "lucide-react";
-import random from "random";
 import { useState } from "react";
 import CreatePostForm from "../../feed/_create/create-post-form";
+import random from "random";
 
 export default function CreatePostButton() {
-  const [createOpen, setCreateOpen] = useState(false);
-  const [hoverRotate, setHoverRotate] = useState("rotate-10");
-
-  const closeAction = () => setCreateOpen(false);
+  const [bool, setBool] = useState(false);
+  const { setIsOpen } = useCreateFormOpenStore();
 
   return (
     <>
@@ -22,11 +20,11 @@ export default function CreatePostButton() {
       <CopyPlus
         width={37.5}
         height={37.5}
-        onClick={() => setCreateOpen(true)}
-        onMouseEnter={() => setHoverRotate(random.boolean() ? "-rotate-10" : "rotate-10")}
+        onClick={() => setIsOpen(true)}
+        onMouseEnter={() => setBool(random.boolean())}
         className={cn(
           "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
-          `hover:${hoverRotate}`
+          bool ? "hover:-rotate-10" : "hover:rotate-10"
         )}
       />
     </>

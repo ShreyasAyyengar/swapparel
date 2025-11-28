@@ -11,17 +11,17 @@ export default function MessagesButton() {
     alert("Open Messages");
   };
 
-  const [hoverRotate, setHoverRotate] = useState("rotate-10");
+  const [bool, setBool] = useState(false);
 
   return (
     <MessageCircleMore
       width={37.5}
       height={37.5}
       onClick={openMsg}
-      onMouseEnter={() => setHoverRotate(random.boolean() ? "-rotate-10" : "rotate-10")}
+      onMouseEnter={() => setBool(random.boolean())}
       className={cn(
         "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
-        `hover:${hoverRotate}`
+        bool ? "hover:-rotate-10" : "hover:rotate-10"
       )}
     />
   );
