@@ -1,5 +1,6 @@
 import { colors, materials, sizeEnum } from "@swapparel/contracts";
 import { X } from "lucide-react";
+import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
 
 export default function FilterOptions({ onClick }: { onClick: () => void }) {
@@ -11,6 +12,7 @@ export default function FilterOptions({ onClick }: { onClick: () => void }) {
       <FilterSection title="Colors" valueArray={colors} />
       <FilterSection title="Materials" valueArray={materials} />
       <FilterSection title="Size" valueArray={sizeEnum} />
+      <FilterHashtags />
     </div>
   );
 }

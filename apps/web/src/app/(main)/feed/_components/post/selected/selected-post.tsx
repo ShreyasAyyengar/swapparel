@@ -1,4 +1,5 @@
 import type { internalPostSchema } from "@swapparel/contracts";
+import { Badge } from "@swapparel/shad-ui/components/badge";
 import type { z } from "zod";
 import SelectedPostTrigger from "./selected-post-trigger";
 
@@ -35,7 +36,9 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
   return (
     <SelectedPostTrigger post={post}>
       {/*<div className="ml-8 flex w-1/2 flex-col overflow-auto border-2 border-foreground p-2">*/}
-      <p title="username">{post.createdBy}</p>
+      <p title="username" className="font-bold">
+        {post.createdBy}
+      </p>
       <hr className="my-2 border-foreground border-t-2" />
 
       <p className="font-bold">Description:</p>
@@ -43,17 +46,33 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
         {`${post.description.slice(0, MAX_DESCRIPTION)}${post.description.length > MAX_DESCRIPTION ? "..." : ""}`}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
-      <p className="font-bold">
-        Color: <span className="font-normal">{post.colour.join(", ")}</span>
+      <p>
+        Color:{" "}
+        {post.colour.map((color) => (
+          <Badge className="mr-1 bg-foreground font-bold text-background" key={color}>
+            {color}
+          </Badge>
+        ))}
       </p>
-      <p className="font-bold">
-        Size: <span className="font-normal">{post.size}</span>
+      <p>
+        Size: <Badge className="bg-foreground font-bold text-background">{post.size}</Badge>
       </p>
-      <p className="font-bold">
-        Material: <span className="font-normal">{post.material.join(", ")}</span>
+      <p>
+        Material:{" "}
+        {post.material.map((mats) => (
+          <Badge className="mr-1 bg-foreground font-bold text-background" key={mats}>
+            {mats}
+          </Badge>
+        ))}
       </p>
-      <p className="font-bold">
-        Hashtags: <span className="font-normal">{post.hashtags.join(", ")}</span>
+      <p>
+        {/*Hashtags: <span className="font-normal">{post.hashtags.join(", ")}</span>*/}
+        Hashtags:{" "}
+        {post.hashtags.map((mats) => (
+          <Badge className="mr-1 bg-foreground font-bold text-background" key={mats}>
+            {mats}
+          </Badge>
+        ))}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
       <p className="font-bold">Q&A:</p>

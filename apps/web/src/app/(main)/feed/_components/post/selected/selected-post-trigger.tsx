@@ -76,6 +76,7 @@ export default function SelectedPostTrigger({ post, children }: { post: z.infer<
     <div className="fixed inset-0 z-1 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
 
+      {/*TODO: make grid*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className="relative flex-shrink-0 items-center" ref={imageContainerRef}>
           <ExpandedImage imageSRC={post.images} />

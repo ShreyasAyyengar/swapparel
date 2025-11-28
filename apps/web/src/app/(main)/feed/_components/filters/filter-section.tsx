@@ -7,9 +7,6 @@ export default function FilterSection({ title, valueArray }: { title: string; va
       <div className="mb-2 w-auto border-1" />
       <div className="mb-2">
         {valueArray.map((value) => (
-          // <div className="m-2" key={value}>
-          //   <Badge13 value={value} />
-          // </div>
           <Badge13 value={value} key={value} />
         ))}
       </div>
