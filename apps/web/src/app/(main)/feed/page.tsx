@@ -83,9 +83,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
       {data?.posts && data.posts.length > 0 && isSuccess ? (
         <div className="mt-15 flex items-center justify-center">
           <MasonryLayout>
+            {/* <Post postData={data.posts[0]} /> */}
             {data?.posts?.map((post) => (
               <Post key={post._id} postData={post} />
             ))}
+            {/* {[<Post key="extra-post" postData={data.posts[0]} />, ...data?.posts?.map((post) => <Post key={post._id} postData={post} />)]} */}
           </MasonryLayout>
         </div>
       ) : (

@@ -18,7 +18,9 @@ const useMasonry = () => {
       if (masonryContainer.current) {
         gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"));
       }
-      items.forEach((el) => {
+      items.forEach((el, index) => {
+        if (index === 0) return;
+
         if (!(el instanceof HTMLElement)) return;
         let previous = el.previousSibling;
         while (previous) {
