@@ -18,7 +18,7 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
         </p>
         <p title={postData.colour.join(", ")} className="w-[20ch] truncate text-left text-foreground">
           {/*Colors: {postData.colour.join(", ")}*/}
-          Colors:{" "}
+          Color:{" "}
           {postData.colour.map((color) => (
             <Badge className="mr-1 bg-foreground font-bold text-background" key={color}>
               {color}
@@ -27,7 +27,7 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
         </p>
         <p title={postData.material.join(", ")} className="w-[20ch] truncate text-left text-foreground">
           {/*Materials: {postData.material}*/}
-          Colors:{" "}
+          Material:{" "}
           {postData.material.map((mats) => (
             <Badge className="mr-1 bg-foreground font-bold text-background" key={mats}>
               {mats}
