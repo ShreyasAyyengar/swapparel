@@ -5,6 +5,7 @@ import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsS
 import type { z } from "zod";
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
+import MasonryLayout from "./_components/post/masonry-layout";
 import Post from "./_components/post/post";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 import CreatePostLayer from "./_create/create-post-layer";
@@ -81,12 +82,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
       </div>
       {data?.posts && data.posts.length > 0 && isSuccess ? (
         <div className="mt-15 flex items-center justify-center">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {/*TODO: fix multirendering*/}
+          <MasonryLayout>
+            {/* <Post postData={data.posts[0]} /> */}
             {data?.posts?.map((post) => (
               <Post key={post._id} postData={post} />
             ))}
-          </div>
+            {/* {[<Post key="extra-post" postData={data.posts[0]} />, ...data?.posts?.map((post) => <Post key={post._id} postData={post} />)]} */}
+          </MasonryLayout>
         </div>
       ) : (
         <div className="flex h-[calc(100vh-131.5px)] items-center justify-center">
