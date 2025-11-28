@@ -3,7 +3,7 @@
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CopyPlus } from "lucide-react";
 import { useState } from "react";
-import CreatePostForm from "../../feed/_create/create-post-form";
+import { useCreateFormOpenStore } from "../../feed/_hooks/state/create-form-open-store";
 import random from "random";
 
 export default function CreatePostButton() {
