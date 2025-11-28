@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@swapparel/shad-ui/globals.css";
+import { env } from "../env";
 import Providers from "./_components/providers";
 
 const geistSans = localFont({
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   description: "Swapparel is a clothes exchange service!", // TODO: make this better
 };
 
-const reactScanEnabled = true;
+const reactScanEnabled = env.NEXT_PUBLIC_NODE_ENV === "development";
 
 export default function RootLayout({
   children,
