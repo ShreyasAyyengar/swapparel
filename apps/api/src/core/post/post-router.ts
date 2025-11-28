@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { colors, internalPostSchema, materials } from "@swapparel/contracts";
-import { v4 as uuidv4 } from "uuid";
+import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
@@ -42,7 +42,7 @@ export const postRouter = {
         });
       }
 
-      const id = uuidv4();
+      const id = uuidv7();
       const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
 
       const postData = {
@@ -119,7 +119,7 @@ export const postRouter = {
 
       try {
         const randomPostData = {
-          _id: uuidv4(),
+          _id: uuidv7(),
           title: `Random Title ${Math.floor(Math.random() * 1000)}`,
           createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
           description: `Random Number: ${Math.random()}`,
