@@ -7,7 +7,6 @@ export default function MenuHeaderButton() {
     // biome-ignore lint/suspicious/noAlert: <testing>
     alert("Open Menu");
   };
-  // TODO FIX FUCKASS ROTATE
   return (
     <Menu
       width={37.5}
