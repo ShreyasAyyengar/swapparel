@@ -54,7 +54,6 @@ export const feedContract = {
     })
     .input(
       z.object({
-        userId: z.string().optional(), // eliminate seeing own posts (if signed in)
         amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
         filters: feedFilterSchema.optional(),
       })

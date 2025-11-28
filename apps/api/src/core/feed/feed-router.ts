@@ -8,7 +8,7 @@ export const feedRouter = {
     const postDocuments = input.filters ? await PostCollection.find().exec() : await PostCollection.find().limit(input.amount).exec();
     let posts = z.array(internalPostSchema).parse(postDocuments);
 
-    if (input.userId) posts = posts.filter((post) => post.createdBy !== input.userId); // TODO are we doing this?
+    if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
 
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: it's filtering, allow.
     posts = posts.filter((post) => {
