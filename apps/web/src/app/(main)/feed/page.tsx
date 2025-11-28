@@ -7,6 +7,7 @@ import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import Post from "./_components/post/post";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
+import CreatePostLayer from "./_create/create-post-layer";
 
 const feedFilterParser = {
   createdBy: parseAsString,
@@ -73,15 +74,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   return (
     <>
       {/*<SelectedPostWrapper loadedFeedPosts={data ?? []} />*/}
-      <SelectedPostLayer loadedFeedPosts={data ?? []} />
+      <SelectedPostLayer loadedFeedPosts={data?.posts ?? []} />
+      <CreatePostLayer />
       <div className="m-3">
         <FilterButton />
       </div>
-      {data && data.length > 0 && isSuccess ? (
+      {data?.posts && data.posts.length > 0 && isSuccess ? (
         <div className="mt-15 flex items-center justify-center">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {/*TODO: fix multirendering*/}
-            {data?.map((post) => (
+            {data?.posts?.map((post) => (
               <Post key={post._id} postData={post} />
             ))}
           </div>

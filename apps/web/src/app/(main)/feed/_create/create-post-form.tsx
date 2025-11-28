@@ -94,8 +94,8 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
 
   // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
-    <div className="flex h-[calc(100vh-61.5px)] items-center justify-center">
-      <div className="mr-10 ml-10 w-300 rounded-2xl border border-foreground bg-background">
+    <div className="mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
+      <div className="rounded-2xl border border-foreground">
         <div className="rounded-2xl bg-primary-200/40">
           <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
           <Separator className="mt-3" />

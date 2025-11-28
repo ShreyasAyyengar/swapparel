@@ -12,11 +12,11 @@ export default function CreatePostButton() {
 
   return (
     <>
-      {createOpen && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xl">
-          <CreatePostForm closeAction={closeAction} />
-        </div>
-      )}
+      {/*{createOpen && (*/}
+      {/*  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xl">*/}
+      {/*    <CreatePostForm closeAction={closeAction} />*/}
+      {/*  </div>*/}
+      {/*)}*/}
       <CopyPlus
         width={37.5}
         height={37.5}
