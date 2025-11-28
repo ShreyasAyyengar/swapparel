@@ -106,6 +106,22 @@ export const colors = [
 
 export const sizeEnum = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
+// TODO garmentType fully later
+export const garmentType = [
+  "shirt",
+  "shorts",
+  "pants",
+  "socks",
+  "jackets",
+  "dress",
+  "hat",
+  "gloves",
+  "sweater",
+  "glasses",
+  "wigs",
+  "accessories",
+] as const;
+
 export const internalPostSchema = z.object({
   _id: z.uuid(),
   // biome-ignore format: readability

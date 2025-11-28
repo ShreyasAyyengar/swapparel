@@ -56,9 +56,15 @@ export const feedContract = {
       z.object({
         amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
         filters: feedFilterSchema.optional(),
+        cursor: z.uuid().optional(), // TODO migrate z.uuid() to z.uuidv7()
       })
     )
-    .output(z.array(internalPostSchema))
+    .output(
+      z.object({
+        posts: z.array(internalPostSchema),
+        cursor: z.uuid().optional(),
+      })
+    )
     .errors({
       NOT_FOUND: {},
       INTERNAL_SERVER_ERROR: {},
