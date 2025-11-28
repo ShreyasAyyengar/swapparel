@@ -4,6 +4,12 @@ const useMasonry = () => {
   const masonryContainer = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChildNode[]>([]);
 
+  const elementLeft = (el: HTMLElement) => el.getBoundingClientRect().left;
+
+  const elementTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+
+  const elementBottom = (el: HTMLElement) => el.getBoundingClientRect().bottom + window.scrollY;
+
   useEffect(() => {
     if (masonryContainer.current) {
       const masonryItem = Array.from(masonryContainer.current.children);
@@ -11,6 +17,7 @@ const useMasonry = () => {
     }
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: masonryContainer is not in the dependency array
   useEffect(() => {
     const handleMasonry = () => {
       if (!items || items.length < 1) return;
@@ -25,7 +32,7 @@ const useMasonry = () => {
           if (previous.nodeType === 1) {
             el.style.marginTop = "0";
             if (previous instanceof HTMLElement && elementLeft(previous) === elementLeft(el)) {
-              el.style.marginTop = -(elementTop(el) - elementBottom(previous) - gapSize) + "px";
+              el.style.marginTop = `${-(elementTop(el) - elementBottom(previous) - gapSize)}px`;
               break;
             }
           }
@@ -40,12 +47,6 @@ const useMasonry = () => {
       window.removeEventListener("resize", handleMasonry);
     };
   }, [items]);
-
-  const elementLeft = (el: HTMLElement) => el.getBoundingClientRect().left;
-
-  const elementTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
-
-  const elementBottom = (el: HTMLElement) => el.getBoundingClientRect().bottom + window.scrollY;
 
   return masonryContainer;
 };
