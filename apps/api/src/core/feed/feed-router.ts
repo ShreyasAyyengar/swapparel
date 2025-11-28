@@ -6,6 +6,7 @@ import { PostCollection } from "../post/post-schema";
 export const feedRouter = {
   getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
     const postDocuments = input.filters ? await PostCollection.find().exec() : await PostCollection.find().limit(input.amount).exec();
+  getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     let posts = z.array(internalPostSchema).parse(postDocuments);
 
     if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
