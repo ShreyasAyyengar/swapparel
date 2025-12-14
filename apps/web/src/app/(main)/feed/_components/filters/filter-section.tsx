@@ -1,13 +1,21 @@
-import Badge13 from "@swapparel/shad-ui/components/shadcn-studio/badge/badge-13";
+import FilterBadge from "./filter-badge";
 
-export default function FilterSection({ title, valueArray }: { title: string; valueArray: readonly string[] }) {
+export default function FilterSection({
+  title,
+  valueArray,
+  setSelectedArray,
+}: {
+  title: string;
+  valueArray: readonly string[];
+  setSelectedArray: () => void;
+}) {
   return (
     <>
       <p className="mb-2 font-bold">{title}</p>
       <div className="mb-2 w-auto border-1" />
       <div className="mb-2">
         {valueArray.map((value) => (
-          <Badge13 value={value} key={value} />
+          <FilterBadge value={value} key={value} />
         ))}
       </div>
     </>

@@ -21,10 +21,6 @@ const BadgeSelectableDemo = ({value}: {value: string}) => {
         checked={selected}
         onCheckedChange={checked => setSelected(!!checked)}
       />
-      {/*<CheckCircleIcon*/}
-      {/*  className='hidden size-3 text-accent peer-data-[state=checked]:block dark:text-accent'*/}
-      {/*  aria-hidden='true'*/}
-      {/*/>*/}
       <label htmlFor={id} className='cursor-pointer select-none after:absolute after:inset-0'>
         {value}
       </label>
