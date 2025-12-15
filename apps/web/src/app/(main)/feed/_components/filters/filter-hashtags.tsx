@@ -7,13 +7,11 @@ export default function FilterHashtags({
   setHashtagList,
   setOnlyHashtag,
   onlyHashtag,
-  handleFilterSubmit,
 }: {
   hashtagList: string[];
   setHashtagList: Dispatch<SetStateAction<string[]>>;
   setOnlyHashtag: Dispatch<SetStateAction<boolean>>;
   onlyHashtag: boolean;
-  handleFilterSubmit: () => void;
 }) {
   // const [hashtagList, setHashtagList] = useState<string[]>([]);
 
@@ -28,13 +26,11 @@ export default function FilterHashtags({
     // console.log(hashtagList);
     setHashtagList((prev) => [...prev, newHashtag]);
     // console.log(hashtagList);
-    handleFilterSubmit();
   };
 
   const handleDelete = (hashtag: string) => {
     // const newArray = hashtagList.filter((hashtagItem) => hashtagItem !== hashtag);
     setHashtagList((prevList) => prevList.filter((hashtagItem) => hashtagItem !== hashtag));
-    handleFilterSubmit();
   };
 
   const handleCheck = (checked: boolean) => {
