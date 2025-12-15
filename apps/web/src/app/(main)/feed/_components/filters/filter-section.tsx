@@ -15,7 +15,7 @@ export default function FilterSection({
       <div className="mb-2 w-auto border-1" />
       <div className="mb-2">
         {valueArray.map((value) => (
-          <FilterBadge value={value} key={value} />
+          <FilterBadge value={value} key={value} setSelectedArray={setSelectedArray} />
         ))}
       </div>
     </>

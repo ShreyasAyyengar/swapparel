@@ -1,8 +1,7 @@
 import Badge12 from "@swapparel/shad-ui/components/shadcn-studio/badge/badge-12";
-import { useState } from "react";
 
-export default function FilterHashtags() {
-  const [hashtagList, setHashtagList] = useState<string[]>([]);
+export default function FilterHashtags({ hashtagList, setHashtagList }: { hashtagList: string[]; setHashtagList: () => void }) {
+  // const [hashtagList, setHashtagList] = useState<string[]>([]);
 
   const addHashtag = (data: FormData) => {
     let newHashtag: string = data.get("hashtag") as string;

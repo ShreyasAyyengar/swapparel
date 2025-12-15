@@ -1,4 +1,5 @@
 import { colors, materials, sizeEnum } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { X } from "lucide-react";
 import { useState } from "react";
 import FilterHashtags from "./filter-hashtags";
@@ -22,9 +23,11 @@ export default function FilterOptions({ onClick }: { onClick: () => void }) {
         <X className="fixed hover:cursor-pointer" onClick={onClick} />
       </div>
       <FilterSection title="Colors" valueArray={colors} setSelectedArray={setSelectedColors} />
-      <FilterSection title="Materials" valueArray={materials} />
-      <FilterSection title="Size" valueArray={sizeEnum} />
-      <FilterHashtags />
+      <FilterSection title="Materials" valueArray={materials} setSelectedArray={setSelectedMaterials} />
+      <FilterSection title="Size" valueArray={sizeEnum} setSelectedArray={setSelectedSizes} />
+      <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} />
+      {/*<p >SUBMIT FILTERS</p>*/}
+      <Button className={"mt-3 bg-foreground hover:cursor-pointer hover:bg-foreground-500"}>SUBMIT FILTERS</Button>
     </div>
   );
 }
