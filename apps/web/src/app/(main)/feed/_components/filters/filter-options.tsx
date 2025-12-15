@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
 
-export default function FilterOptions({ onClick }: { onClick: () => void }) {
+export default function FilterOptions({ onClick, showingFilters }: { onClick: () => void; showingFilters: boolean }) {
   const [selectedColor, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
   const [selectedSize, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
@@ -45,14 +45,38 @@ export default function FilterOptions({ onClick }: { onClick: () => void }) {
   }, [handleFilterSubmit]);
 
   return (
-    <div className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground">
-      <div className="flex justify-end">
-        <X className="fixed hover:cursor-pointer" onClick={onClick} />
+    showingFilters && (
+      <div className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground">
+        <div className="flex justify-end">
+          <X className="fixed hover:cursor-pointer" onClick={onClick} />
+        </div>
+        {/*TODO: create a use context for set functions and selected arrays*/}
+        <FilterSection
+          title="Colors"
+          valueArray={colors}
+          selectedValues={selectedColors}
+          onlyBoolean={onlyColor}
+          setSelectedArray={setSelectedColors}
+          setOnlyBoolean={setOnlyColor}
+        />
+        <FilterSection
+          title="Materials"
+          valueArray={materials}
+          selectedValues={selectedMaterials}
+          onlyBoolean={onlyMaterials}
+          setSelectedArray={setSelectedMaterials}
+          setOnlyBoolean={setOnlyMaterials}
+        />
+        <FilterSection
+          title="Size"
+          valueArray={sizeEnum}
+          selectedValues={selectedSizes}
+          onlyBoolean={onlySize}
+          setSelectedArray={setSelectedSizes}
+          setOnlyBoolean={setOnlySize}
+        />
+        <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} handleFilterSubmit={handleFilterSubmit} />
       </div>
-      <FilterSection title="Colors" valueArray={colors} setSelectedArray={setSelectedColors} setOnlyBoolean={setOnlyColor} />
-      <FilterSection title="Materials" valueArray={materials} setSelectedArray={setSelectedMaterials} setOnlyBoolean={setOnlyMaterials} />
-      <FilterSection title="Size" valueArray={sizeEnum} setSelectedArray={setSelectedSizes} setOnlyBoolean={setOnlySize} />
-      <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} handleFilterSubmit={handleFilterSubmit} />
-    </div>
+    )
   );
 }
