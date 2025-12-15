@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.0",
-    "@types/node": "^24.10.3",
-    "@typescript/native-preview": "^7.0.0-dev.20251211.1",
+    "@types/node": "^24.10.4",
+    "@typescript/native-preview": "^7.0.0-dev.20251214.1",
     "turbo": "^2.6.3",
     "ultracite": "6.0.0"
   },
@@ -25,12 +25,15 @@
     "packages/*"
   ],
   "dependencies": {
-    "@orpc/client": "^1.12.2",
-    "@orpc/contract": "^1.12.2",
-    "@orpc/openapi-client": "^1.12.2",
-    "@orpc/server": "^1.12.2",
+    "@orpc/client": "^1.12.3",
+    "@orpc/contract": "^1.12.3",
+    "@orpc/openapi-client": "^1.12.3",
+    "@orpc/server": "^1.12.3",
     "@t3-oss/env-core": "^0.13.8",
     "pino": "^10.1.0",
-    "zod": "^4.1.13"
-  }
+    "zod": "^4.1.12"
+  },
+  "trustedDependencies": [
+    "mongoose-zod"
+  ]
 }

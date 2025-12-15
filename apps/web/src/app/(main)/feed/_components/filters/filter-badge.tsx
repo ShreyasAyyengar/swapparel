@@ -2,9 +2,9 @@
 
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
-import { useId, useState } from "react";
+import { type Dispatch, type SetStateAction, useId, useState } from "react";
 
-const FilterBadge = ({ value, setSelectedArray }: { value: string; setSelectedArray: () => void }) => {
+const FilterBadge = ({ value, setSelectedArray }: { value: string; setSelectedArray: Dispatch<SetStateAction<string[]>> }) => {
   const [selected, setSelected] = useState(false);
 
   const id = useId();
@@ -22,7 +22,6 @@ const FilterBadge = ({ value, setSelectedArray }: { value: string; setSelectedAr
           setSelected(!!checked);
           setSelectedArray((prev) => {
             if (checked) return [...prev, value];
-
             return prev.filter((item) => item !== value);
           });
         }}

@@ -1,11 +1,22 @@
 import { colors, materials, sizeEnum } from "@swapparel/contracts";
-import { Button } from "@swapparel/shad-ui/components/button";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { parseAsBoolean, parseAsNativeArrayOf } from "nuqs/server";
+import { useEffect, useState } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
 
 export default function FilterOptions({ onClick }: { onClick: () => void }) {
+  const [selectedColor, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
+  const [selectedColourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
+  const [selectedSize, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
+  const [selectedSizeOnly, setSizeOnly] = useQueryState("sizeOnly", parseAsBoolean.withDefault(false));
+  const [selectedMaterial, setMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
+  const [selectedMaterialOnly, setMaterialOnly] = useQueryState("materialOnly", parseAsBoolean.withDefault(false));
+  const [selectedHashtag, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
+  const [selectedHashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
+
+  // TODO replace with useReducer
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [onlyColor, setOnlyColor] = useState<boolean>(false);
 
@@ -16,18 +27,32 @@ export default function FilterOptions({ onClick }: { onClick: () => void }) {
   const [onlySize, setOnlySize] = useState<boolean>(false);
 
   const [selectedHashtags, setSelectedHashtags] = useState<string[]>([]);
+  const [onlyHashtag, setOnlyHashtag] = useState<boolean>(false);
+
+  const handleFilterSubmit = async () => {
+    await setColor(selectedColors);
+    await setColourOnly(onlyColor);
+    await setMaterial(selectedMaterials);
+    await setMaterialOnly(onlyMaterials);
+    await setSize(selectedSizes);
+    await setSizeOnly(onlySize);
+    await setHashtag(selectedHashtags);
+    await setHashtagOnly(onlyHashtag);
+  };
+
+  useEffect(() => {
+    handleFilterSubmit();
+  }, [handleFilterSubmit]);
 
   return (
     <div className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground">
       <div className="flex justify-end">
         <X className="fixed hover:cursor-pointer" onClick={onClick} />
       </div>
-      <FilterSection title="Colors" valueArray={colors} setSelectedArray={setSelectedColors} />
-      <FilterSection title="Materials" valueArray={materials} setSelectedArray={setSelectedMaterials} />
-      <FilterSection title="Size" valueArray={sizeEnum} setSelectedArray={setSelectedSizes} />
-      <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} />
-      {/*<p >SUBMIT FILTERS</p>*/}
-      <Button className={"mt-3 bg-foreground hover:cursor-pointer hover:bg-foreground-500"}>SUBMIT FILTERS</Button>
+      <FilterSection title="Colors" valueArray={colors} setSelectedArray={setSelectedColors} setOnlyBoolean={setOnlyColor} />
+      <FilterSection title="Materials" valueArray={materials} setSelectedArray={setSelectedMaterials} setOnlyBoolean={setOnlyMaterials} />
+      <FilterSection title="Size" valueArray={sizeEnum} setSelectedArray={setSelectedSizes} setOnlyBoolean={setOnlySize} />
+      <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} handleFilterSubmit={handleFilterSubmit} />
     </div>
   );
 }

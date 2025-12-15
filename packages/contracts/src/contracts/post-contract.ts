@@ -123,7 +123,7 @@ export const garmentType = [
 ] as const;
 
 export const internalPostSchema = z.object({
-  _id: z.uuid(),
+  _id: z.uuidv7(),
   // biome-ignore format: readability
   createdBy: z.email("Creator's email is required."),
   // biome-ignore format: readability
@@ -181,7 +181,7 @@ export const postContract = {
     .input(userFormPostSchema)
     .output(
       z.object({
-        id: z.uuid(),
+        id: z.uuidv7(),
       })
     )
     .errors({
@@ -209,7 +209,7 @@ export const postContract = {
     })
     .input(
       z.object({
-        id: z.uuid(),
+        id: z.uuidv7(),
       })
     )
     .output(z.object({ success: z.boolean(), error: z.string().optional() }))

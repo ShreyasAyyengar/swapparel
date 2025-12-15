@@ -2,7 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { colors, internalPostSchema, materials } from "./post-contract";
 
-const MIN_FEED_AMOUNT = 15;
+const MIN_FEED_AMOUNT = 100;
 const MAX_FEED_AMOUNT = 100;
 
 // JS is stupid: Boolean("false") === true.
@@ -15,12 +15,58 @@ const booleanStringSchema = z.preprocess((value) => {
   if (value === "false") {
     return false;
   }
-  throw new Error("The string must be 'true' or 'false'");
+  throw new Error(`The string must be 'true' or 'false', got: ${value}`);
 }, z.boolean());
 
+export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema>) => {
+  if (!filters) return posts;
+
+  const hasActive =
+    (filters.material?.value?.length ?? 0) > 0 ||
+    (filters.colour?.value?.length ?? 0) > 0 ||
+    (filters.hashtag?.value?.length ?? 0) > 0 ||
+    (filters.size?.value?.length ?? 0) > 0;
+
+  if (!hasActive) return posts;
+
+  return posts.filter((post) => {
+    if (filters.material?.value?.length) {
+      const v = filters.material.value;
+      const only = filters.material.only;
+      const pass = only
+        ? post.material.length === v.length && post.material.every((m) => v.includes(m))
+        : post.material.some((m) => v.includes(m));
+      if (!pass) return false;
+    }
+
+    if (filters.colour?.value?.length) {
+      const v = filters.colour.value;
+      const only = filters.colour.only;
+      const pass = only ? post.colour.length === v.length && post.colour.every((c) => v.includes(c)) : post.colour.some((c) => v.includes(c));
+      if (!pass) return false;
+    }
+
+    if (filters.hashtag?.value?.length) {
+      const v = filters.hashtag.value;
+      const only = filters.hashtag.only;
+      const pass = only
+        ? post.hashtags.length === v.length && post.hashtags.every((h) => v.includes(h))
+        : post.hashtags.some((h) => v.includes(h));
+      if (!pass) return false;
+    }
+
+    if (filters.size?.value?.length) {
+      const v = filters.size.value;
+      const only = filters.size.only;
+      const pass = only ? post.size === v[0] : v.includes(post.size);
+      if (!pass) return false;
+    }
+
+    return true;
+  });
+};
+
 export const feedFilterSchema = z.object({
-  createdBy: z.string().optional(),
-  createdByDisplayName: z.string().optional(),
   colour: z
     .object({
       value: z.array(z.enum(colors)),
@@ -56,13 +102,13 @@ export const feedContract = {
       z.object({
         amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
         filters: feedFilterSchema.optional(),
-        cursor: z.uuid().optional(), // TODO migrate z.uuid() to z.uuidv7()
+        cursor: z.uuidv7().optional(),
       })
     )
     .output(
       z.object({
         posts: z.array(internalPostSchema),
-        cursor: z.uuid().optional(),
+        cursor: z.uuidv7().optional(),
       })
     )
     .errors({
