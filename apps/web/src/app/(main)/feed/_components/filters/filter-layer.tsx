@@ -32,7 +32,7 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
 
   return (
     <div className="mt-15 flex items-center justify-center">
-      <MasonryLayout>
+      <MasonryLayout postCount={filteredPosts.length}>
         {filteredPosts.map((post) => (
           <Post key={post._id} postData={post} />
         ))}

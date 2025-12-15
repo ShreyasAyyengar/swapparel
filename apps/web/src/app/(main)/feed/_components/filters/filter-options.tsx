@@ -82,6 +82,7 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
           onlyHashtag={onlyHashtag}
           handleFilterSubmit={handleFilterSubmit}
         />
+        {/*TODO: Clear all filters button*/}
       </div>
     )
   );

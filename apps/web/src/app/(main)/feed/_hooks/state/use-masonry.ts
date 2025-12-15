@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-const useMasonry = () => {
+const useMasonry = (postCount?: number) => {
   const masonryContainer = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChildNode[]>([]);
 
   const elementLeft = (el: HTMLElement) => el.getBoundingClientRect().left;
-
   const elementTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
-
   const elementBottom = (el: HTMLElement) => el.getBoundingClientRect().bottom + window.scrollY;
 
   useEffect(() => {
@@ -15,26 +13,27 @@ const useMasonry = () => {
       const masonryItem = Array.from(masonryContainer.current.children);
       setItems(masonryItem);
     }
-  }, []);
+  }, [postCount]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: masonryContainer is not in the dependency array
   useEffect(() => {
     const handleMasonry = () => {
       if (!items || items.length < 1) return;
+
       let gapSize = 0;
       if (masonryContainer.current) {
         gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"), 10);
       }
-      items.forEach((el) => {
+
+      items.forEach((el, index) => {
         if (!(el instanceof HTMLElement)) return;
+
+        el.style.marginTop = "0";
+
         let previous = el.previousSibling;
         while (previous) {
-          if (previous.nodeType === 1) {
-            el.style.marginTop = "0";
-            if (previous instanceof HTMLElement && elementLeft(previous) === elementLeft(el)) {
-              el.style.marginTop = `${-(elementTop(el) - elementBottom(previous) - gapSize)}px`;
-              break;
-            }
+          if (previous.nodeType === 1 && previous instanceof HTMLElement && elementLeft(previous) === elementLeft(el)) {
+            el.style.marginTop = `${-(elementTop(el) - elementBottom(previous) - gapSize)}px`;
+            break;
           }
           previous = previous.previousSibling;
         }
