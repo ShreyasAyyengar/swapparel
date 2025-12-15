@@ -75,7 +75,13 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
           setSelectedArray={setSelectedSizes}
           setOnlyBoolean={setOnlySize}
         />
-        <FilterHashtags hashtagList={selectedHashtags} setHashtagList={setSelectedHashtags} handleFilterSubmit={handleFilterSubmit} />
+        <FilterHashtags
+          hashtagList={selectedHashtags}
+          setHashtagList={setSelectedHashtags}
+          setOnlyHashtag={setOnlyHashtag}
+          onlyHashtag={onlyHashtag}
+          handleFilterSubmit={handleFilterSubmit}
+        />
       </div>
     )
   );

@@ -1,13 +1,18 @@
+import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
 import Badge12 from "@swapparel/shad-ui/components/shadcn-studio/badge/badge-12";
 import type { Dispatch, SetStateAction } from "react";
 
 export default function FilterHashtags({
   hashtagList,
   setHashtagList,
+  setOnlyHashtag,
+  onlyHashtag,
   handleFilterSubmit,
 }: {
   hashtagList: string[];
   setHashtagList: Dispatch<SetStateAction<string[]>>;
+  setOnlyHashtag: Dispatch<SetStateAction<boolean>>;
+  onlyHashtag: boolean;
   handleFilterSubmit: () => void;
 }) {
   // const [hashtagList, setHashtagList] = useState<string[]>([]);
@@ -32,12 +37,19 @@ export default function FilterHashtags({
     handleFilterSubmit();
   };
 
+  const handleCheck = (checked: boolean) => {
+    setOnlyHashtag(checked);
+  };
+
   const hashtagBadges = hashtagList.map((hashtag) => <Badge12 key={hashtag} name={hashtag} handleDelete={handleDelete} />);
 
   return (
     <>
-      <p className="mb-2 font-bold">HashTags</p>
-      <div className="mb-2 w-auto border-1" />
+      <p className="mb-2 font-bold">
+        HashTags <span className="font-normal text-xs"> | Match ONLY</span>
+        <Checkbox className={"ml-2"} checked={onlyHashtag} onCheckedChange={handleCheck} />
+      </p>
+      <div className="mb-2 w-auto border" />
       <form action={addHashtag} className={"mb-2"}>
         <input
           type="text"
