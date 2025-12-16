@@ -36,6 +36,7 @@ export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
       const userDocument = await UserCollection.findOne({ email: context.user.email });
+
       if (!userDocument) {
         throw NOT_FOUND({
           data: { message: `User not found with email: ${context.user.email}` },

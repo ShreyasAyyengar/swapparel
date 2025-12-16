@@ -11,7 +11,7 @@ export default function FilterButton() {
   return (
     <div className="fixed">
       <SlidersHorizontal size={37.5} className="hover:cursor-pointer" onClick={toggleFilterOptions} />
-      {showingFilters && <FilterOptions onClick={toggleFilterOptions} />}
+      <FilterOptions onClick={toggleFilterOptions} showingFilters={showingFilters} />
     </div>
   );
 }

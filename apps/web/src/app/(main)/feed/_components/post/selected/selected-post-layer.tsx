@@ -8,9 +8,7 @@ import type { z } from "zod";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import SelectedPost from "./selected-post";
 
-type Post = z.infer<typeof internalPostSchema>;
-
-export function SelectedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: Post[] }) {
+export function SelectedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
 
   const tryFromFeed = useMemo(() => loadedFeedPosts.find((p) => p._id === selectedPost), [loadedFeedPosts, selectedPost]);
