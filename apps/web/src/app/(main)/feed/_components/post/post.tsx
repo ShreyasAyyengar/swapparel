@@ -12,7 +12,7 @@ export default function Post({ postData }: { postData: z.infer<typeof internalPo
         {postData.createdBy}
       </span>
       <Image src={postData.images[0] ?? ""} alt="thumbnail" width={200} height={200} className="rounded-md border-2 border-[#6F4D3880]" />
-      <div className="flex flex-col">
+      <div className="flex flex-col items-center justify-center">
         <p title={postData.size} className="w-[20ch] truncate text-left text-foreground">
           Size: <Badge className="bg-foreground font-bold text-background">{postData.size}</Badge>
         </p>
