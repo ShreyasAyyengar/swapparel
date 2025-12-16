@@ -12,17 +12,13 @@ export default function FilterSection({
 }: {
   title: string;
   valueArray: readonly string[];
-  selectedValues: readonly string[];
+  selectedValues: string[];
   onlyBoolean: boolean;
   setSelectedArray: Dispatch<SetStateAction<string[]>>;
   setOnlyBoolean: Dispatch<SetStateAction<boolean>>;
 }) {
-  // const [selected, setSelected] = useState(false);
+  const handleCheck = (checked: boolean) => setOnlyBoolean(checked);
 
-  const handleCheck = (checked: boolean) => {
-    // setSelected(checked);
-    setOnlyBoolean(checked);
-  };
   return (
     <>
       <p className="mb-2 font-bold">
@@ -33,7 +29,7 @@ export default function FilterSection({
       <div className="mb-2 w-auto border" />
       <div className="mb-2">
         {valueArray.map((value) => (
-          <FilterBadge value={value} key={value} selectedValues={selectedValues} setSelectedArray={setSelectedArray} />
+          <FilterBadge value={value} key={value} selectedFilters={selectedValues} setSelectedFilters={setSelectedArray} />
         ))}
       </div>
     </>

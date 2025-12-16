@@ -2,7 +2,7 @@
 
 import { feedFilterSchema, filterPosts, type internalPostSchema } from "@swapparel/contracts";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { z } from "zod";
 import MasonryLayout from "../post/masonry-layout";
 import Post from "../post/post";
@@ -17,18 +17,34 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
 
-  const filter = feedFilterSchema.parse({
-    colour: { value: selectedColor, only: selectedColourOnly ?? false },
-    material: { value: selectedMaterial, only: selectedMaterialOnly ?? false },
-    size: { value: selectedSize, only: selectedSizeOnly ?? false },
-    hashtag: { value: selectedHashtag, only: selectedHashtagOnly ?? false },
-  });
-
-  const filteredPosts = filterPosts(data.posts, filter);
+  // TODO: Explain memoization of filters and filteredPosts @Shreyas
 
   useEffect(() => {
-    console.log(`parsed ${data.posts.length} of posts, returned ${filteredPosts.length}`);
-  }, [data.posts, filteredPosts]);
+    console.log("[FILTER LAYER LAST] selectedColor from URL state: ", selectedColor);
+    console.log("---------------------");
+  }, [selectedColor]);
+
+  const filters = useMemo(
+    () =>
+      feedFilterSchema.parse({
+        colour: { value: selectedColor, only: selectedColourOnly ?? false },
+        material: { value: selectedMaterial, only: selectedMaterialOnly ?? false },
+        size: { value: selectedSize, only: selectedSizeOnly ?? false },
+        hashtag: { value: selectedHashtag, only: selectedHashtagOnly ?? false },
+      }),
+    [
+      selectedColor,
+      selectedColourOnly,
+      selectedMaterial,
+      selectedMaterialOnly,
+      selectedSize,
+      selectedSizeOnly,
+      selectedHashtag,
+      selectedHashtagOnly,
+    ]
+  );
+
+  const filteredPosts = useMemo(() => filterPosts(data.posts, filters), [data.posts, filters]);
 
   return (
     <div className="mt-15 flex items-center justify-center">

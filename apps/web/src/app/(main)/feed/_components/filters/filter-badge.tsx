@@ -2,19 +2,18 @@
 
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
-import { type Dispatch, type SetStateAction, useId } from "react";
+import { useId } from "react";
 
 const FilterBadge = ({
   value,
-  selectedValues,
-  setSelectedArray,
+  selectedFilters,
+  setSelectedFilters,
 }: {
   value: string;
-  selectedValues: string[];
-  setSelectedArray: Dispatch<SetStateAction<string[]>>;
+  selectedFilters: string[];
+  setSelectedFilters: (values: string[]) => void;
 }) => {
-  const selected = selectedValues.includes(value);
-
+  const selected = selectedFilters.includes(value);
   const id = useId();
 
   return (
@@ -27,11 +26,8 @@ const FilterBadge = ({
         className="peer sr-only after:absolute after:inset-0"
         checked={selected}
         onCheckedChange={(checked) => {
-          setSelectedArray((prev) => {
-            if (checked) return [...prev, value];
-            return prev.filter((item) => item !== value);
-          });
-          console.log(selectedValues);
+          if (checked) setSelectedFilters([...selectedFilters, value]);
+          else setSelectedFilters(selectedFilters.filter((item) => item !== value));
         }}
       />
       <label htmlFor={id} className="cursor-pointer select-none after:absolute after:inset-0">

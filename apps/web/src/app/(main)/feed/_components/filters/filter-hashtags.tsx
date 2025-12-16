@@ -1,6 +1,6 @@
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
 import Badge12 from "@swapparel/shad-ui/components/shadcn-studio/badge/badge-12";
-import type { Dispatch, SetStateAction } from "react";
+import { useFilterStore } from "./filter-store";
 
 export default function FilterHashtags({
   hashtagList,
@@ -9,41 +9,38 @@ export default function FilterHashtags({
   onlyHashtag,
 }: {
   hashtagList: string[];
-  setHashtagList: Dispatch<SetStateAction<string[]>>;
-  setOnlyHashtag: Dispatch<SetStateAction<boolean>>;
+  setHashtagList: (values: string[]) => void;
+  setOnlyHashtag: (only: boolean) => void;
   onlyHashtag: boolean;
 }) {
   // const [hashtagList, setHashtagList] = useState<string[]>([]);
 
+  const { filteredHashtags, setFilteredHashtags, filteredHashtagOnly, setFilteredHashtagOnly } = useFilterStore();
+
   const addHashtag = (data: FormData) => {
     let newHashtag: string = data.get("hashtag") as string;
 
-    if (newHashtag[0] !== "#") {
-      newHashtag = `#${newHashtag}`;
-    }
+    if (newHashtag[0] !== "#") newHashtag = `#${newHashtag}`;
     if (hashtagList.find((loopedPost) => loopedPost === newHashtag) || newHashtag === "#") return;
-
-    // console.log(hashtagList);
-    setHashtagList((prev) => [...prev, newHashtag]);
-    // console.log(hashtagList);
+    setFilteredHashtags([...filteredHashtags, newHashtag]);
   };
 
   const handleDelete = (hashtag: string) => {
-    // const newArray = hashtagList.filter((hashtagItem) => hashtagItem !== hashtag);
-    setHashtagList((prevList) => prevList.filter((hashtagItem) => hashtagItem !== hashtag));
+    const newHashtags = filteredHashtags.filter((hashtagItem) => hashtagItem !== hashtag);
+    setFilteredHashtags(newHashtags);
   };
 
   const handleCheck = (checked: boolean) => {
-    setOnlyHashtag(checked);
+    setFilteredHashtagOnly(checked);
   };
 
-  const hashtagBadges = hashtagList.map((hashtag) => <Badge12 key={hashtag} name={hashtag} handleDelete={handleDelete} />);
+  const hashtagBadges = filteredHashtags.map((hashtag) => <Badge12 key={hashtag} name={hashtag} handleDelete={handleDelete} />);
 
   return (
     <>
       <p className="mb-2 font-bold">
         HashTags <span className="font-normal text-xs"> | Match ONLY</span>
-        <Checkbox className={"ml-2"} checked={onlyHashtag} onCheckedChange={handleCheck} />
+        <Checkbox className={"ml-2"} checked={filteredHashtagOnly} onCheckedChange={handleCheck} />
       </p>
       <div className="mb-2 w-auto border" />
       <form action={addHashtag} className={"mb-2"}>

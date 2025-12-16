@@ -5,66 +5,7 @@ import FilterLayer from "./_components/filters/filter-layer";
 import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
 import CreatePostLayer from "./_create/create-post-layer";
 
-// const feedFilterParser = {
-//   createdBy: parseAsString,
-//   createdByDisplayName: parseAsString,
-//
-//   colour: parseAsNativeArrayOf(parseAsString),
-//   colourOnly: parseAsBoolean.withDefault(false),
-//
-//   material: parseAsNativeArrayOf(parseAsString),
-//   materialOnly: parseAsBoolean.withDefault(false),
-//
-//   size: parseAsNativeArrayOf(parseAsString),
-//   sizeOnly: parseAsBoolean.withDefault(false),
-//
-//   hashtag: parseAsNativeArrayOf(parseAsString),
-//   hashtagOnly: parseAsBoolean.withDefault(false),
-// };
-
-// export type SearchParams = inferParserType<typeof feedFilterParser>;
-
-// const feedFilterCache = createSearchParamsCache(feedFilterParser);
-
-// export default async function Page({ searchParams }: { searchParams: Promise<SearchParams> }) {
 export default async function Page() {
-  // const parsedParams = await feedFilterCache.parse(searchParams); // get search params from URL
-  // let filters: z.infer<typeof feedFilterSchema>;
-
-  // try {
-  //   filters = feedFilterSchema.parse({
-  //     // ...(parsedParams.createdBy !== null && { createdBy: parsedParams.createdBy }),
-  //     // ...(parsedParams.createdByDisplayName !== null && { createdByDisplayName: parsedParams.createdByDisplayName }),
-  //     ...(parsedParams.colour.length > 0 && {
-  //       colour: {
-  //         value: parsedParams.colour,
-  //         only: parsedParams.colourOnly ?? false,
-  //       },
-  //     }),
-  //     ...(parsedParams.material.length > 0 && {
-  //       material: {
-  //         value: parsedParams.material,
-  //         only: parsedParams.materialOnly ?? false,
-  //       },
-  //     }),
-  //     ...(parsedParams.size.length > 0 && {
-  //       size: {
-  //         value: parsedParams.size,
-  //         only: parsedParams.sizeOnly ?? false,
-  //       },
-  //     }),
-  //     ...(parsedParams.hashtag.length > 0 && {
-  //       hashtag: {
-  //         value: parsedParams.hashtag,
-  //         only: parsedParams.hashtagOnly ?? false,
-  //       },
-  //     }),
-  //   }); // create a type-safe post-filter
-  // } catch (_unused) {
-  //   // if any parsing error, the user injected an invalid URL filter state, default to empty filter
-  //   filters = feedFilterSchema.parse({});
-  // }
-
   const { data, isSuccess } = await safe(webServerORPC.feed.getFeed({})); // fetch feed w/ filter
 
   // TODO: customize scroll bar
