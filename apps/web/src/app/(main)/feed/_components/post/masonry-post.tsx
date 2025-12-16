@@ -8,7 +8,7 @@ export default function MasonryPost({ postData }: { postData: z.infer<typeof int
   return (
     <PostTrigger postId={postData._id}>
       <p className="font-bold">{postData.title}</p>
-      <span title={postData.createdBy} className="w-[20ch] truncate text-foreground">
+      <span title={postData.createdBy} className="w-full truncate text-foreground">
         {postData.createdBy}
       </span>
       <div className="flex flex-col items-start justify-start">
@@ -20,10 +20,10 @@ export default function MasonryPost({ postData }: { postData: z.infer<typeof int
           className="w-full rounded-md border-2 border-[#6F4D3880]"
         />
         <div className="pt-2">
-          <p title={postData.size} className="w-[20ch] truncate text-left text-foreground">
+          <p title={postData.size} className="w-full truncate text-left text-foreground">
             Size: <Badge className="bg-foreground font-bold text-background">{postData.size}</Badge>
           </p>
-          <p title={postData.colour.join(", ")} className="w-[20ch] truncate text-left text-foreground">
+          <p title={postData.colour.join(", ")} className="w-full truncate text-left text-foreground">
             {/*Colors: {postData.colour.join(", ")}*/}
             Color:{" "}
             {postData.colour.map((color) => (
@@ -32,7 +32,7 @@ export default function MasonryPost({ postData }: { postData: z.infer<typeof int
               </Badge>
             ))}
           </p>
-          <p title={postData.material.join(", ")} className="w-[20ch] truncate text-left text-foreground">
+          <p title={postData.material.join(", ")} className="w-full truncate text-left text-foreground">
             {/*Materials: {postData.material}*/}
             Material:{" "}
             {postData.material.map((mats) => (
