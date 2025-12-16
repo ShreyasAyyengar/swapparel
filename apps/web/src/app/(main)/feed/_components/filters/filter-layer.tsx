@@ -2,7 +2,7 @@
 
 import { feedFilterSchema, filterPosts, type internalPostSchema } from "@swapparel/contracts";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import type { z } from "zod";
 import MasonryLayout from "../post/masonry-layout";
 import Post from "../post/post";
@@ -18,12 +18,6 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
 
   // TODO: Explain memoization of filters and filteredPosts @Shreyas
-
-  useEffect(() => {
-    console.log("[FILTER LAYER LAST] selectedColor from URL state: ", selectedColor);
-    console.log("---------------------");
-  }, [selectedColor]);
-
   const filters = useMemo(
     () =>
       feedFilterSchema.parse({
@@ -48,7 +42,7 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
 
   return (
     <div className="mt-15 flex items-center justify-center">
-      <MasonryLayout postCount={filteredPosts.length}>
+      <MasonryLayout posts={filteredPosts.length}>
         {filteredPosts.map((post) => (
           <Post key={post._id} postData={post} />
         ))}

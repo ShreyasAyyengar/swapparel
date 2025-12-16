@@ -2,17 +2,10 @@ import { colors as COLOR_ARRAY, materials as MATERIAL_ARRAY, sizeEnum } from "@s
 import { X } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { parseAsBoolean, parseAsNativeArrayOf } from "nuqs/server";
-import { useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
-import { useFilterStore } from "./filter-store";
 
 export default function FilterOptions({ onClick, showingFilters }: { onClick: () => void; showingFilters: boolean }) {
-  const { filteredColors, setFilteredColors, filteredColorOnly, setFilteredColorOnly } = useFilterStore();
-  const { filteredMaterials, setFilteredMaterials, filteredMaterialOnly, setFilteredMaterialOnly } = useFilterStore();
-  const { filteredSizes, setFilteredSizes, filteredSizeOnly, setFilteredSizeOnly } = useFilterStore();
-  const { filteredHashtags, setFilteredHashtags, filteredHashtagOnly, setFilteredHashtagOnly } = useFilterStore();
-
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
   const [sizes, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
@@ -21,75 +14,6 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
   const [materialOnly, setMaterialOnly] = useQueryState("materialOnly", parseAsBoolean.withDefault(false));
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
-
-  // Track if we're currently syncing to prevent circular updates
-  const isSyncingRef = useRef(false);
-
-  // Sync URL → Store (when URL changes, e.g., browser back/forward, direct URL access)
-  useEffect(() => {
-    if (isSyncingRef.current) return;
-
-    isSyncingRef.current = true;
-    setFilteredColors(colors ?? []);
-    setFilteredColorOnly(colourOnly);
-    setFilteredMaterials(materials ?? []);
-    setFilteredMaterialOnly(materialOnly);
-    setFilteredSizes(sizes ?? []);
-    setFilteredSizeOnly(sizeOnly);
-    setFilteredHashtags(hashtags ?? []);
-    setFilteredHashtagOnly(hashtagOnly);
-    isSyncingRef.current = false;
-  }, [
-    colors,
-    colourOnly,
-    materials,
-    materialOnly,
-    sizes,
-    sizeOnly,
-    hashtags,
-    hashtagOnly,
-    setFilteredColorOnly,
-    setFilteredColors,
-    setFilteredHashtagOnly,
-    setFilteredHashtags,
-    setFilteredMaterialOnly,
-    setFilteredMaterials,
-    setFilteredSizeOnly,
-    setFilteredSizes,
-  ]);
-
-  // Sync Store → URL (when user interacts with filters)
-  useEffect(() => {
-    if (isSyncingRef.current) return;
-
-    isSyncingRef.current = true;
-    setColor(filteredColors);
-    setColourOnly(filteredColorOnly);
-    setMaterial(filteredMaterials);
-    setMaterialOnly(filteredMaterialOnly);
-    setSize(filteredSizes);
-    setSizeOnly(filteredSizeOnly);
-    setHashtag(filteredHashtags);
-    setHashtagOnly(filteredHashtagOnly);
-    isSyncingRef.current = false;
-  }, [
-    filteredColors,
-    filteredColorOnly,
-    filteredMaterials,
-    filteredMaterialOnly,
-    filteredSizes,
-    filteredSizeOnly,
-    filteredHashtags,
-    filteredHashtagOnly,
-    setColor,
-    setColourOnly,
-    setHashtag,
-    setHashtagOnly,
-    setMaterial,
-    setMaterialOnly,
-    setSize,
-    setSizeOnly,
-  ]);
 
   return (
     showingFilters && (
@@ -100,33 +24,28 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
         <FilterSection
           title="Colors"
           valueArray={COLOR_ARRAY}
-          selectedValues={filteredColors}
-          onlyBoolean={filteredColorOnly}
-          setSelectedArray={setFilteredColors}
-          setOnlyBoolean={setFilteredColorOnly}
+          selectedValues={colors}
+          onlyBoolean={colourOnly}
+          setSelectedArray={setColor}
+          setOnlyBoolean={setColourOnly}
         />
         <FilterSection
           title="Materials"
           valueArray={MATERIAL_ARRAY}
-          selectedValues={filteredMaterials}
-          onlyBoolean={filteredMaterialOnly}
-          setSelectedArray={setFilteredMaterials}
-          setOnlyBoolean={setFilteredMaterialOnly}
+          selectedValues={materials}
+          onlyBoolean={materialOnly}
+          setSelectedArray={setMaterial}
+          setOnlyBoolean={setMaterialOnly}
         />
         <FilterSection
           title="Size"
           valueArray={sizeEnum}
-          selectedValues={filteredSizes}
-          onlyBoolean={filteredSizeOnly}
-          setSelectedArray={setFilteredSizes}
-          setOnlyBoolean={setFilteredSizeOnly}
+          selectedValues={sizes}
+          onlyBoolean={sizeOnly}
+          setSelectedArray={setSize}
+          setOnlyBoolean={setSizeOnly}
         />
-        <FilterHashtags
-          hashtagList={filteredHashtags}
-          setHashtagList={setFilteredHashtags}
-          setOnlyHashtag={setFilteredHashtagOnly}
-          onlyHashtag={filteredHashtagOnly}
-        />
+        <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}
       </div>
     )

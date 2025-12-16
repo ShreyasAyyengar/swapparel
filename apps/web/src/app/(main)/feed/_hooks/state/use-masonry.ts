@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const useMasonry = (postCount?: number) => {
+const useMasonry = (posts?: number) => {
   const masonryContainer = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<ChildNode[]>([]);
 
@@ -8,40 +8,41 @@ const useMasonry = (postCount?: number) => {
   const elementTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
   const elementBottom = (el: HTMLElement) => el.getBoundingClientRect().bottom + window.scrollY;
 
+  const handleMasonry = () => {
+    if (!items || items.length < 1) return;
+
+    let gapSize = 0;
+    if (masonryContainer.current) {
+      gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"), 10);
+    }
+
+    items.forEach((el, index) => {
+      if (!(el instanceof HTMLElement)) return;
+
+      el.style.marginTop = "0";
+
+      let previous = el.previousSibling;
+      while (previous) {
+        if (previous.nodeType === 1 && previous instanceof HTMLElement && elementLeft(previous) === elementLeft(el)) {
+          el.style.marginTop = `${-(elementTop(el) - elementBottom(previous) - gapSize)}px`;
+          break;
+        }
+        previous = previous.previousSibling;
+      }
+    });
+  };
+
   useEffect(() => {
     if (masonryContainer.current) {
       const masonryItem = Array.from(masonryContainer.current.children);
       setItems(masonryItem);
     }
-  }, [postCount]);
+  }, [posts]);
 
   useEffect(() => {
-    const handleMasonry = () => {
-      if (!items || items.length < 1) return;
-
-      let gapSize = 0;
-      if (masonryContainer.current) {
-        gapSize = Number.parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap"), 10);
-      }
-
-      items.forEach((el, index) => {
-        if (!(el instanceof HTMLElement)) return;
-
-        el.style.marginTop = "0";
-
-        let previous = el.previousSibling;
-        while (previous) {
-          if (previous.nodeType === 1 && previous instanceof HTMLElement && elementLeft(previous) === elementLeft(el)) {
-            el.style.marginTop = `${-(elementTop(el) - elementBottom(previous) - gapSize)}px`;
-            break;
-          }
-          previous = previous.previousSibling;
-        }
-      });
-    };
-
     handleMasonry();
     window.addEventListener("resize", handleMasonry);
+    // setTimeout(handleMasonry, 1000);
     return () => {
       window.removeEventListener("resize", handleMasonry);
     };
