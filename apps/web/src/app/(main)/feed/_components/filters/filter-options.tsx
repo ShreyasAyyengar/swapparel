@@ -97,7 +97,6 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
         <div className="flex justify-end">
           <X className="fixed hover:cursor-pointer" onClick={onClick} />
         </div>
-        {/*TODO: create a use context for set functions and selected arrays*/}
         <FilterSection
           title="Colors"
           valueArray={COLOR_ARRAY}
@@ -123,11 +122,10 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
           setOnlyBoolean={setFilteredSizeOnly}
         />
         <FilterHashtags
-          hashtagList={selectedHashtags}
-          setHashtagList={setSelectedHashtags}
-          setOnlyHashtag={setOnlyHashtag}
-          onlyHashtag={onlyHashtag}
-          handleFilterSubmit={handleFilterSubmit}
+          hashtagList={filteredHashtags}
+          setHashtagList={setFilteredHashtags}
+          setOnlyHashtag={setFilteredHashtagOnly}
+          onlyHashtag={filteredHashtagOnly}
         />
         {/*TODO: Clear all filters button*/}
       </div>

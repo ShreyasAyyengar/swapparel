@@ -1,5 +1,4 @@
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
-import type { Dispatch, SetStateAction } from "react";
 import FilterBadge from "./filter-badge";
 
 export default function FilterSection({
@@ -14,8 +13,8 @@ export default function FilterSection({
   valueArray: readonly string[];
   selectedValues: string[];
   onlyBoolean: boolean;
-  setSelectedArray: Dispatch<SetStateAction<string[]>>;
-  setOnlyBoolean: Dispatch<SetStateAction<boolean>>;
+  setSelectedArray: (values: string[]) => void;
+  setOnlyBoolean: (only: boolean) => void;
 }) {
   const handleCheck = (checked: boolean) => setOnlyBoolean(checked);
 
