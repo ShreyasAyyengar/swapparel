@@ -1,0 +1,31 @@
+import { z } from "zod";
+import { oc } from "@orpc/contract";
+
+const MESSAGE_MAX_LENGTH = 1000;
+
+export const swapContract= {
+    createSwap: oc
+        .route({
+            method: "POST",
+        })
+        .input(z.object({
+            sellerEmail: z.email("Seller's email is required."),
+            buyerEmail: z.email("Buyer's email is required."),
+            sellerPostID: z.uuidv7(),
+            buyerPostID: z.uuidv7().optional(),
+            messageToSeller: z.string().max(MESSAGE_MAX_LENGTH, "Message can only be 1000 characters long").optional(),
+            dateToSwap: z.date(),
+            locationToSwap: z.string(),
+        }))
+        .output(z.object({
+            _id: z.uuidv7(),
+        }))
+        .errors({
+            INTERNAL_SERVER_ERROR: {
+                data: z.object({
+                    message: z.string(),
+                }),
+            },
+        }),
+};
+
