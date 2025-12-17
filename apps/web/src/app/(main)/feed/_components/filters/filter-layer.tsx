@@ -2,12 +2,15 @@
 
 import { Masonry } from "@mui/lab";
 import { feedFilterSchema, filterPosts, type internalPostSchema } from "@swapparel/contracts";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
+import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import MasonryPost from "../post/masonry-post";
 
-export default function FilterLayer({ data }: { data: { posts: z.infer<typeof internalPostSchema>[] } }) {
+export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z.infer<typeof internalPostSchema>[] } }) {
   const [selectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
   const [selectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
@@ -38,7 +41,27 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
     ]
   );
 
-  const filteredPosts = useMemo(() => filterPosts(data.posts, filters), [data.posts, filters]);
+  const { ref, inView } = useInView();
+
+  const { data, fetchNextPage } = useInfiniteQuery(
+    webClientORPC.feed.getFeed.infiniteOptions({
+      initialPageParam: initialPosts.posts.at(-1)?._id ?? null,
+      getNextPageParam: (lastPage) => lastPage.cursor ?? null,
+      input: (pageParam: string | null) => ({
+        filter: filters,
+        cursor: pageParam ?? undefined,
+      }),
+    })
+  );
+
+  const filteredPosts = useMemo(
+    () => filterPosts([...initialPosts.posts, ...(data?.pages.flatMap((p) => p.posts) ?? [])], filters),
+    [initialPosts.posts, filters, data?.pages]
+  );
+
+  useEffect(() => {
+    if (inView) fetchNextPage();
+  }, [inView, fetchNextPage]);
 
   return (
     <div className="mt-15 mr-25 ml-25 flex items-center justify-center">
@@ -52,6 +75,9 @@ export default function FilterLayer({ data }: { data: { posts: z.infer<typeof in
           <MasonryPost key={post._id} postData={post} />
         ))}
       </Masonry>
+      <div ref={ref} />
+      {/* TODO: opening a new post from a scroll render takes more time*/}
+
       {/*<ImageList variant={"masonry"} cols={5} gap={10}>*/}
       {/*  {filteredPosts.map((post) => (*/}
       {/*    <MasonryPost key={post._id} postData={post} />*/}

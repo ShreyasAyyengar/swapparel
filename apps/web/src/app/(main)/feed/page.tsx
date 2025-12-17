@@ -40,6 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   if (!filters.success) redirect("/feed");
 
   const { data, isSuccess } = await safe(webServerORPC.feed.getFeed({}));
+
   // TODO: customize scroll bar
   return (
     <>
@@ -49,7 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
         <FilterButton />
       </div>
       {data?.posts && data.posts.length > 0 && isSuccess ? (
-        <FilterLayer data={data} />
+        <FilterLayer initialPosts={data} />
       ) : (
         <div className="flex h-[calc(100vh-131.5px)] items-center justify-center">
           <h1 className="mt-10 font-bold text-2xl text-foreground">No posts found</h1>
