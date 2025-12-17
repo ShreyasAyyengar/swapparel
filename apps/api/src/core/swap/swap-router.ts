@@ -1,5 +1,5 @@
 import { UserCollection } from "../users/user-schema";
-import { PostCollection } from "./post-schema";
+import { PostCollection } from "../post/post-schema";
 import { internalPostSchema } from "@swapparel/contracts";
 import { z } from "zod";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
