@@ -5,16 +5,23 @@ import { PostCollection } from "../post/post-schema";
 
 export const feedRouter = {
   getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const postDocuments = input.filters ? await PostCollection.find().exec() : await PostCollection.find().limit(input.amount).exec();
+    const documentQuery = PostCollection.find(input.cursor ? { _id: { $lt: input.cursor } } : {})
+      .sort({ _id: -1 })
+      .limit(input.amount);
+
+    const postDocuments = await documentQuery.exec();
+
     let posts = z.array(internalPostSchema).parse(postDocuments);
 
     if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
 
+    if (!input.filters) return { posts, cursor: postDocuments.at(-1)?._id };
+
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: it's filtering, allow.
     posts = posts.filter((post) => {
-      if (!input.filters) return true;
+      if (!input.filters) return true; // assert input.filters is not null
 
-      if (input.filters.createdBy && !input.filters.createdBy.includes(post.createdBy)) return false;
+      // if (input.filters.createdBy && !input.filters.createdBy.includes(post.createdBy)) return false;
       // if (input.filters.createdByDisplayName && !input.filters.createdByDisplayName.includes(post.createdByDisplayName)) return false; TODO betterauth integration
 
       if (input.filters.material?.value) {
@@ -76,7 +83,7 @@ export const feedRouter = {
 
     return {
       posts,
-      cursor: input.cursor, // TODO change
+      cursor: postDocuments.at(-1)?._id,
     };
   }),
 

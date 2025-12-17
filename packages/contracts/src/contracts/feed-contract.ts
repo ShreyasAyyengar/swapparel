@@ -2,8 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { colors, internalPostSchema, materials } from "./post-contract";
 
-const MIN_FEED_AMOUNT = 100;
-const MAX_FEED_AMOUNT = 100;
+const FEED_AMOUNT = 20;
 
 // JS is stupid: Boolean("false") === true.
 // https://github.com/colinhacks/zod/issues/2985#issuecomment-2085239542
@@ -100,15 +99,15 @@ export const feedContract = {
     })
     .input(
       z.object({
-        amount: z.number().min(MIN_FEED_AMOUNT).max(MAX_FEED_AMOUNT).default(MIN_FEED_AMOUNT),
+        amount: z.number().default(FEED_AMOUNT),
         filters: feedFilterSchema.optional(),
-        cursor: z.uuidv7().optional(),
+        cursor: z.uuidv7().optional(), // the last post retrieved from the previous request
       })
     )
     .output(
       z.object({
         posts: z.array(internalPostSchema),
-        cursor: z.uuidv7().optional(),
+        cursor: z.uuidv7().optional(), // the last post retrieved from this request
       })
     )
     .errors({
