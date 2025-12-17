@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { oc } from "@orpc/contract";
-import {internalPostSchema, uploadPhotoInput} from "./post-contract";
 
 const MESSAGE_MAX_LENGTH = 1000;
 

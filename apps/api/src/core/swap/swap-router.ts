@@ -1,67 +1,76 @@
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "../post/post-schema";
 import { internalPostSchema } from "@swapparel/contracts";
-import { z } from "zod";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc";
-import { swapContract } from "@swapparel/contracts";
+import { protectedProcedure } from "../../libs/orpc";
 import { v7 as uuidv7 } from "uuid";
 
 
 export const swapRouter = {
     createSwap: protectedProcedure.swap.createSwap.handler(
-        async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR,BAD_REQUEST } , context }) => {
+        async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
+
+            //creates buyerPost only if there is a post id given as input
+            const buyerPost = await PostCollection.findById(input.swapData.buyerPostID);
 
             //Confirms email of buyer exists
             const buyerEmailCheck = await UserCollection.findOne({ email: context.user.email });
-
             if (!buyerEmailCheck) {
                 throw NOT_FOUND({
                     data: { message: `User not found with email: ${context.user.email}` },
                 });
             }
 
-            //Confirms email of buyer exists
-            const sellerEmailCheck = await UserCollection.findOne({
-                email: input.swapData.sellerEmail
-            });
-
-            if (!sellerEmailCheck) {
+            //confirms seller post exists given through input
+            const sellerPost = await PostCollection.findById(input.swapData.sellerPostID);
+            if (!sellerPost) {
                 throw NOT_FOUND({
-                    data: { message: `User not found with email: ${input.swapData.sellerEmail}` },
+                    data: { message: "Seller post not found" }
                 });
             }
-            const sellerPost = await PostCollection.findOne({
-                _id: input.swapData.sellerPostID
-            })
-            const buyerPost = await PostCollection.findOne({
-                _id: input.swapData.buyerPostID
-            })
+
+            //Confirms email of seller exists after confirming seller post exists
+            const sellerEmailCheck = await UserCollection.findOne({ createdBy: sellerPost.createdBy});
+            if (!sellerEmailCheck) {
+                throw NOT_FOUND({
+                    data: { message: `User not found with email: ${sellerPost.createdBy}` },
+                });
+            }
 
 
-
-            const id = uuidv7();
+            const _id = uuidv7();
 
 
             const swapData = {
-                _id: id,
-                sellerEmail: input.swapData.sellerEmail,
+                _id: _id,
+                sellerEmail: sellerPost.createdBy,
                 buyerEmail: context.user.email,
-                sellerPostID: sellerPost,
-                buyerPostID: buyerPost,
-                messageToSeller: input.swapData.messageToSeller,
+                sellerPostID: sellerPost._id,
+                buyerPostID: buyerPost?._id,
+                messageToSeller: input.swapData.messageToSeller ?? undefined,
                 dateToSwap: input.swapData.dateToSwap,
                 locationToSwap: input.swapData.locationToSwap,
             }
+
+
             const tryParse = internalPostSchema.safeParse(swapData);
 
             if (!tryParse.success) {
                 throw BAD_REQUEST({
                     data: {
-                        issues: tryParse.error.issues,
                         message: "Invalid Input",
                     },
                 });
             }
+            try {
+                await PostCollection.insertOne(swapData);
+            } catch (error) {
+                throw INTERNAL_SERVER_ERROR({
+                    data: {
+                        message: `Failed to insert document by _id: ${_id}. ${error}`,
+                    },
+                });
+            }
+            return { _id };
         }
     ),
 };
