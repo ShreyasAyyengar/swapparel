@@ -1,5 +1,5 @@
-import {z} from "zod";
-import {oc} from "@orpc/contract";
+import { oc } from "@orpc/contract";
+import { z } from "zod";
 
 const MESSAGE_MAX_LENGTH = 1000;
 
@@ -11,7 +11,7 @@ export const internalSwapSchema = z.object({
   messageToSeller: z.string().max(MESSAGE_MAX_LENGTH, "Message can only be 1000 characters long").optional(),
   dateToSwap: z.date(),
   locationToSwap: z.string(),
-})
+});
 
 export const userFormSwapSchema = z.object({
   swapData: internalSwapSchema.pick({
@@ -31,9 +31,11 @@ export const swapContract = {
       method: "POST",
     })
     .input(userFormSwapSchema)
-    .output(z.object({
-      _id: z.uuidv7(),
-    }))
+    .output(
+      z.object({
+        _id: z.uuidv7(),
+      })
+    )
     .errors({
       INTERNAL_SERVER_ERROR: {
         data: z.object({
@@ -52,4 +54,3 @@ export const swapContract = {
       },
     }),
 };
-
