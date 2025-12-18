@@ -65,11 +65,7 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
 
   return (
     <div className="mt-15 mr-25 ml-25 flex items-center justify-center">
-      {/*<MasonryLayout posts={filteredPosts.length}>*/}
-      {/*    {filteredPosts.map((post) => (*/}
-      {/*        <Post key={post._id} postData={post} />*/}
-      {/*    ))}*/}
-      {/*</MasonryLayout>*/}
+      {/* TODO: render masonry layout like pintrest */}
       <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing={3} sequential={true}>
         {filteredPosts.map((post) => (
           <MasonryPost key={post._id} postData={post} />
@@ -77,12 +73,6 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
       </Masonry>
       <div ref={ref} />
       {/* TODO: opening a new post from a scroll render takes more time*/}
-
-      {/*<ImageList variant={"masonry"} cols={5} gap={10}>*/}
-      {/*  {filteredPosts.map((post) => (*/}
-      {/*    <MasonryPost key={post._id} postData={post} />*/}
-      {/*  ))}*/}
-      {/*</ImageList>*/}
     </div>
   );
 }
