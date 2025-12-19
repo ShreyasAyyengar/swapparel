@@ -4,6 +4,7 @@ import { z } from "zod";
 const MESSAGE_MAX_LENGTH = 1000;
 
 export const internalSwapSchema = z.object({
+  _id: z.uuidv7(),
   sellerEmail: z.email("Seller's email is required."),
   buyerEmail: z.email("Buyer's email is required."),
   sellerPostID: z.uuidv7(),
@@ -15,6 +16,7 @@ export const internalSwapSchema = z.object({
 
 export const userFormSwapSchema = z.object({
   swapData: internalSwapSchema.pick({
+    _id: true,
     sellerEmail: true,
     buyerEmail: true,
     sellerPostID: true,
@@ -53,4 +55,10 @@ export const swapContract = {
         }),
       },
     }),
+
+  addMockSwap: oc
+    .route({
+      method: "GET",
+    })
+    .output(z.boolean()),
 };
