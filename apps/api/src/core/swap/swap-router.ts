@@ -33,6 +33,12 @@ export const swapRouter = {
           data: { message: `User not found with email: ${sellerPost.createdBy}` },
         });
       }
+      //Checks if user attempts to trade with themselves
+      if ( sellerEmailCheck === buyerEmailCheck ) {
+        throw BAD_REQUEST({
+          data: { message: "User cannot trade with themselves" },
+        })
+      }
 
       const _id = uuidv7();
 
