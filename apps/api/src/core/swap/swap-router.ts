@@ -4,6 +4,7 @@ import {protectedProcedure, publicProcedure} from "../../libs/orpc";
 import { PostCollection } from "../post/post-schema";
 import { UserCollection } from "../users/user-schema";
 import { SwapCollection } from "../swap/swap-schema";
+import {logger} from "../../libs/logger";
 
 export const swapRouter = {
   createSwap: protectedProcedure.swap.createSwap.handler(
@@ -75,18 +76,19 @@ export const swapRouter = {
       return { _id };
     }
   ),
+
   addMockSwap: publicProcedure.swap.addMockSwap.handler(
     async ({ input, errors, context }) => {
 
-      const [mockSellerPostBuffer] = (await PostCollection.aggregate([
+      const [ mockSellerPostBuffer ] = (await PostCollection.aggregate([
         { $sample: { size: 1 }},
-        { $project: { _id: 1, createdBy: 1}}
+        { $project: { _id: 1, createdBy: 1 }}
       ]))
 
       const mockSellerPost = mockSellerPostBuffer?._id ?? null
       const mockSellerEmail = mockSellerPostBuffer?.createdBy ?? null
 
-      const [mockBuyerPostBuffer] = (await PostCollection.aggregate([
+      const [ mockBuyerPostBuffer ] = (await PostCollection.aggregate([
         { $match: { createdBy: { $ne: mockSellerEmail }}},
         { $sample: { size: 1 }},
         {$project: { _id: 1, createdBy: 1 }}
@@ -95,36 +97,37 @@ export const swapRouter = {
       const mockBuyerPost = mockBuyerPostBuffer?._id ?? null
       const mockBuyerEmail = mockBuyerPostBuffer?.createdBy ?? null
 
-      const mockMessageArray = ["Hello, I am interested in trading!",
+      const mockMessageArray = [ "Hello, I am interested in trading!",
         "Hi, are you willing to sell",
         "I am looking to trade at McHenry instead if that is okay with you?",
         "Really cool shirt, would go great with with my pants"
       ]
-      const randomNum = Math.floor(Math.random() * 4)
-      const mockMessage = mockMessageArray[randomNum]
+      const randomNum = Math.floor( Math.random() * mockMessageArray.length )
+      const mockMessage = mockMessageArray[ randomNum ]
 
-      const mockDate: Date = new Date();
-      const mockLocationArray = ["McHenry Library, Santa Cruz, California",
+      const mockDate = new Date();
+      const mockLocationArray = [ "McHenry Library, Santa Cruz, California",
         "East Field, Santa Cruz, California",
         "The Crepe Place, Santa Cruz, California",
         "Santa Cruz Cinema, Santa Cruz, California"
       ]
-      const randomNumTwo = Math.floor(Math.random() * mockLocationArray.length)
-      const mockLocation = mockLocationArray[randomNumTwo]
-
-      const randomSwapData = {
-        _id: uuidv7(),
-        sellerEmail: mockSellerEmail,
-        buyerEmail: mockBuyerEmail,
-        sellerPostID: mockSellerPost,
-        buyerPostID: mockBuyerPost,
-        messageToSeller: mockMessage,
-        dateToSwap: mockDate,
-        locationToSwap: mockLocation,
+      const randomNumTwo = Math.floor( Math.random() * mockLocationArray.length )
+      const mockLocation = mockLocationArray[ randomNumTwo ]
+      try{
+        const randomSwapData = {
+          _id: uuidv7(),
+          sellerEmail: mockSellerEmail,
+          buyerEmail: mockBuyerEmail,
+          sellerPostID: mockSellerPost,
+          buyerPostID: mockBuyerPost,
+          messageToSeller: mockMessage,
+          dateToSwap: mockDate,
+          locationToSwap: mockLocation,
+        }
+        await SwapCollection.insertOne(randomSwapData);
+      } catch (error){
+        logger.error(`Failed to add mock swap: ${error}`);
       }
-      await SwapCollection.insertOne(randomSwapData);
-
       return true;
-    }
-  ),
+    }),
 };
