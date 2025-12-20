@@ -64,7 +64,7 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   }, [inView, fetchNextPage]);
 
   return (
-    <div className="mt-15 mr-25 ml-25 flex items-center justify-center">
+    <div className="mt-20 mr-25 ml-25 flex items-center justify-center">
       {/* TODO: render masonry layout like pintrest */}
       <MasonryLayout>
         {filteredPosts.map((post) => (

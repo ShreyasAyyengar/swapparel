@@ -10,7 +10,7 @@ export default function MasonryLayout({ children, gap = 20 }: MasonryLayoutProps
   const masonryRef = useMasonry({ gap });
 
   return (
-    <div ref={masonryRef} className="mt-6 w-full">
+    <div ref={masonryRef} className="w-full">
       {children}
     </div>
   );
