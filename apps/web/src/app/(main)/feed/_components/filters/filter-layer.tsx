@@ -63,10 +63,6 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
     if (inView) fetchNextPage();
   }, [inView, fetchNextPage]);
 
-  useEffect(() => {
-    console.log(`There are currently ${filteredPosts.length} posts`);
-  }, [filteredPosts]);
-
   return (
     <div className="mt-20 mr-25 ml-25 flex items-center justify-center">
       {/* TODO: render masonry layout like pintrest */}

@@ -16,6 +16,8 @@ export function useMasonry({ gap = 16 }: UseMasonryOptions = {}) {
     const children = Array.from(container.children) as HTMLElement[];
     if (!children.length) return;
 
+    console.log(`Running masonry layout for ${children.length} posts`);
+
     const containerWidth = container.clientWidth;
     const columnCount = Math.max(1, Math.floor((containerWidth + gap) / (COLUMN_MIN + gap)));
 
