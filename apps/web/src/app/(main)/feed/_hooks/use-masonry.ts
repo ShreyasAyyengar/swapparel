@@ -19,7 +19,7 @@ export function useMasonry({ gap = 16 }: UseMasonryOptions = {}) {
     const containerWidth = container.clientWidth;
     const columnCount = Math.max(1, Math.floor((containerWidth + gap) / (COLUMN_MIN + gap)));
 
-    const columnWidth = (containerWidth - gap * (columnCount + 1)) / columnCount;
+    const columnWidth = (containerWidth - gap * (columnCount - 1)) / columnCount;
 
     const columnHeights = new Array(columnCount).fill(0);
 
