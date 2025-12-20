@@ -1,6 +1,5 @@
 "use client";
 
-import { Masonry } from "@mui/lab";
 import { feedFilterSchema, filterPosts, type internalPostSchema } from "@swapparel/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
@@ -8,6 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
+import MasonryLayout from "../post/masonry-layout";
 import MasonryPost from "../post/masonry-post";
 
 export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z.infer<typeof internalPostSchema>[] } }) {
@@ -66,11 +66,16 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   return (
     <div className="mt-15 mr-25 ml-25 flex items-center justify-center">
       {/* TODO: render masonry layout like pintrest */}
-      <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing={3} sequential={true}>
+      {/*<Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing={3} sequential={true}>*/}
+      {/*  {filteredPosts.map((post) => (*/}
+      {/*    <MasonryPost key={post._id} postData={post} />*/}
+      {/*  ))}*/}
+      {/*</Masonry>*/}
+      <MasonryLayout>
         {filteredPosts.map((post) => (
           <MasonryPost key={post._id} postData={post} />
         ))}
-      </Masonry>
+      </MasonryLayout>
       <div ref={ref} />
       {/* TODO: opening a new post from a scroll render takes more time*/}
     </div>
