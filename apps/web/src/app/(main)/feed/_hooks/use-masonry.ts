@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 type UseMasonryOptions = {
-  columnWidth?: number;
   gap?: number;
 };
 

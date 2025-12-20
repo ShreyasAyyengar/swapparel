@@ -66,11 +66,6 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   return (
     <div className="mt-15 mr-25 ml-25 flex items-center justify-center">
       {/* TODO: render masonry layout like pintrest */}
-      {/*<Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }} spacing={3} sequential={true}>*/}
-      {/*  {filteredPosts.map((post) => (*/}
-      {/*    <MasonryPost key={post._id} postData={post} />*/}
-      {/*  ))}*/}
-      {/*</Masonry>*/}
       <MasonryLayout>
         {filteredPosts.map((post) => (
           <MasonryPost key={post._id} postData={post} />

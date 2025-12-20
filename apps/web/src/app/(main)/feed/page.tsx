@@ -46,7 +46,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     <>
       <SelectedPostLayer loadedFeedPosts={data?.posts ?? []} />
       <CreatePostLayer />
-      <div className="m-3">
+      <div className="absolute z-1 m-3">
         <FilterButton />
       </div>
       {data?.posts && data.posts.length > 0 && isSuccess ? (
