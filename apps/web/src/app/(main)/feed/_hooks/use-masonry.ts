@@ -99,10 +99,54 @@ export function useMasonry({ gap = 16, setReady }: { gap: number; setReady: Reac
     if (!containerRef.current) return;
 
     const observer = new MutationObserver(() => {
-      layout(); // re-layout whenever children change
+      const container = containerRef.current;
+      if (!container) return;
+
+      const children = Array.from(container.children) as HTMLElement[];
+      if (!children.length) return;
+
+      const images = container.querySelectorAll("img");
+      if (!images.length) {
+        layout(); // no images, safe to layout
+        return;
+      }
+
+      let loadedCount = 0;
+
+      const onImageLoad = () => {
+        loadedCount++;
+        if (loadedCount === images.length) {
+          // console.log("Children Mutated");
+          layout(); // all images loaded, now layout
+        }
+      };
+
+      images.forEach((img) => {
+        if (img.complete) {
+          loadedCount++;
+        } else {
+          img.addEventListener("load", onImageLoad);
+          img.addEventListener("error", onImageLoad); // count errors too
+        }
+      });
+
+      // if all images were already loaded
+      if (loadedCount === images.length) {
+        console.log("Children Mutated");
+
+        layout();
+      }
+
+      // cleanup listeners after layout
+      return () => {
+        images.forEach((img) => {
+          img.removeEventListener("load", onImageLoad);
+          img.removeEventListener("error", onImageLoad);
+        });
+      };
     });
 
-    observer.observe(containerRef.current, { childList: true }); // watch only direct children
+    observer.observe(containerRef.current, { childList: true });
 
     return () => observer.disconnect();
   }, [layout]);
