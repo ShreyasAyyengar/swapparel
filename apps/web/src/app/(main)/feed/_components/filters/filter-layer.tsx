@@ -7,8 +7,9 @@ import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
+import { useFetchedPostsStore } from "../../_hooks/state/fetched-posts-store";
+import MasonryElement from "../post/masonry-element";
 import MasonryLayout from "../post/masonry-layout";
-import MasonryPost from "../post/masonry-post";
 
 // TODO fix post loading, and going from fully loaded state to filtered state.
 export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z.infer<typeof internalPostSchema>[] } }) {
@@ -20,6 +21,8 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
+
+  const { addPosts } = useFetchedPostsStore();
 
   const filters = useMemo(() => {
     const f: z.infer<typeof feedFilterSchema> = {};
@@ -63,7 +66,9 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
       fetchNextPage();
       return;
     }
-  }, [data, fetchNextPage]);
+
+    addPosts(lastPage?.posts ?? []);
+  }, [data, fetchNextPage, addPosts]);
 
   allPosts = [...initialPosts.posts, ...(data?.pages.flatMap((p) => p.posts) ?? [])];
 
@@ -81,7 +86,7 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
     <div className="mt-20 mr-25 ml-25 flex items-center justify-center">
       <MasonryLayout>
         {filteredPosts.map((post) => (
-          <MasonryPost key={post._id} postData={post} />
+          <MasonryElement key={post._id} postData={post} />
         ))}
       </MasonryLayout>
       <div ref={ref} />

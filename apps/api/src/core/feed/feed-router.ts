@@ -13,7 +13,7 @@ export const feedRouter = {
 
     let posts = z.array(internalPostSchema).parse(postDocuments);
 
-    if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
+    // if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
 
     if (input.filters === undefined) return { posts, cursor: postDocuments.at(-1)?._id };
 

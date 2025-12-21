@@ -6,12 +6,18 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import { useFetchedPostsStore } from "../../../_hooks/state/fetched-posts-store";
 import ExpandedPost from "./expanded-post";
 
 export function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
+  const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
-  const tryFromFeed = useMemo(() => loadedFeedPosts.find((p) => p._id === selectedPost), [loadedFeedPosts, selectedPost]);
+  const tryFromFeed = useMemo(() => fetchedPosts.find((p) => p._id === selectedPost), [fetchedPosts, selectedPost]);
+
+  useEffect(() => {
+    addPosts(loadedFeedPosts);
+  }, [loadedFeedPosts, addPosts]);
 
   const {
     data: fetchedPost,
