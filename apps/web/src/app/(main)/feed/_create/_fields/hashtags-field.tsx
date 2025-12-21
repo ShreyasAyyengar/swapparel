@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { type FormValues, useFieldContext } from "../create-post-form";
 // TODO: fix hashtag error when submitting invalid hashtags
+// TODO: fix duplicate hashtag when doing hi,hi,hi,hi = #hi #hi #hi #hi
 export default function HashtagsField() {
   const field = useFieldContext<FormValues["postData"]["hashtags"]>();
   const [inputValue, setInputValue] = useState("");
@@ -16,15 +17,15 @@ export default function HashtagsField() {
     const trimmed = value.trim();
     if (!trimmed) return;
 
-    // Split by comma and remove extra spaces
     const parts = trimmed
       .split(",")
       .map((part) => part.trim())
       .filter(Boolean);
 
-    const newHashtags = parts.map((part) => (part.startsWith("#") ? part : `#${part}`));
+    let newHashtags = parts.map((part) => (part.startsWith("#") ? part : `#${part}`));
 
-    // Add hashtags that are not already in the array
+    newHashtags = Array.from(new Set(newHashtags));
+
     const uniqueHashtags = newHashtags.filter((tag) => !hashtags.includes(tag));
 
     if (uniqueHashtags.length > 0) {
