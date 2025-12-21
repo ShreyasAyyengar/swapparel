@@ -70,6 +70,12 @@ export default function UploadDropzone() {
     [field]
   );
 
+  const handleOnClick = () => {
+    if (uploads.length === 0) {
+      onClick();
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -81,6 +87,8 @@ export default function UploadDropzone() {
       onDragLeave={handleDragLeave}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
+      onClick={handleOnClick}
+      onKeyDown={handleOnClick}
     >
       {uploads.length > 0 ? (
         // TODO do not reload unused elements?
@@ -95,7 +103,7 @@ export default function UploadDropzone() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center" onClick={onClick} onKeyDown={onClick}>
+        <div className="flex flex-col items-center justify-center text-center">
           {/*TODO: fix linear easing */}
           <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_3s_ease-in_infinite]" />
           <Separator className="my-4" />
