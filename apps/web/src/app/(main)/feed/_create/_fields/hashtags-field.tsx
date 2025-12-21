@@ -3,7 +3,7 @@ import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/fie
 import { X } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { type FormValues, useFieldContext } from "../create-post-form";
-
+// TODO: fix hashtag error when submitting invalid hashtags
 export default function HashtagsField() {
   const field = useFieldContext<FormValues["postData"]["hashtags"]>();
   const [inputValue, setInputValue] = useState("");
@@ -16,22 +16,32 @@ export default function HashtagsField() {
     const trimmed = value.trim();
     if (!trimmed) return;
 
-    // Ensure hashtag starts with #
-    const hashtag = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+    // Split by comma and remove extra spaces
+    const parts = trimmed
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
 
-    // Add to array if not already present
-    if (!hashtags.includes(hashtag)) {
-      field.handleChange([...hashtags, hashtag]);
+    const newHashtags = parts.map((part) => (part.startsWith("#") ? part : `#${part}`));
+
+    // Add hashtags that are not already in the array
+    const uniqueHashtags = newHashtags.filter((tag) => !hashtags.includes(tag));
+
+    if (uniqueHashtags.length > 0) {
+      field.handleChange([...hashtags, ...uniqueHashtags]);
     }
+
     setInputValue("");
   };
 
   const removeHashtag = (index: number) => {
+    if (!hashtags) return;
     const newHashtags = hashtags.filter((_, i) => i !== index);
     field.handleChange(newHashtags);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!hashtags) return;
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       addHashtag(inputValue);
@@ -83,10 +93,14 @@ export default function HashtagsField() {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={() => {
-            // Add remaining input as hashtag on blur if not empty
             if (inputValue.trim()) {
               addHashtag(inputValue);
             }
+          }}
+          onPaste={(e) => {
+            e.preventDefault(); // Prevent default paste
+            const paste = e.clipboardData.getData("text");
+            addHashtag(paste); // Add hashtags from pasted text
           }}
           placeholder={hashtags.length === 0 ? "#plaided #shirt #cool" : ""}
           type="text"
