@@ -73,7 +73,7 @@ export default function SelectedPostTrigger({ post, children }: { post: z.infer<
   }, []); // Only run once on mount
 
   return (
-    <div className="fixed inset-0 z-1 flex items-center justify-center">
+    <div className="fixed inset-0 z-2 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
 
       {/*TODO: make grid*/}
