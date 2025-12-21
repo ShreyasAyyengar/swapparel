@@ -78,11 +78,14 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
       {/*TODO: make grid*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
-        <div className="relative flex-shrink-0 items-center" ref={imageContainerRef}>
+        <div className="relative flex shrink-0 items-center justify-center" ref={imageContainerRef}>
           <PostImage imageSRC={post.images} />
         </div>
 
-        <div className={"ml-8 flex w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"} ref={textContainerRef}>
+        <div
+          className={"ml-8 flex min-h-100 w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"}
+          ref={textContainerRef}
+        >
           {imageHeight > 0 && children}
         </div>
       </div>
