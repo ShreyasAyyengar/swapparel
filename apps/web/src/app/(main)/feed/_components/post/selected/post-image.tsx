@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
-export default function ExpandedImage({ imageSRC }: { imageSRC: string[] }) {
+export default function PostImage({ imageSRC }: { imageSRC: string[] }) {
   const [currentImageCount, setCurrentImageCount] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 

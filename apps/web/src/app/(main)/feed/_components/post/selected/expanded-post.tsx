@@ -1,9 +1,9 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import type { z } from "zod";
-import SelectedPostTrigger from "./selected-post-trigger";
+import ExpandedPostTrigger from "./expanded-post-trigger";
 
-export default function SelectedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
+export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
 
   const entries = post.qaEntries.map((entry, index) => (
@@ -34,7 +34,7 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
   ));
 
   return (
-    <SelectedPostTrigger post={post}>
+    <ExpandedPostTrigger post={post}>
       {/*<div className="ml-8 flex w-1/2 flex-col overflow-auto border-2 border-foreground p-2">*/}
       <p title="username" className="font-bold">
         {post.createdBy}
@@ -78,6 +78,6 @@ export default function SelectedPost({ post }: { post: z.infer<typeof internalPo
       <p className="font-bold">Q&A:</p>
       {post.qaEntries.length < 1 ? "No Q&A Entries" : entries}
       {/*</div>*/}
-    </SelectedPostTrigger>
+    </ExpandedPostTrigger>
   );
 }

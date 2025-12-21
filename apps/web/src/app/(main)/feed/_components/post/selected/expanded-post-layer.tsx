@@ -6,9 +6,9 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
-import SelectedPost from "./selected-post";
+import ExpandedPost from "./expanded-post";
 
-export function SelectedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
+export function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
 
   const tryFromFeed = useMemo(() => loadedFeedPosts.find((p) => p._id === selectedPost), [loadedFeedPosts, selectedPost]);
@@ -33,5 +33,5 @@ export function SelectedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infe
   if (!(selectedPost && currentSelectedPost)) return null;
 
   if (isLoading) return <div className="flex items-center justify-center">Loading...</div>;
-  return <SelectedPost post={currentSelectedPost} />;
+  return <ExpandedPost post={currentSelectedPost} />;
 }

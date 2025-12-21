@@ -6,7 +6,7 @@ import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsS
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import FilterLayer from "./_components/filters/filter-layer";
-import { SelectedPostLayer } from "./_components/post/selected/selected-post-layer";
+import { ExpandedPostLayer } from "./_components/post/selected/expanded-post-layer";
 import CreatePostLayer from "./_create/create-post-layer";
 
 const feedFilterParser = {
@@ -47,7 +47,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   // TODO: customize scroll bar
   return (
     <>
-      <SelectedPostLayer loadedFeedPosts={data?.posts ?? []} />
+      <ExpandedPostLayer loadedFeedPosts={data?.posts ?? []} />
       <CreatePostLayer />
       <div className="absolute z-1 m-3">
         <FilterButton />

@@ -5,9 +5,9 @@ import { useQueryState } from "nuqs";
 import { parseAsString } from "nuqs/server";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
-import ExpandedImage from "./expanded-image";
+import PostImage from "./post-image";
 
-export default function SelectedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
+export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
 
   const handleClose = async () => {
@@ -79,7 +79,7 @@ export default function SelectedPostTrigger({ post, children }: { post: z.infer<
       {/*TODO: make grid*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className="relative flex-shrink-0 items-center" ref={imageContainerRef}>
-          <ExpandedImage imageSRC={post.images} />
+          <PostImage imageSRC={post.images} />
         </div>
 
         <div className={"ml-8 flex w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"} ref={textContainerRef}>
