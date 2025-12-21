@@ -151,7 +151,7 @@ export const internalPostSchema = z.object({
   hashtags: z
     .array(
       z.string()
-        .regex(/^#[a-z]+$/, "Hashtag must only contain letters, numbers, and underscores.")
+        .regex(/^#[a-zA-Z0-9_]+$/, "Hashtag must only contain letters, numbers, and underscores.")
         .min(1, "Hashtag must be at least 1 character.")
     )
     .default([]),
