@@ -104,7 +104,7 @@ export default function HashtagsField() {
           }}
           placeholder={hashtags.length === 0 ? "#plaided #shirt #cool" : ""}
           type="text"
-          className="min-w-[120px] flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+          className="min-w-30 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
         />
       </div>
       {isInvalid && <FieldError errors={field.state.meta.errors} />}

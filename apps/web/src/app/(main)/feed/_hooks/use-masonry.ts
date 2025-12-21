@@ -40,7 +40,47 @@ export function useMasonry({ gap = 16, setReady }: { gap: number; setReady: Reac
 
   useLayoutEffect(() => {
     layout();
-  });
+  }, [layout]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const images = containerRef.current.querySelectorAll("img");
+    if (!images.length) {
+      layout(); // no images, safe to layout
+      return;
+    }
+
+    let loadedCount = 0;
+
+    const onImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === images.length) {
+        layout(); // all images loaded, now layout
+      }
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        // already loaded
+        loadedCount++;
+      } else {
+        img.addEventListener("load", onImageLoad);
+        img.addEventListener("error", onImageLoad); // count errors too
+      }
+    });
+
+    // If all images were already loaded
+    if (loadedCount === images.length) layout();
+
+    return () => {
+      // cleanup listeners
+      images.forEach((img) => {
+        img.removeEventListener("load", onImageLoad);
+        img.removeEventListener("error", onImageLoad);
+      });
+    };
+  }, [layout]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -54,6 +94,18 @@ export function useMasonry({ gap = 16, setReady }: { gap: number; setReady: Reac
       resizeObserver.disconnect();
       window.removeEventListener("resize", layout);
     };
+  }, [layout]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new MutationObserver(() => {
+      layout(); // re-layout whenever children change
+    });
+
+    observer.observe(containerRef.current, { childList: true }); // watch only direct children
+
+    return () => observer.disconnect();
   }, [layout]);
 
   return containerRef;
