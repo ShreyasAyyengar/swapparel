@@ -110,7 +110,21 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                   <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
                   <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
                   <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
-                  <form.AppField name="postData.hashtags">{(field) => <field.HashtagsField />}</form.AppField>
+                  <form.AppField
+                    name="postData.hashtags"
+                    validators={{
+                      onBlur: ({ value }) => {
+                        // Extract just the hashtags validation from your schema
+                        const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
+                        if (!result.success) {
+                          return result.error.issues[0].message;
+                        }
+                        return;
+                      },
+                    }}
+                  >
+                    {(field) => <field.HashtagsField />}
+                  </form.AppField>
                 </div>
               </FieldGroup>
               {/*DROPDOWNS AND TEXT*/}

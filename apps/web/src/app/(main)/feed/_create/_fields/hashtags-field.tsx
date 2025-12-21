@@ -10,6 +10,7 @@ export default function HashtagsField() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
   const hashtags = field.state.value;
 
   const addHashtag = (value: string) => {
@@ -29,6 +30,7 @@ export default function HashtagsField() {
 
     if (uniqueHashtags.length > 0) {
       field.handleChange([...hashtags, ...uniqueHashtags]);
+      field.handleBlur();
     }
 
     setInputValue("");
@@ -38,6 +40,7 @@ export default function HashtagsField() {
     if (!hashtags) return;
     const newHashtags = hashtags.filter((_, i) => i !== index);
     field.handleChange(newHashtags);
+    field.handleBlur();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -95,6 +98,8 @@ export default function HashtagsField() {
           onBlur={() => {
             if (inputValue.trim()) {
               addHashtag(inputValue);
+            } else {
+              field.handleBlur();
             }
           }}
           onPaste={(e) => {
