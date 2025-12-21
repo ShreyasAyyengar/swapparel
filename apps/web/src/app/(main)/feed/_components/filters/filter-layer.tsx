@@ -21,7 +21,6 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
 
-  // TODO: Explain memoization of filters and filteredPosts @Shreyas
   const filters = useMemo(() => {
     const f: z.infer<typeof feedFilterSchema> = {};
 
@@ -80,14 +79,12 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
 
   return (
     <div className="mt-20 mr-25 ml-25 flex items-center justify-center">
-      {/* TODO: render masonry layout like pintrest */}
       <MasonryLayout>
         {filteredPosts.map((post) => (
           <MasonryPost key={post._id} postData={post} />
         ))}
       </MasonryLayout>
       <div ref={ref} />
-      {/* TODO: opening a new post from a scroll render takes more time*/}
     </div>
   );
 }
