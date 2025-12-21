@@ -1,6 +1,5 @@
 import { internalPostSchema } from "@swapparel/contracts";
 import { z } from "zod";
-import { logger } from "../../libs/logger";
 import { publicProcedure } from "../../libs/orpc";
 import { PostCollection } from "../post/post-schema";
 
@@ -16,11 +15,7 @@ export const feedRouter = {
 
     if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
 
-    if (input.filters === undefined) {
-      logger.info(`No filters provided, returning ${posts.length} posts`);
-
-      return { posts, cursor: postDocuments.at(-1)?._id };
-    }
+    if (input.filters === undefined) return { posts, cursor: postDocuments.at(-1)?._id };
 
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: it's filtering, allow.
     posts = posts.filter((post) => {
