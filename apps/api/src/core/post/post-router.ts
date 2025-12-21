@@ -120,9 +120,9 @@ export const postRouter = {
   }),
 
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
-    for (let i = 0; i < 10; i++) {
-      const documentAmount = await PostCollection.countDocuments();
+    const documents = [];
 
+    for (let i = 0; i < 85; i++) {
       const chosenMaterials = Array.from(
         new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
       );
@@ -131,42 +131,40 @@ export const postRouter = {
       );
       const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 
-      try {
-        const randomPostData = {
-          _id: uuidv7(),
-          title: `Post ${documentAmount + 1}`,
-          createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
-          description: `Random Number: ${Math.random()}`,
-          colour: chosenColours,
-          size,
-          material: chosenMaterials,
-          images: [
-            "https://fastly.picsum.photos/id/436/200/300.jpg?hmac=OuJRsPTZRaNZhIyVFbzDkMYMyORVpV86q5M8igEfM3Y",
-            "https://fastly.picsum.photos/id/72/200/300.jpg?hmac=8tyK7lgBqIQNIGPVnmsVP3SL5bYCsSDmdZtnIJNQv3o",
-            "https://fastly.picsum.photos/id/450/200/300.jpg?hmac=EAnz3Z3i5qXfaz54l0aegp_-5oN4HTwiZG828ZGD7GM",
-            "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U",
-          ],
-          hashtags: [],
-          qaEntries: [
-            {
-              question: "Why do some birds migrate thousands of miles every year?",
-              answer:
-                "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
-              followUps: [
-                {
-                  question: "How do they know which direction to fly?",
-                  answer:
-                    " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
-                },
-              ],
-            },
-          ],
-        };
-        await PostCollection.insertOne(randomPostData);
-      } catch (error) {
-        logger.error(`Failed to add mock post: ${error}`);
-      }
+      const randomPostData = {
+        _id: uuidv7(),
+        title: `Post ${i + 1}`,
+        createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
+        description: `Random Number: ${Math.random()}`,
+        colour: chosenColours,
+        size,
+        material: chosenMaterials,
+        images: [
+          "https://fastly.picsum.photos/id/436/200/300.jpg?hmac=OuJRsPTZRaNZhIyVFbzDkMYMyORVpV86q5M8igEfM3Y",
+          "https://fastly.picsum.photos/id/72/200/300.jpg?hmac=8tyK7lgBqIQNIGPVnmsVP3SL5bYCsSDmdZtnIJNQv3o",
+          "https://fastly.picsum.photos/id/450/200/300.jpg?hmac=EAnz3Z3i5qXfaz54l0aegp_-5oN4HTwiZG828ZGD7GM",
+          "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U",
+        ],
+        hashtags: [],
+        qaEntries: [
+          {
+            question: "Why do some birds migrate thousands of miles every year?",
+            answer:
+              "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
+            followUps: [
+              {
+                question: "How do they know which direction to fly?",
+                answer:
+                  " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
+              },
+            ],
+          },
+        ],
+      };
+      documents.push(randomPostData);
     }
+
+    await PostCollection.insertMany(documents);
 
     return true;
   }),

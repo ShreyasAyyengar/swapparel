@@ -9,15 +9,16 @@ import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../../_hooks/state/fetched-posts-store";
 import ExpandedPost from "./expanded-post";
 
+// Note: fetchedPosts store is being injected here, instead of FilterLayer.
 export function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
-  const { fetchedPosts, addPosts } = useFetchedPostsStore();
+  const { fetchedPosts, setPosts } = useFetchedPostsStore();
 
   const tryFromFeed = useMemo(() => fetchedPosts.find((p) => p._id === selectedPost), [fetchedPosts, selectedPost]);
 
   useEffect(() => {
-    addPosts(loadedFeedPosts);
-  }, [loadedFeedPosts, addPosts]);
+    setPosts(loadedFeedPosts);
+  }, [loadedFeedPosts]);
 
   const {
     data: fetchedPost,
