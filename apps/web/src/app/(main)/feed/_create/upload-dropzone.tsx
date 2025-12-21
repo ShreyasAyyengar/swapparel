@@ -70,6 +70,12 @@ export default function UploadDropzone() {
     [field]
   );
 
+  const handleOnClick = () => {
+    if (uploads.length === 0) {
+      onClick();
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -81,8 +87,8 @@ export default function UploadDropzone() {
       onDragLeave={handleDragLeave}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
-      onClick={uploads.length === 0 && onClick}
-      onKeyDown={uploads.length === 0 && onClick}
+      onClick={handleOnClick}
+      onKeyDown={handleOnClick}
     >
       {uploads.length > 0 ? (
         // TODO do not reload unused elements?
