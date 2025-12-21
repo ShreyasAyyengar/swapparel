@@ -1,12 +1,12 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { colors, internalPostSchema, materials } from "@swapparel/contracts";
+import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
-import heicConvert from "heic-convert";
 
 const S3 = new S3Client({
   region: "auto",
@@ -18,19 +18,19 @@ const S3 = new S3Client({
 });
 
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
-    let finalMimeType = mimeType;
+  let finalMimeType = mimeType;
   const key = `${postId}/${index}`;
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   let body = fileBuffer;
 
-  if(mimeType === "image/heic" || mimeType === "image/heif"){
-      body = await heicConvert({
-          buffer: fileBuffer,
-          format: "JPEG",
-          quality: 1,
-      });
+  if (mimeType === "image/heic" || mimeType === "image/heif") {
+    body = await heicConvert({
+      buffer: fileBuffer,
+      format: "JPEG",
+      quality: 1,
+    });
 
-      finalMimeType= "image/jpeg";
+    finalMimeType = "image/jpeg";
   }
 
   const packageCommand = new PutObjectCommand({
@@ -108,7 +108,6 @@ export const postRouter = {
   }),
 
   getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    // TODO find the correct impl from the past
     logger.info(`Test route called: ${input} | ${context}`);
     return PostCollection.find({});
   }),
