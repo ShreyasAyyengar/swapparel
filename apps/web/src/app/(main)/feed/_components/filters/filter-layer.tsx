@@ -10,6 +10,7 @@ import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import MasonryLayout from "../post/masonry-layout";
 import MasonryPost from "../post/masonry-post";
 
+// TODO fix post loading, and going from fully loaded state to filtered state.
 export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z.infer<typeof internalPostSchema>[] } }) {
   const [selectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
@@ -21,46 +22,60 @@ export default function FilterLayer({ initialPosts }: { initialPosts: { posts: z
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
 
   // TODO: Explain memoization of filters and filteredPosts @Shreyas
-  const filters = useMemo(
-    () =>
-      feedFilterSchema.parse({
-        colour: { value: selectedColor, only: selectedColourOnly ?? false },
-        material: { value: selectedMaterial, only: selectedMaterialOnly ?? false },
-        size: { value: selectedSize, only: selectedSizeOnly ?? false },
-        hashtag: { value: selectedHashtag, only: selectedHashtagOnly ?? false },
-      }),
-    [
-      selectedColor,
-      selectedColourOnly,
-      selectedMaterial,
-      selectedMaterialOnly,
-      selectedSize,
-      selectedSizeOnly,
-      selectedHashtag,
-      selectedHashtagOnly,
-    ]
-  );
+  const filters = useMemo(() => {
+    const f: z.infer<typeof feedFilterSchema> = {};
 
-  const { ref, inView } = useInView();
+    if (selectedColor.length) f.colour = selectedColourOnly ? { value: selectedColor, only: true } : { value: selectedColor };
+    if (selectedMaterial.length) f.material = selectedMaterialOnly ? { value: selectedMaterial, only: true } : { value: selectedMaterial };
+    if (selectedSize.length) f.size = selectedSizeOnly ? { value: selectedSize, only: true } : { value: selectedSize };
+    if (selectedHashtag.length) f.hashtag = selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag };
 
-  const { data, fetchNextPage } = useInfiniteQuery(
+    // if no filters active, return undefined (so nothing is sent)
+    return Object.keys(f).length ? feedFilterSchema.parse(f) : undefined;
+  }, [
+    selectedColor,
+    selectedColourOnly,
+    selectedMaterial,
+    selectedMaterialOnly,
+    selectedSize,
+    selectedSizeOnly,
+    selectedHashtag,
+    selectedHashtagOnly,
+  ]);
+
+  let allPosts = [...initialPosts.posts];
+
+  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery(
     webClientORPC.feed.getFeed.infiniteOptions({
-      initialPageParam: initialPosts.posts.at(-1)?._id ?? null,
+      initialPageParam: allPosts.at(-1)?._id ?? null,
       getNextPageParam: (lastPage) => lastPage.cursor ?? null,
       input: (pageParam: string | null) => ({
-        filter: filters,
+        filters,
         cursor: pageParam ?? undefined,
       }),
+      enabled: false,
     })
   );
 
-  const filteredPosts = useMemo(
-    () => filterPosts([...initialPosts.posts, ...(data?.pages.flatMap((p) => p.posts) ?? [])], filters),
-    [initialPosts.posts, filters, data?.pages]
-  );
+  useEffect(() => {
+    const lastPage = data?.pages.at(-1);
+    // if there was no data, fetch again
+    if (lastPage?.posts?.length === 0) {
+      fetchNextPage();
+      return;
+    }
+  }, [data, fetchNextPage]);
+
+  allPosts = [...initialPosts.posts, ...(data?.pages.flatMap((p) => p.posts) ?? [])];
+
+  const { ref, inView } = useInView();
+
+  const filteredPosts = useMemo(() => filterPosts(allPosts, filters), [allPosts, filters]);
 
   useEffect(() => {
-    if (inView) fetchNextPage();
+    if (inView) {
+      fetchNextPage();
+    }
   }, [inView, fetchNextPage]);
 
   return (

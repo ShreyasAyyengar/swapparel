@@ -39,7 +39,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   });
   if (!filters.success) redirect("/feed");
 
-  const { data, isSuccess } = await safe(webServerORPC.feed.getFeed({}));
+  // const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ amount: 100 })); // todo check coerce bug
+  const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
+
+  if (!isSuccess) return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>;
 
   // TODO: customize scroll bar
   return (

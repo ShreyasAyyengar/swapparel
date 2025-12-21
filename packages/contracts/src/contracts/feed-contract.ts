@@ -17,7 +17,7 @@ const booleanStringSchema = z.preprocess((value) => {
   throw new Error(`The string must be 'true' or 'false', got: ${value}`);
 }, z.boolean());
 
-export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema>) => {
+export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
   if (!filters) return posts;
 
   const hasActive =
@@ -99,7 +99,7 @@ export const feedContract = {
     })
     .input(
       z.object({
-        amount: z.number().default(FEED_AMOUNT),
+        amount: z.coerce.number().default(FEED_AMOUNT), // TODO check functionality of coerce
         filters: feedFilterSchema.optional(),
         cursor: z.uuidv7().optional(), // the last post retrieved from the previous request
       })
