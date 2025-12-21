@@ -43,7 +43,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 
   return `https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${postId}/${index}`;
 };
-// TODO: fix uploading multiple images
+// TODO: fix uploading multiple images, images[] array only serializes last picture
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
@@ -122,7 +122,7 @@ export const postRouter = {
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
     const documents = [];
 
-    for (let i = 0; i < 85; i++) {
+    for (let i = 0; i < 1; i++) {
       const chosenMaterials = Array.from(
         new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
       );
@@ -140,10 +140,10 @@ export const postRouter = {
         size,
         material: chosenMaterials,
         images: [
-          "https://fastly.picsum.photos/id/436/200/300.jpg?hmac=OuJRsPTZRaNZhIyVFbzDkMYMyORVpV86q5M8igEfM3Y",
-          "https://fastly.picsum.photos/id/72/200/300.jpg?hmac=8tyK7lgBqIQNIGPVnmsVP3SL5bYCsSDmdZtnIJNQv3o",
-          "https://fastly.picsum.photos/id/450/200/300.jpg?hmac=EAnz3Z3i5qXfaz54l0aegp_-5oN4HTwiZG828ZGD7GM",
-          "https://fastly.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U",
+          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
+          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
+          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
+          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
         ],
         hashtags: [],
         qaEntries: [
