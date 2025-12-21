@@ -2,7 +2,7 @@ import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import type { z } from "zod";
 import ExpandedPostTrigger from "./expanded-post-trigger";
-
+// TODO: add Min width for description
 export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
 

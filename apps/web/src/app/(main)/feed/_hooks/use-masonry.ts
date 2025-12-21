@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-
+// TODO: FIX OVERLAPPING MASONRY BUG
 export function useMasonry({ gap = 16, setReady }: { gap: number; setReady: React.Dispatch<React.SetStateAction<T>> }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
