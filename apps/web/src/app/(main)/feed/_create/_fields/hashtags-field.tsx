@@ -25,10 +25,10 @@ export default function HashtagsField() {
 
     newHashtags = Array.from(new Set(newHashtags));
 
-    const uniqueHashtags = newHashtags.filter((tag) => !hashtags.includes(tag));
+    const uniqueHashtags = newHashtags.filter((tag) => !hashtags?.includes(tag));
 
     if (uniqueHashtags.length > 0) {
-      field.handleChange([...hashtags, ...uniqueHashtags]);
+      field.handleChange([...(hashtags ?? []), ...uniqueHashtags]);
       field.handleBlur();
     }
 
@@ -65,14 +65,16 @@ export default function HashtagsField() {
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault(); // prevent scrolling on Space
-            handleContainerClick(e);
+            handleContainerClick();
           }
         }}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: I need this speed
         tabIndex={0}
         className="field-sizing-content flex h-9 w-full cursor-text flex-wrap items-center gap-1.5 overflow-x-auto rounded-md border border-input bg-popover px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 hover:bg-accent hover:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40"
         aria-invalid={isInvalid}
       >
-        {hashtags.map((hashtag, index) => (
+        {hashtags?.map((hashtag, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: index is fine
           <Badge key={index} variant="secondary" className="flex shrink-0 items-center gap-1">
             {hashtag}
             <button
@@ -106,7 +108,7 @@ export default function HashtagsField() {
             const paste = e.clipboardData.getData("text");
             addHashtag(paste); // Add hashtags from pasted text
           }}
-          placeholder={hashtags.length === 0 ? "#plaided #shirt #cool" : ""}
+          placeholder={hashtags?.length === 0 ? "#plaided #shirt #cool" : ""}
           type="text"
           className="min-w-30 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
         />

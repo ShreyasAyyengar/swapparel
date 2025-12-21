@@ -117,7 +117,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                         // Extract just the hashtags validation from schema
                         const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
                         if (!result.success) {
-                          return result.error.issues[0].message;
+                          return result.error.issues[0]?.message;
                         }
                         return;
                       },
