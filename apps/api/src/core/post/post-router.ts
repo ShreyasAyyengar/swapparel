@@ -109,7 +109,8 @@ export const postRouter = {
 
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
     for (let i = 0; i < 10; i++) {
-      // choose at least 1-3 materials
+      const documentAmount = await PostCollection.countDocuments();
+
       const chosenMaterials = Array.from(
         new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
       );
@@ -121,7 +122,7 @@ export const postRouter = {
       try {
         const randomPostData = {
           _id: uuidv7(),
-          title: `Random Title ${Math.floor(Math.random() * 1000)}`,
+          title: `Post ${documentAmount + 1}`,
           createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
           description: `Random Number: ${Math.random()}`,
           colour: chosenColours,

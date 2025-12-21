@@ -2,10 +2,21 @@ import { colors as COLOR_ARRAY, materials as MATERIAL_ARRAY, sizeEnum } from "@s
 import { X } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { parseAsBoolean, parseAsNativeArrayOf } from "nuqs/server";
+import { useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
 
-export default function FilterOptions({ onClick, showingFilters }: { onClick: () => void; showingFilters: boolean }) {
+export default function FilterOptions({
+  sliderRef,
+  onClick,
+  showingFilters,
+  setShowingFilters,
+}: {
+  sliderRef: React.RefObject<SVGSVGElement | null>;
+  onClick: () => void;
+  showingFilters: boolean;
+  setShowingFilters: React.Dispatch<React.SetStateAction<T>>;
+}) {
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
   const [sizes, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
@@ -15,9 +26,25 @@ export default function FilterOptions({ onClick, showingFilters }: { onClick: ()
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
 
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && sliderRef.current && !ref.current.contains(e.target as Node) && !sliderRef.current.contains(e.target as Node)) {
+        setShowingFilters(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   return (
     showingFilters && (
-      <div className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground">
+      <div
+        ref={ref}
+        className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
+      >
         <div className="flex justify-end">
           <X className="fixed hover:cursor-pointer" onClick={onClick} />
         </div>

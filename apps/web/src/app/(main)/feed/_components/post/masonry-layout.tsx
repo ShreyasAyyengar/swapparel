@@ -1,11 +1,18 @@
-"use client";
+import type React from "react";
+import { useState } from "react";
+import { useMasonry } from "../../_hooks/use-masonry";
 
-import useMasonry from "../../_hooks/state/use-masonry";
+type MasonryLayoutProps = {
+  children: React.ReactNode;
+  gap?: number;
+};
 
-export default function MasonryLayout({ children, posts }: { children: React.ReactNode; posts: number }) {
-  const masonryRef = useMasonry(posts);
+export default function MasonryLayout({ children, gap = 20 }: MasonryLayoutProps) {
+  const [ready, setReady] = useState(false);
+  const masonryRef = useMasonry({ gap, setReady });
+
   return (
-    <div ref={masonryRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div ref={masonryRef} className={`w-full ${ready ? "opacity-100" : "opacity-0"}`}>
       {children}
     </div>
   );

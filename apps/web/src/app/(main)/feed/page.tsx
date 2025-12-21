@@ -39,17 +39,21 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   });
   if (!filters.success) redirect("/feed");
 
-  const { data, isSuccess } = await safe(webServerORPC.feed.getFeed({}));
+  // const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ amount: 100 })); // todo check coerce bug
+  const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
+
+  if (!isSuccess) return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>;
+
   // TODO: customize scroll bar
   return (
     <>
       <SelectedPostLayer loadedFeedPosts={data?.posts ?? []} />
       <CreatePostLayer />
-      <div className="m-3">
+      <div className="absolute z-1 m-3">
         <FilterButton />
       </div>
       {data?.posts && data.posts.length > 0 && isSuccess ? (
-        <FilterLayer data={data} />
+        <FilterLayer initialPosts={data} />
       ) : (
         <div className="flex h-[calc(100vh-131.5px)] items-center justify-center">
           <h1 className="mt-10 font-bold text-2xl text-foreground">No posts found</h1>

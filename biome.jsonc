@@ -50,6 +50,9 @@
           "level": "warn"
         },
         "noForEach": "off"
+      },
+      "nursery": {
+        "useConsistentArrowReturn": "warn"
       }
     }
   }
