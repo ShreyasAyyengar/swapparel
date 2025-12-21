@@ -101,13 +101,13 @@ export const feedContract = {
       z.object({
         amount: z.coerce.number().default(FEED_AMOUNT), // TODO check functionality of coerce
         filters: feedFilterSchema.optional(),
-        cursor: z.uuidv7().optional(), // the last post retrieved from the previous request
+        nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from the previous request
       })
     )
     .output(
       z.object({
         posts: z.array(internalPostSchema),
-        cursor: z.uuidv7().optional(), // the last post retrieved from this request
+        nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from this request
       })
     )
     .errors({
