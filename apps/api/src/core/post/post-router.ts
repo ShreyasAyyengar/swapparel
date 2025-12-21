@@ -43,7 +43,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 
   return `https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${postId}/${index}`;
 };
-
+// TODO: fix uploading multiple images
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
