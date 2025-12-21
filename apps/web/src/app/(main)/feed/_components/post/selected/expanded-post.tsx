@@ -68,9 +68,9 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       <p>
         {/*Hashtags: <span className="font-normal">{post.hashtags.join(", ")}</span>*/}
         Hashtags:{" "}
-        {post.hashtags.map((mats) => (
-          <Badge className="mr-1 bg-foreground font-bold text-background" key={mats}>
-            {mats}
+        {post.hashtags.map((hashtag) => (
+          <Badge className="mr-1 bg-foreground font-bold text-background" key={hashtag}>
+            {hashtag}
           </Badge>
         ))}
       </p>
