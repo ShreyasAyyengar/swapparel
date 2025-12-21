@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
-type UseMasonryOptions = {
-  gap?: number;
-};
-
-export function useMasonry({ gap = 16 }: UseMasonryOptions = {}) {
+export function useMasonry({ gap = 16, setReady }: { gap: number; setReady: React.Dispatch<React.SetStateAction<T>> }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const COLUMN_MIN = 240;
@@ -40,6 +36,8 @@ export function useMasonry({ gap = 16 }: UseMasonryOptions = {}) {
     });
 
     container.style.height = `${Math.max(...columnHeights)}px`;
+
+    setReady(true);
   }, [gap]);
 
   useLayoutEffect(() => {
