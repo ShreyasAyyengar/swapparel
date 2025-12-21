@@ -96,6 +96,7 @@ export const postRouter = {
   }),
 
   getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    // TODO find the correct impl from the past
     logger.info(`Test route called: ${input} | ${context}`);
     return PostCollection.find({});
   }),
