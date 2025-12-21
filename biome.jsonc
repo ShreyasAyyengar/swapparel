@@ -35,7 +35,8 @@
       },
       "style": {
         "useBlockStatements": "off",
-        "noMagicNumbers": "warn"
+        "noMagicNumbers": "warn",
+        "noUselessElse": "warn"
       },
       "suspicious": {
         "useAwait": "warn",

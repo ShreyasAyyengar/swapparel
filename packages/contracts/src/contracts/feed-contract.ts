@@ -29,36 +29,41 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
   if (!hasActive) return posts;
 
   return posts.filter((post) => {
+    // TODO streamline usages of this
+    if (!filters) return true;
+
+    // MATERIAL
     if (filters.material?.value?.length) {
-      const v = filters.material.value;
-      const only = filters.material.only;
-      const pass = only
-        ? post.material.length === v.length && post.material.every((m) => v.includes(m))
-        : post.material.some((m) => v.includes(m));
-      if (!pass) return false;
+      const selected = filters.material.value;
+      const ok = filters.material.only
+        ? post.material.length === selected.length && post.material.every((m) => selected.includes(m))
+        : post.material.some((m) => selected.includes(m));
+      if (!ok) return false;
     }
 
+    // COLOUR
     if (filters.colour?.value?.length) {
-      const v = filters.colour.value;
-      const only = filters.colour.only;
-      const pass = only ? post.colour.length === v.length && post.colour.every((c) => v.includes(c)) : post.colour.some((c) => v.includes(c));
-      if (!pass) return false;
+      const selected = filters.colour.value;
+      const ok = filters.colour.only
+        ? post.colour.length === selected.length && post.colour.every((c) => selected.includes(c))
+        : post.colour.some((c) => selected.includes(c));
+      if (!ok) return false;
     }
 
+    // HASHTAGS
     if (filters.hashtag?.value?.length) {
-      const v = filters.hashtag.value;
-      const only = filters.hashtag.only;
-      const pass = only
-        ? post.hashtags.length === v.length && post.hashtags.every((h) => v.includes(h))
-        : post.hashtags.some((h) => v.includes(h));
-      if (!pass) return false;
+      const selected = filters.hashtag.value;
+      const ok = filters.hashtag.only
+        ? post.hashtags.length === selected.length && post.hashtags.every((h) => selected.includes(h))
+        : post.hashtags.some((h) => selected.includes(h));
+      if (!ok) return false;
     }
 
+    // SIZE
     if (filters.size?.value?.length) {
-      const v = filters.size.value;
-      const only = filters.size.only;
-      const pass = only ? post.size === v[0] : v.includes(post.size);
-      if (!pass) return false;
+      const selected = filters.size.value;
+      const ok = filters.size.only ? post.size === selected[0] : selected.includes(post.size);
+      if (!ok) return false;
     }
 
     return true;
@@ -101,13 +106,13 @@ export const feedContract = {
       z.object({
         amount: z.coerce.number().default(FEED_AMOUNT), // TODO check functionality of coerce
         filters: feedFilterSchema.optional(),
-        cursor: z.uuidv7().optional(), // the last post retrieved from the previous request
+        nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from the previous request
       })
     )
     .output(
       z.object({
         posts: z.array(internalPostSchema),
-        cursor: z.uuidv7().optional(), // the last post retrieved from this request
+        nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from this request
       })
     )
     .errors({
