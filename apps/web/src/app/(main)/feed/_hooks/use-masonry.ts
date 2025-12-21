@@ -19,7 +19,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     const columnWidth = (containerWidth - gap * (columnCount - 1)) / columnCount;
     const columnHeights = new Array(columnCount).fill(0);
 
-    // Use transform for better performance
     children.forEach((child) => {
       child.style.position = "absolute";
       child.style.width = `${columnWidth}px`;
@@ -36,7 +35,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     setReady(true);
   }, [gap, setReady]);
 
-  // Debounced layout using requestAnimationFrame
   const scheduleLayout = useCallback(() => {
     if (layoutRequestRef.current !== null) {
       cancelAnimationFrame(layoutRequestRef.current);
@@ -83,14 +81,12 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     [handleImageLoad, scheduleLayout]
   );
 
-  // Initial layout
   useLayoutEffect(() => {
     if (containerRef.current) {
       setupImageListeners(containerRef.current);
     }
   }, [setupImageListeners]);
 
-  // Resize observer (more efficient than window resize)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -101,7 +97,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     return () => resizeObserver.disconnect();
   }, [scheduleLayout]);
 
-  // Mutation observer for dynamic content
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -115,7 +110,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     return () => observer.disconnect();
   }, [setupImageListeners]);
 
-  // Cleanup on unmount
   useEffect(
     () => () => {
       if (layoutRequestRef.current !== null) {
