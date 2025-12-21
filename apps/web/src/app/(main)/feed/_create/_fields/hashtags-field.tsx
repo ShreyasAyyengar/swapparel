@@ -3,7 +3,6 @@ import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/fie
 import { X } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { type FormValues, useFieldContext } from "../create-post-form";
-// TODO: fix hashtag error message when submitting invalid hashtags
 export default function HashtagsField() {
   const field = useFieldContext<FormValues["postData"]["hashtags"]>();
   const [inputValue, setInputValue] = useState("");

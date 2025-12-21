@@ -114,7 +114,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                     name="postData.hashtags"
                     validators={{
                       onBlur: ({ value }) => {
-                        // Extract just the hashtags validation from your schema
+                        // Extract just the hashtags validation from schema
                         const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
                         if (!result.success) {
                           return result.error.issues[0].message;
@@ -130,7 +130,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {/*DROPDOWNS AND TEXT*/}
 
               {/*LINE*/}
-              <div className="h-auto border-1" />
+              <div className="h-auto border" />
               {/*LINE*/}
 
               {/*UPLOAD PHOTO*/}
