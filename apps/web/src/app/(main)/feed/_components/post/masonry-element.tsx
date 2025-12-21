@@ -4,7 +4,7 @@ import Image from "next/image";
 import type z from "zod";
 import PostTrigger from "./post-trigger";
 
-export default function MasonryPost({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
+export default function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
   return (
     <PostTrigger postId={postData._id}>
       <p className="font-bold">{postData.title}</p>
