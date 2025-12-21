@@ -11,5 +11,5 @@ type FetchedPostsStore = {
 export const useFetchedPostsStore = create<FetchedPostsStore>((set) => ({
   fetchedPosts: [],
   addPosts: (newPosts) => set((state) => ({ fetchedPosts: [...state.fetchedPosts, ...newPosts] })),
-  setPosts: (posts) => set({ posts }),
+  setPosts: (posts) => set({ fetchedPosts: posts }),
 }));
