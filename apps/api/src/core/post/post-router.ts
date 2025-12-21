@@ -7,7 +7,6 @@ import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
-import heicConvert from "heic-convert";
 
 const S3 = new S3Client({
   region: "auto",
