@@ -41,6 +41,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     }
     layoutRequestRef.current = requestAnimationFrame(() => {
       layout();
+      console.log("Rerendering layout");
       layoutRequestRef.current = null;
     });
   }, [layout]);
@@ -57,24 +58,24 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
 
   const setupImageListeners = useCallback(
     (container: HTMLElement) => {
-      loadingImagesRef.current.clear();
-
       const images = container.querySelectorAll("img");
-      if (!images.length) {
-        scheduleLayout();
-        return;
-      }
+      let hasNewImages = false;
 
       images.forEach((img) => {
+        if (loadingImagesRef.current.has(img)) return;
+
         if (!img.complete) {
+          hasNewImages = true;
           loadingImagesRef.current.add(img);
+
           const handler = () => handleImageLoad(img);
           img.addEventListener("load", handler, { once: true });
           img.addEventListener("error", handler, { once: true });
         }
       });
 
-      if (loadingImagesRef.current.size === 0) {
+      // Only schedule layout if there are no loading images
+      if (!hasNewImages && loadingImagesRef.current.size === 0) {
         scheduleLayout();
       }
     },
@@ -102,10 +103,16 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     if (!container) return;
 
     const observer = new MutationObserver(() => {
+      console.log("MutationObserver fired");
+
       setupImageListeners(container);
+      scheduleLayout();
     });
 
-    observer.observe(container, { childList: true, subtree: false });
+    observer.observe(container, {
+      childList: true,
+      subtree: false,
+    });
 
     return () => observer.disconnect();
   }, [setupImageListeners]);
