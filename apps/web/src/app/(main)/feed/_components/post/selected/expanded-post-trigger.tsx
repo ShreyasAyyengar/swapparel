@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { parseAsString } from "nuqs/server";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
@@ -18,8 +18,33 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     document.body.style.overflow = "";
   };
 
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
+  const [imageHeight, setImageHeight] = useState<number>(0);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
+
+    const updateHeight = () => {
+      if (imageContainerRef.current) {
+        const height = imageContainerRef.current.clientHeight;
+        setImageHeight(height);
+        if (textContainerRef.current) {
+          textContainerRef.current.style.height = `${height}px`;
+        }
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+
+    if (imageContainerRef.current) {
+      resizeObserver.observe(imageContainerRef.current);
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      resizeObserver.disconnect();
+    };
   });
 
   return (
@@ -30,7 +55,10 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           {currentImage + 1} / {post.images.length}
         </p>
         <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-          <div className="flex max-h-[calc(83vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary">
+          <div
+            className="flex max-h-[calc(83vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
+            ref={imageContainerRef}
+          >
             <Image
               src={post.images[currentImage] ?? ""}
               width={1200}
@@ -55,7 +83,12 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           )}
         </div>
 
-        <div className="flex max-h-[calc(83vh-80px)] flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2">{children}</div>
+        <div
+          className="flex max-h-[calc(83vh-80px)] min-h-1/3 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
+          ref={textContainerRef}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
