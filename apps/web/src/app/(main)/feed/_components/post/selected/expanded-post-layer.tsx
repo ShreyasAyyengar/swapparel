@@ -10,7 +10,7 @@ import { useFetchedPostsStore } from "../../../_hooks/state/fetched-posts-store"
 import ExpandedPost from "./expanded-post";
 
 // Note: fetchedPosts store is being injected here, instead of FilterLayer.
-export function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
+export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
   const { fetchedPosts, setPosts } = useFetchedPostsStore();
 

@@ -6,7 +6,7 @@ import { createSearchParamsCache, parseAsBoolean, parseAsNativeArrayOf, parseAsS
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import FilterLayer from "./_components/filters/filter-layer";
-import { ExpandedPostLayer } from "./_components/post/selected/expanded-post-layer";
+import ExpandedPostLayer from "./_components/post/selected/expanded-post-layer";
 import CreatePostLayer from "./_create/create-post-layer";
 
 const feedFilterParser = {
@@ -42,7 +42,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   // const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ amount: 100 })); // todo check coerce bug
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
 
-  if (!isSuccess) return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>;
+  if (!isSuccess) return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>; // TODO beautify this
 
   // TODO: customize scroll bar
   return (
