@@ -41,7 +41,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
   });
   await S3.send(packageCommand);
 
-  return `https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${postId}/${index}`;
+  return `https://cdn.swapparel.app/${postId}/${index}`;
 };
 
 export const postRouter = {

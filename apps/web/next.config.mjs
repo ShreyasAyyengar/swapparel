@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     // TODO MUST REMOVE BEFORE DEPLOYMENT
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
-      { protocol: "http", hostname: "**" },
+      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "cdn.swapparel.app" },
     ],
   },
 
