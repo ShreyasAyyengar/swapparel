@@ -68,7 +68,7 @@ export const swapRouter = {
     }
   ),
 
-  deleteSwap: protectedProcedure.swap.deleteSwap.handler(async ({ input, errors, context }) => {
+  deleteSwap: protectedProcedure.swap.deleteSwap.handler(async ({ input, errors }) => {
     const swapToDelete = await SwapCollection.findById(input._id);
 
     if (!swapToDelete) {
@@ -104,8 +104,8 @@ export const swapRouter = {
         });
       }
     }
-    if (swapDeleteSuccess === false) {
-      return { success: false, message: "Swap Still In Progress" };
+    if (!swapDeleteSuccess) {
+      return { success: false, message: "Swap Still In Progress!!" };
     }
     return { success: true, message: "Swap Successfully Deleted" };
   }),
