@@ -54,10 +54,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       {/*TODO: if image goes outside webpage bounds, scroll*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className={"flex items-center"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-          <div
-            className="relative flex max-h-200 shrink-0 items-center justify-center overflow-y-scroll rounded-md border border-secondary"
-            ref={imageContainerRef}
-          >
+          <div className="relative flex max-h-200 shrink-0 items-center justify-center overflow-y-scroll rounded-md" ref={imageContainerRef}>
             <Image
               src={post.images[currentImageCount] ?? ""}
               alt="gallery"
