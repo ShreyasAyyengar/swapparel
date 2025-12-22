@@ -20,7 +20,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const textContainerRef = useRef<HTMLDivElement>(null);
-  const [imageHeight, setImageHeight] = useState<number>(0);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -28,7 +27,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     const updateHeight = () => {
       if (imageContainerRef.current) {
         const height = imageContainerRef.current.clientHeight;
-        setImageHeight(height);
         if (textContainerRef.current) {
           textContainerRef.current.style.height = `${height}px`;
         }
@@ -51,9 +49,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       <div className="relative grid max-h-[83vh] w-1/2 grid-cols-1 items-center gap-5 overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 text-foreground xl:grid-cols-2">
-        <p className={"absolute bottom-3 left-10"}>
-          {currentImage + 1} / {post.images.length}
-        </p>
         <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
           <div
             className="flex max-h-[calc(83vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
@@ -67,6 +62,9 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
               className="flex w-full items-center justify-center"
             />
           </div>
+          <p className={"absolute bottom-3 left-4 rounded-md bg-black/30 px-2 backdrop-blur-lg"}>
+            {currentImage + 1} / {post.images.length}
+          </p>
           {isHovered && currentImage < post.images.length - 1 && (
             <ChevronRight
               className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
@@ -84,7 +82,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         </div>
 
         <div
-          className="flex max-h-[calc(83vh-80px)] min-h-1/3 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
+          className="flex max-h-[calc(83vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
           ref={textContainerRef}
         >
           {children}
