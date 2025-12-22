@@ -13,8 +13,55 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Swapparel",
-  description: "Swapparel is a clothes exchange service!", // TODO: make this better
+  title: {
+    default: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    template: "%s | Swapparel",
+  },
+  description:
+    "Transform your wardrobe sustainably with Swapparel. Exchange clothes with others, refresh your style, and reduce fashion waste. Join our community of eco-conscious fashion lovers today!",
+  keywords: [
+    "clothes exchange",
+    "fashion swap",
+    "sustainable fashion",
+    "clothing trade",
+    "eco-friendly wardrobe",
+    "secondhand clothes",
+    "fashion community",
+  ],
+  authors: [
+    { name: "Swapparel" },
+    { name: "Shreyas Ayyengar", url: "https://shreyasayyengar.dev" },
+    { name: "Alex Lin" },
+    { name: "Gerardo Juarez" },
+  ],
+  creator: "Swapparel",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://swapparel.app",
+    title: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    description:
+      "Transform your wardrobe sustainably with Swapparel. Exchange clothes with others, refresh your style, and reduce fashion waste.",
+    siteName: "Swapparel",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    description:
+      "Transform your wardrobe sustainably with Swapparel. Exchange clothes with others, refresh your style, and reduce fashion waste.",
+    creator: "@swapparel",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 // const reactScanEnabled = env.NEXT_PUBLIC_NODE_ENV === "development";
