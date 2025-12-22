@@ -150,7 +150,8 @@ export const postRouter = {
       "500/100",
     ];
 
-    const randomFrom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    const randomFrom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]!;
 
     const makePicsumUrl = () => {
       const [w, h] = randomFrom(imageWidthHeight).split("/");
