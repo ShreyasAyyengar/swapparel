@@ -1,22 +1,19 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import {internalPostSchema} from "./post-contract";
+import { internalPostSchema } from "./post-contract";
 
-const MESSAGE_MAX_LENGTH = 1000;
+const MESSAGE_MIN_LENGTH = 1;
 
 export const internalSwapSchema = z.object({
-  swapData: z.object({
   _id: z.uuidv7(),
   sellerEmail: z.email("Seller's email is required."),
   buyerEmail: z.email("Buyer's email is required."),
-  sellerPostID: internalPostSchema.pick({_id: true}),
-  buyerPostID: internalPostSchema.pick({_id: true}).optional(),
-  messageToSeller: z.string().max(MESSAGE_MAX_LENGTH, "Message can only be 1000 characters long").optional(),
+  sellerPostID: internalPostSchema.pick({ _id: true }),
+  buyerPostID: internalPostSchema.pick({ _id: true }).optional(),
+  messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
   dateToSwap: z.date(),
   locationToSwap: z.string(),
-  })
 });
-
 
 export const swapContract = {
   createSwap: oc
