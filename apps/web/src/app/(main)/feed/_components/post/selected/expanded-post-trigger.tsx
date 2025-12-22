@@ -1,14 +1,15 @@
 "use client";
 
 import type { internalPostSchema } from "@swapparel/contracts";
+import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { parseAsString } from "nuqs/server";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
-import PostImage from "./post-image";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
+  const [currentImageCount, setCurrentImageCount] = useState<number>(0);
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -52,9 +53,18 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       {/*TODO: if image goes outside webpage bounds, scroll*/}
       <div className="relative z-10 flex max-h-200 w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className="relative flex shrink-0 items-center justify-center overflow-y-scroll rounded-md" ref={imageContainerRef}>
-          <PostImage imageSRC={post.images} />
+          {/*<PostImage imageSRC={post.images} />*/}
+          <Image
+            src={post.images[currentImageCount] ?? ""}
+            alt="gallery"
+            width={350}
+            height={200}
+            className="rounded-md border-2 border-[#6F4D3880]"
+          />
         </div>
-
+        <p>
+          {currentImageCount + 1} / {post.images.length}
+        </p>
         {/* INSERT CHEVRONS HERE */}
 
         <div
