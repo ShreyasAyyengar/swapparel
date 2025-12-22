@@ -35,7 +35,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     });
 
     container.style.height = `${Math.max(...columnHeights)}px`;
-    setReady(true);
   }, [gap, setReady]);
 
   const scheduleLayout = useCallback(() => {
@@ -53,6 +52,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
       loadingImagesRef.current.delete(img);
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
+        setReady(true);
       }
     },
     [scheduleLayout]
