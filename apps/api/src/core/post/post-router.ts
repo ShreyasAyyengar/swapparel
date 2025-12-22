@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { colors, internalPostSchema, materials } from "@swapparel/contracts";
+import { COLOURS, internalPostSchema, MATERIALS } from "@swapparel/contracts";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
@@ -161,10 +161,10 @@ export const postRouter = {
 
     for (let i = 0; i < 100; i++) {
       const chosenMaterials = Array.from(
-        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => MATERIALS[Math.floor(Math.random() * MATERIALS.length)]))
       );
       const chosenColours = Array.from(
-        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => colors[Math.floor(Math.random() * colors.length)]))
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => COLOURS[Math.floor(Math.random() * COLOURS.length)]))
       );
       const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 

@@ -1,4 +1,4 @@
-import { materials } from "@swapparel/contracts";
+import { MATERIALS } from "@swapparel/contracts";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import {
   MultiSelect,
@@ -10,7 +10,7 @@ import {
 } from "@swapparel/shad-ui/components/multi-select";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
-const materialsSorted = [...materials].sort();
+const materialsSorted = [...MATERIALS].sort();
 
 export default function MaterialField() {
   const field = useFieldContext<FormValues["postData"]["material"]>();

@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { colors, internalPostSchema, materials } from "./post-contract";
+import { COLOURS, internalPostSchema, MATERIALS } from "./post-contract";
 
 const FEED_AMOUNT = 20;
 
@@ -73,13 +73,13 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
 export const feedFilterSchema = z.object({
   colour: z
     .object({
-      value: z.array(z.enum(colors)),
+      value: z.array(z.enum(COLOURS)),
       only: booleanStringSchema.default(false),
     })
     .optional(),
   material: z
     .object({
-      value: z.array(z.enum(materials)),
+      value: z.array(z.enum(MATERIALS)),
       only: booleanStringSchema.default(false),
     })
     .optional(),

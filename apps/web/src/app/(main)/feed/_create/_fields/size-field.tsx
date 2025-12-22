@@ -1,9 +1,9 @@
-import { sizeEnum } from "@swapparel/contracts";
+import { SIZES } from "@swapparel/contracts";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@swapparel/shad-ui/components/select";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
-const sizeSelectContent = sizeEnum.map((size, index) => (
+const sizeSelectContent = SIZES.map((size, index) => (
   <SelectItem key={index} value={size}>
     {size}
   </SelectItem>

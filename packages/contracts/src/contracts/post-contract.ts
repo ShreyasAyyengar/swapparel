@@ -28,14 +28,13 @@ const qaEntrySchema = z.object({
 });
 
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
-// TODO fix casing between export const enums and arrays etc materials vs VALID_MIME_TYPES vs colors
 
 export const uploadPhotoInput = z.object({
   file: z.file("Invalid file."),
   mimeType: z.enum(VALID_MIME_TYPES, "Invalid file type."),
 });
 
-export const materials = [
+export const MATERIALS = [
   "cotton",
   "linen",
   "wool",
@@ -66,7 +65,7 @@ export const materials = [
   "knit",
 ] as const;
 
-export const colors = [
+export const COLOURS = [
   "red",
   "blue",
   "green",
@@ -104,10 +103,10 @@ export const colors = [
   "ivory",
 ] as const;
 
-export const sizeEnum = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
+export const SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
 // TODO garmentType fully later
-export const garmentType = [
+export const GARMENT_TYPES = [
   "shirt",
   "shorts",
   "pants",
@@ -135,13 +134,13 @@ export const internalPostSchema = z.object({
     .max(DESCRIPTION_MAX_LENGTH, `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`),
   // biome-ignore format: readability
   colour: z
-    .array(z.enum(colors))
+    .array(z.enum(COLOURS))
     .min(1, "At least one provided colour must be selected."),
   // biome-ignore format: readability
-  size: z.enum(sizeEnum, "One provided size must be selected."),
+  size: z.enum(SIZES, "One provided size must be selected."),
   // biome-ignore format: readability
   material: z
-    .array(z.enum(materials))
+    .array(z.enum(MATERIALS))
     .min(1, "At least one provided material must be selected."),
   // biome-ignore format: readability
   images: z

@@ -1,4 +1,4 @@
-import { colors as COLOR_ARRAY, materials as MATERIAL_ARRAY, sizeEnum } from "@swapparel/contracts";
+import { COLOURS, MATERIALS, SIZES } from "@swapparel/contracts";
 import { X } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { parseAsBoolean, parseAsNativeArrayOf } from "nuqs/server";
@@ -15,7 +15,7 @@ export default function FilterOptions({
   sliderRef: React.RefObject<SVGSVGElement | null>;
   onClick: () => void;
   showingFilters: boolean;
-  setShowingFilters: React.Dispatch<React.SetStateAction<T>>;
+  setShowingFilters: React.Dispatch<React.SetStateAction<T>>; // TODO
 }) {
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
@@ -50,7 +50,7 @@ export default function FilterOptions({
         </div>
         <FilterSection
           title="Colors"
-          valueArray={COLOR_ARRAY}
+          valueArray={COLOURS}
           selectedValues={colors}
           onlyBoolean={colourOnly}
           setSelectedArray={setColor}
@@ -58,7 +58,7 @@ export default function FilterOptions({
         />
         <FilterSection
           title="Materials"
-          valueArray={MATERIAL_ARRAY}
+          valueArray={MATERIALS}
           selectedValues={materials}
           onlyBoolean={materialOnly}
           setSelectedArray={setMaterial}
@@ -66,7 +66,7 @@ export default function FilterOptions({
         />
         <FilterSection
           title="Size"
-          valueArray={sizeEnum}
+          valueArray={SIZES}
           selectedValues={sizes}
           onlyBoolean={sizeOnly}
           setSelectedArray={setSize}
