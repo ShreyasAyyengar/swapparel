@@ -21,7 +21,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
-    // define updateHeight function
     const updateHeight = () => {
       if (imageContainerRef.current) {
         const height = imageContainerRef.current.clientHeight;
@@ -32,58 +31,32 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       }
     };
 
-    // wait for images to load
-    const imageContainer = imageContainerRef.current;
-    if (imageContainer) {
-      const images = imageContainer.querySelectorAll("img");
+    // Create ResizeObserver to watch for size changes
+    const resizeObserver = new ResizeObserver(updateHeight);
 
-      if (images.length > 0) {
-        let loadedCount = 0;
-        const totalImages = images.length;
-
-        const onImageLoad = () => {
-          loadedCount++;
-          if (loadedCount === totalImages) updateHeight();
-        };
-
-        images.forEach((img) => {
-          // use cached image
-          if (img.complete) onImageLoad();
-          else img.addEventListener("load", onImageLoad);
-        });
-
-        // Fallback: update after a short delay in case images are already loaded
-        // const timeoutId = setTimeout(updateHeight, 0);
-
-        return () => {
-          document.body.style.overflow = "";
-          // clearTimeout(timeoutId);
-          images.forEach((img) => {
-            img.removeEventListener("load", onImageLoad);
-          });
-        };
-      }
-      // No images, update immediately
-      updateHeight();
+    if (imageContainerRef.current) {
+      resizeObserver.observe(imageContainerRef.current);
     }
 
     return () => {
       document.body.style.overflow = "";
+      resizeObserver.disconnect();
     };
-  }, []); // Only run once on mount
+  }, []);
 
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
 
       {/*TODO: make grid*/}
+      {/*TODO: if image goes outside webpage bounds, scroll*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className="relative flex shrink-0 items-center justify-center" ref={imageContainerRef}>
           <PostImage imageSRC={post.images} />
         </div>
 
         <div
-          className={"ml-8 flex min-h-100 w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"}
+          className={"ml-8 flex h-full min-h-100 w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"}
           ref={textContainerRef}
         >
           {imageHeight > 0 && children}
