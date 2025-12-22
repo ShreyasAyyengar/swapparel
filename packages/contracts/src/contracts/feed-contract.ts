@@ -85,7 +85,7 @@ export const feedFilterSchema = z.object({
     .optional(),
   size: z
     .object({
-      value: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])),
+      value: z.array(z.enum(SIZES)),
       only: booleanStringSchema.default(false),
     })
     .optional(),
