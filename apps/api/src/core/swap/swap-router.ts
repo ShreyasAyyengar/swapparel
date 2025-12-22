@@ -8,12 +8,9 @@ import { SwapCollection } from "../swap/swap-schema";
 export const swapRouter = {
   createSwap: protectedProcedure.swap.createSwap.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
-      const buyerEmailContext = context.user.email;
+      const buyerEmailFromContex = context.user.email;
 
-      //creates buyerPost only if there is a post id given as input
-      const buyerPost = await PostCollection.findById(input.buyerPostID);
-
-      //confirms seller post exists given through input
+      // confirm seller post exists in the db
       const sellerPost = await PostCollection.findById(input.sellerPostID);
       if (!sellerPost) {
         throw NOT_FOUND({
@@ -21,34 +18,30 @@ export const swapRouter = {
         });
       }
 
-      //Confirms email of seller exists after confirming seller post exists
-      const sellerEmailCheck = await PostCollection.findOne({ createdBy: sellerPost.createdBy });
-      if (!sellerEmailCheck) {
-        throw NOT_FOUND({
-          data: { message: `User not found with email: ${sellerPost.createdBy}` },
-        });
-      }
-      //Checks if user attempts to trade with themselves
-      if (sellerEmailCheck === buyerEmailContext) {
+      // Checks if user attempts to trade with themselves
+      if (sellerPost.createdBy === buyerEmailFromContex) {
         throw BAD_REQUEST({
           data: { message: "User cannot trade with themselves" },
         });
       }
 
+      //creates buyerPost only if there is a post id given as input
+      const buyerPost = input.buyerPostID ? await PostCollection.findById(input.buyerPostID) : undefined;
+
       const _id = uuidv7();
 
-      const swapData = {
+      const swapDocument = {
         _id,
         sellerEmail: sellerPost.createdBy,
-        buyerEmail: buyerEmailContext,
+        buyerEmail: buyerEmailFromContex,
         sellerPostID: sellerPost._id,
         buyerPostID: buyerPost?._id,
-        messageToSeller: input.messages ?? undefined,
+        messageToSeller: [input.initialMessage],
         dateToSwap: input.dateToSwap,
         locationToSwap: input.locationToSwap,
       };
 
-      const tryParse = internalSwapSchema.safeParse(swapData);
+      const tryParse = internalSwapSchema.safeParse(swapDocument);
 
       if (!tryParse.success) {
         throw BAD_REQUEST({
@@ -59,7 +52,7 @@ export const swapRouter = {
         });
       }
       try {
-        await PostCollection.insertOne(swapData);
+        await SwapCollection.insertOne(swapDocument);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {

@@ -2,14 +2,13 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { internalPostSchema } from "./post-contract";
 
-const MESSAGE_MIN_LENGTH = 1;
+const MESSAGE_MIN_LENGTH = 1000;
 
 export const internalSwapSchema = z.object({
   _id: z.uuidv7(),
-  sellerEmail: z.email("Seller's email is required."),
-  buyerEmail: z.email("Buyer's email is required."),
   sellerPostID: internalPostSchema.pick({ _id: true }),
   buyerPostID: internalPostSchema.pick({ _id: true }).optional(),
+  buyerEmail: z.email("Buyer's email is required."),
   messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
   dateToSwap: z.date(),
   locationToSwap: z.string(),
@@ -20,7 +19,7 @@ export const swapContract = {
     .route({
       method: "POST",
     })
-    .input(internalSwapSchema)
+    .input(internalSwapSchema.omit({ messages: true }).extend({ initialMessage: z.string() }))
     .output(
       z.object({
         _id: z.uuidv7(),
