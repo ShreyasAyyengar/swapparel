@@ -60,6 +60,7 @@ export const swapRouter = {
       if (!tryParse.success) {
         throw BAD_REQUEST({
           data: {
+            issues: tryParse.error.issues,
             message: "Invalid Input",
           },
         });
