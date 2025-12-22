@@ -1,10 +1,13 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function PostImage({ imageSRC }: { imageSRC: string[] }) {
   const [currentImageCount, setCurrentImageCount] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [halfHeight, setHalfHeight] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const increaseImageCount = () => {
     if (currentImageCount === imageSRC.length - 1) {
@@ -20,16 +23,25 @@ export default function PostImage({ imageSRC }: { imageSRC: string[] }) {
   };
   return (
     <div
-      className="relative flex-shrink-0 items-center"
+      className="relative shrink-0 items-center"
+      ref={containerRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       role="presentation"
     >
-      <Image src={imageSRC[currentImageCount] ?? ""} alt="gallery" width={350} height={200} className="rounded-md border-2 border-[#6F4D3880]" />
+      <Image
+        src={imageSRC[currentImageCount] ?? ""}
+        alt="gallery"
+        width={350}
+        height={200}
+        className="rounded-md border-2 border-[#6F4D3880]"
+        onLoadingComplete={(img) => setHalfHeight(img.height / 2)}
+      />
       {currentImageCount > 0 && isHovered && (
         <ChevronLeft
           type="button"
           className="-translate-y-1/2 absolute top-1/2 left-3 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+          style={{ top: halfHeight }}
           onClick={decreaseImageCount}
         />
       )}
@@ -37,6 +49,7 @@ export default function PostImage({ imageSRC }: { imageSRC: string[] }) {
         <ChevronRight
           type="button"
           className="-translate-y-1/2 absolute top-1/2 right-3 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+          style={{ top: halfHeight }}
           onClick={increaseImageCount}
         />
       )}

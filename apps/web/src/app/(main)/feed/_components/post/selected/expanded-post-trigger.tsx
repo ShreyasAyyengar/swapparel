@@ -55,6 +55,8 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           <PostImage imageSRC={post.images} />
         </div>
 
+        {/* INSERT CHEVRONS HERE */}
+
         <div
           className={"ml-8 flex h-full min-h-100 w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"}
           ref={textContainerRef}
