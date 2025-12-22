@@ -25,12 +25,26 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
   const filters = useMemo(() => {
-    const f: z.infer<typeof feedFilterSchema> = {};
+    const f: Partial<z.input<typeof feedFilterSchema>> = {};
 
-    if (selectedColor.length) f.colour = selectedColourOnly ? { value: selectedColor, only: true } : { value: selectedColor };
-    if (selectedMaterial.length) f.material = selectedMaterialOnly ? { value: selectedMaterial, only: true } : { value: selectedMaterial };
-    if (selectedSize.length) f.size = selectedSizeOnly ? { value: selectedSize, only: true } : { value: selectedSize };
-    if (selectedHashtag.length) f.hashtag = selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag };
+    if (selectedColor?.length) {
+      f.colour = (selectedColourOnly ? { value: selectedColor, only: true } : { value: selectedColor }) as z.infer<
+        typeof feedFilterSchema
+      >["colour"];
+    }
+    if (selectedMaterial?.length) {
+      f.material = (selectedMaterialOnly ? { value: selectedMaterial, only: true } : { value: selectedMaterial }) as z.infer<
+        typeof feedFilterSchema
+      >["material"];
+    }
+    if (selectedSize?.length) {
+      f.size = (selectedSizeOnly ? { value: selectedSize, only: true } : { value: selectedSize }) as z.infer<typeof feedFilterSchema>["size"];
+    }
+    if (selectedHashtag?.length) {
+      f.hashtag = (selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag }) as z.infer<
+        typeof feedFilterSchema
+      >["colour"];
+    }
 
     // if no filters active, return undefined (so nothing is sent)
     return Object.keys(f).length ? feedFilterSchema.parse(f) : undefined;

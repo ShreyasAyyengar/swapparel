@@ -15,7 +15,7 @@ export default function FilterOptions({
   sliderRef: React.RefObject<SVGSVGElement | null>;
   onClick: () => void;
   showingFilters: boolean;
-  setShowingFilters: React.Dispatch<React.SetStateAction<T>>; // TODO
+  setShowingFilters: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
