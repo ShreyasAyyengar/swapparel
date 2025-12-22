@@ -1,8 +1,7 @@
 "use client";
 
 import type { internalPostSchema } from "@swapparel/contracts";
-import { useQueryState } from "nuqs";
-import { parseAsString } from "nuqs/server";
+import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 import PostImage from "./post-image";
