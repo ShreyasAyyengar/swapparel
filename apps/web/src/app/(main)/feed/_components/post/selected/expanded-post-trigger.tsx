@@ -51,7 +51,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       {/*TODO: make grid*/}
-      {/*TODO: if image goes outside webpage bounds, scroll*/}
       <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className={"flex items-center"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
           <div className="relative flex max-h-200 shrink-0 items-center justify-center overflow-y-scroll rounded-md" ref={imageContainerRef}>
@@ -67,7 +66,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           <div className="pointer-events-none absolute inset-0">
             {currentImageCount > 0 && isHovered && (
               <ChevronLeft
-                className="-translate-y-1/2 pointer-events-auto absolute top-1/2 left-15 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+                className="-translate-y-1/2 pointer-events-auto absolute top-1/2 left-13 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
                 onClick={() => setCurrentImageCount((prev) => prev - 1)}
               />
             )}
