@@ -85,6 +85,13 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     };
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(`length of form images: ${form.getFieldValue("images").length}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
     <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
