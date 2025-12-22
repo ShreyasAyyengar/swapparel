@@ -85,13 +85,6 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log(`length of form images: ${form.getFieldValue("images").length}`);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
     <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
@@ -141,7 +134,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {/*LINE*/}
 
               {/*UPLOAD PHOTO*/}
-              <div className="mt-3 w-1/2 pt-[30px] pr-5 pb-10 pl-5">
+              <div className="mt-3 w-1/2 pt-7.5 pr-5 pb-10 pl-5">
                 <FieldGroup className="h-full w-full">
                   <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
                 </FieldGroup>
@@ -149,7 +142,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {/*UPLOAD PHOTO*/}
             </div>
           </form>
-          <div className="w-auto border-1" />
+          <div className="w-auto border" />
           <div className="flex justify-between">
             <Button className="m-3 mr-5 w-1/8" onClick={closeAction}>
               Cancel

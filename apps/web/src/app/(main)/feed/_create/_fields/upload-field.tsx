@@ -60,7 +60,7 @@ export default function UploadField() {
     }));
   }
 
-  // TODO cannot create if multiple files have been uploaded but one is invalid, makes the whole field valid
+  // TODO find better solution for file validation / bubbling errors
   return (
     <Field data-invalid={hasMimeError} className="h-full w-full">
       <UploadDropzone />
