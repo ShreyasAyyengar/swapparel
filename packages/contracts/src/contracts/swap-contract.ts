@@ -12,6 +12,8 @@ export const internalSwapSchema = z.object({
   messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
   dateToSwap: z.date(),
   locationToSwap: z.string(),
+  swapItemCompleted: z.boolean().default(false),
+  returnItemCompleted: z.boolean().optional(),
 });
 
 export const swapContract = {
@@ -42,6 +44,26 @@ export const swapContract = {
           message: z.string(),
         }),
       },
+    }),
+
+  deleteSwap: oc
+    .route({
+      method: "DELETE",
+    })
+    .input(
+      z.object({
+        _id: z.uuidv7(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        error: z.string(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {},
+      NOT_FOUND: {},
     }),
 
   addMockSwap: oc
