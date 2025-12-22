@@ -105,7 +105,7 @@ export const COLOURS = [
 
 export const SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
-// TODO garmentType fully later
+// TODO implement garment type later
 export const GARMENT_TYPES = [
   "shirt",
   "shorts",
