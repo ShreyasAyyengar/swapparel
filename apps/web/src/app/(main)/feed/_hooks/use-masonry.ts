@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
-export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: React.Dispatch<React.SetStateAction<T>> }) {
+export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Set<HTMLImageElement>());
   const layoutRequestRef = useRef<number | null>(null);
@@ -35,7 +35,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     });
 
     container.style.height = `${Math.max(...columnHeights)}px`;
-  }, [gap, setReady]);
+  }, [gap]);
 
   const scheduleLayout = useCallback(() => {
     if (layoutRequestRef.current !== null) {
@@ -51,33 +51,37 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
       if (loadingImagesRef.current.size === 0) {
-        scheduleLayout();
-        setReady(true);
+        scheduleLayout(); // schedule layout
+
+        // Fade in new children after layout
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          Array.from(container.children).forEach((child) => {
+            (child as HTMLElement).style.opacity = "1";
+          });
+        });
       }
     },
     [scheduleLayout]
   );
 
   const setupImageListeners = useCallback(
-    (container: HTMLElement) => {
-      const images = container.querySelectorAll("img");
-      let hasNewImages = false;
+    (root: HTMLElement) => {
+      const img = root.querySelector("img");
+      if (!img) return;
 
-      images.forEach((img) => {
-        if (loadingImagesRef.current.has(img)) return;
+      if (!(loadingImagesRef.current.has(img) || img.complete)) {
+        loadingImagesRef.current.add(img);
 
-        if (!img.complete) {
-          hasNewImages = true;
-          loadingImagesRef.current.add(img);
+        const handler = () => handleImageLoad(img);
+        img.addEventListener("load", handler, { once: true });
+        img.addEventListener("error", handler, { once: true });
+        return;
+      }
 
-          const handler = () => handleImageLoad(img);
-          img.addEventListener("load", handler, { once: true });
-          img.addEventListener("error", handler, { once: true });
-        }
-      });
-
-      // Only schedule layout if there are no loading images
-      if (!hasNewImages && loadingImagesRef.current.size === 0) {
+      // Image already loaded and no other images pending
+      if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
       }
     },
@@ -104,8 +108,23 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     const container = containerRef.current;
     if (!container) return;
 
-    const observer = new MutationObserver(() => {
-      setupImageListeners(container);
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+
+          node.style.opacity = "0";
+          node.style.transition = "opacity 0.3s ease";
+          setupImageListeners(node);
+        });
+        mutation.removedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+
+          node.querySelectorAll?.("img").forEach((img) => {
+            loadingImagesRef.current.delete(img);
+          });
+        });
+      }
     });
 
     observer.observe(container, {
