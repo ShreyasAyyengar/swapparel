@@ -50,8 +50,8 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
       {/*TODO: make grid*/}
       {/*TODO: if image goes outside webpage bounds, scroll*/}
-      <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
-        <div className="relative flex shrink-0 items-center justify-center" ref={imageContainerRef}>
+      <div className="relative z-10 flex max-h-200 w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
+        <div className="relative flex shrink-0 items-center justify-center overflow-y-scroll rounded-md" ref={imageContainerRef}>
           <PostImage imageSRC={post.images} />
         </div>
 
