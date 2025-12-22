@@ -122,7 +122,44 @@ export const postRouter = {
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
     const documents = [];
 
-    for (let i = 0; i < 1; i++) {
+    const imageWidthHeight = [
+      "50/50",
+      "50/100",
+      "50/200",
+      "50/300",
+      "50/400",
+      "50/500",
+      "100/100",
+      "100/200",
+      "100/300",
+      "100/400",
+      "100/500",
+      "200/200",
+      "200/300",
+      "200/400",
+      "200/500",
+      "300/300",
+      "300/400",
+      "300/500",
+      "400/400",
+      "400/500",
+      "500/500",
+      "400/200",
+      "500/200",
+      "400/100",
+      "500/100",
+    ];
+
+    const randomFrom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+
+    const makePicsumUrl = () => {
+      const [w, h] = randomFrom(imageWidthHeight).split("/");
+      // `seed` makes it stable per image (so refreshes don’t constantly change)
+      const seed = uuidv7();
+      return `https://picsum.photos/seed/${seed}/${w}/${h}`;
+    };
+
+    for (let i = 0; i < 100; i++) {
       const chosenMaterials = Array.from(
         new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
       );
@@ -139,12 +176,7 @@ export const postRouter = {
         colour: chosenColours,
         size,
         material: chosenMaterials,
-        images: [
-          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
-          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
-          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
-          `https://picsum.photos/${Math.floor(Math.random() * 1000) + 1}/${Math.floor(Math.random() * 1000) + 1}`,
-        ],
+        images: Array.from({ length: 4 }).map(() => makePicsumUrl()),
         hashtags: [],
         qaEntries: [
           {
