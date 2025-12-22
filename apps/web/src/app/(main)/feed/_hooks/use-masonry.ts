@@ -8,6 +8,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
   const COLUMN_MIN = 240;
 
   const layout = useCallback(() => {
+    console.log("layout render called");
     const container = containerRef.current;
     if (!container) return;
 
@@ -41,7 +42,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     }
     layoutRequestRef.current = requestAnimationFrame(() => {
       layout();
-      console.log("Rerendering layout");
       layoutRequestRef.current = null;
     });
   }, [layout]);
@@ -106,7 +106,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
       console.log("MutationObserver fired");
 
       setupImageListeners(container);
-      scheduleLayout();
+      // scheduleLayout();
     });
 
     observer.observe(container, {
