@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-// TODO: reset container height when setting a new filter
+
 export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: React.Dispatch<React.SetStateAction<T>> }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Set<HTMLImageElement>());
@@ -12,7 +12,10 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     if (!container) return;
 
     const children = Array.from(container.children) as HTMLElement[];
-    if (!children.length) return;
+    if (!children.length) {
+      container.style.height = "0px";
+      return;
+    }
 
     const containerWidth = container.clientWidth;
     const columnCount = Math.max(1, Math.floor((containerWidth + gap) / (COLUMN_MIN + gap)));
@@ -103,7 +106,6 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
 
     const observer = new MutationObserver(() => {
       setupImageListeners(container);
-      // scheduleLayout();
     });
 
     observer.observe(container, {
