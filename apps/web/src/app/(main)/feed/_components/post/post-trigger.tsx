@@ -1,7 +1,6 @@
 "use client";
 
-import { useQueryState } from "nuqs";
-import { parseAsString } from "nuqs/server";
+import { parseAsString, useQueryState } from "nuqs";
 
 export default function PostTrigger({ postId, children }: { postId: string; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString.withOptions({ shallow: false }));

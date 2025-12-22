@@ -1,7 +1,6 @@
 import { COLOURS, MATERIALS, SIZES } from "@swapparel/contracts";
 import { X } from "lucide-react";
-import { parseAsString, useQueryState } from "nuqs";
-import { parseAsBoolean, parseAsNativeArrayOf } from "nuqs/server";
+import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";

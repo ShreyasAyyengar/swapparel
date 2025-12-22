@@ -3,8 +3,7 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useQueryState } from "nuqs";
-import { parseAsString } from "nuqs/server";
+import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 
@@ -43,7 +42,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       document.body.style.overflow = "";
       resizeObserver.disconnect();
     };
-  });
+  }, []);
 
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
