@@ -1,6 +1,7 @@
 "use client";
 
 import type { internalPostSchema } from "@swapparel/contracts";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { parseAsString } from "nuqs/server";
@@ -10,6 +11,7 @@ import type z from "zod";
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const [currentImageCount, setCurrentImageCount] = useState<number>(0);
+  const [isHovered, setHovered] = useState<boolean>(false);
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -27,7 +29,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         const height = imageContainerRef.current.clientHeight;
         setImageHeight(height);
         if (textContainerRef.current) {
-          textContainerRef.current.style.height = `${height - 24}px`;
+          textContainerRef.current.style.height = `${height}px`;
         }
       }
     };
@@ -48,25 +50,39 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
-
       {/*TODO: make grid*/}
       {/*TODO: if image goes outside webpage bounds, scroll*/}
-      <div className="relative z-10 flex max-h-200 w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
-        <div className="relative flex shrink-0 items-center justify-center overflow-y-scroll rounded-md" ref={imageContainerRef}>
-          {/*<PostImage imageSRC={post.images} />*/}
-          <Image
-            src={post.images[currentImageCount] ?? ""}
-            alt="gallery"
-            width={350}
-            height={200}
-            className="rounded-md border-2 border-[#6F4D3880]"
-          />
-        </div>
-        <p>
-          {currentImageCount + 1} / {post.images.length}
-        </p>
-        {/* INSERT CHEVRONS HERE */}
+      <div className="relative z-10 flex w-200 rounded-2xl border border-secondary bg-accent p-10 text-foreground">
+        <div className={"flex items-center"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+          <div
+            className="relative flex max-h-200 shrink-0 items-center justify-center overflow-y-scroll rounded-md border border-secondary"
+            ref={imageContainerRef}
+          >
+            <Image
+              src={post.images[currentImageCount] ?? ""}
+              alt="gallery"
+              width={350}
+              height={200}
+              className="rounded-md border-2 border-[#6F4D3880]"
+            />
+          </div>
 
+          <div className="pointer-events-none absolute inset-0">
+            {currentImageCount > 0 && isHovered && (
+              <ChevronLeft
+                className="-translate-y-1/2 pointer-events-auto absolute top-1/2 left-15 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+                onClick={() => setCurrentImageCount((prev) => prev - 1)}
+              />
+            )}
+
+            {currentImageCount < post.images.length - 1 && isHovered && (
+              <ChevronRight
+                className="-translate-y-1/2 pointer-events-auto absolute top-1/2 right-105 h-10 w-10 cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+                onClick={() => setCurrentImageCount((prev) => prev + 1)}
+              />
+            )}
+          </div>
+        </div>
         <div
           className={"ml-8 flex h-full min-h-100 w-90 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"}
           ref={textContainerRef}
