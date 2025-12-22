@@ -2,31 +2,43 @@
 
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CopyPlus } from "lucide-react";
+import { useQueryState } from "nuqs";
 import random from "random";
 import { useState } from "react";
-import { useCreateFormOpenStore } from "../../feed/_hooks/state/create-form-open-store";
+import { authClient } from "../../../../lib/auth-client";
 
 export default function CreatePostHeaderButton() {
+  const { data } = authClient.useSession();
+  const [_, setIsCreating] = useQueryState("create");
   const [bool, setBool] = useState(false);
-  const { setIsOpen } = useCreateFormOpenStore();
+
+  const validateCreate = () => {
+    if (data?.session) {
+      setIsCreating("");
+    } else {
+      authClient.signIn.social(
+        {
+          provider: "google",
+          callbackURL: "http://localhost:3000/feed?create",
+          errorCallbackURL: "http://localhost:3000/auth/error",
+        },
+        {}
+      );
+    }
+  };
 
   return (
-    <>
-      {/*{createOpen && (*/}
-      {/*  <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xl">*/}
-      {/*    <CreatePostForm closeAction={closeAction} />*/}
-      {/*  </div>*/}
-      {/*)}*/}
-      <CopyPlus
-        width={37.5}
-        height={37.5}
-        onClick={() => setIsOpen(true)}
-        onMouseEnter={() => setBool(random.boolean())}
-        className={cn(
-          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
-          bool ? "hover:-rotate-10" : "hover:rotate-10"
-        )}
-      />
-    </>
+    <CopyPlus
+      width={37.5}
+      height={37.5}
+      onClick={() => validateCreate()}
+      onMouseEnter={() => {
+        setBool(random.boolean());
+      }}
+      className={cn(
+        "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
+        bool ? "hover:-rotate-10" : "hover:rotate-10"
+      )}
+    />
   );
 }

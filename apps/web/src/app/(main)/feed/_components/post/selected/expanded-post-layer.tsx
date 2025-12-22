@@ -14,6 +14,7 @@ export function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infe
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
   const { fetchedPosts, setPosts } = useFetchedPostsStore();
 
+  // TODO scrolled queries dont seem to validate this find
   const tryFromFeed = useMemo(() => fetchedPosts.find((p) => p._id === selectedPost), [fetchedPosts, selectedPost]);
 
   useEffect(() => {
