@@ -28,17 +28,21 @@ export const swapRouter = {
       //creates buyerPost only if there is a post id given as input
       const buyerPost = input.buyerPostID ? await PostCollection.findById(input.buyerPostID) : undefined;
 
+      //creates variables for boolean if seller wants buyer to return item
+      const returnItemEnabled = input.returnItemCompleted ? input.returnItemCompleted : undefined;
+
       const _id = uuidv7();
 
       const swapDocument = {
         _id,
-        sellerEmail: sellerPost.createdBy,
-        buyerEmail: buyerEmailFromContex,
         sellerPostID: sellerPost._id,
         buyerPostID: buyerPost?._id,
-        messageToSeller: [input.initialMessage],
+        buyerEmail: buyerEmailFromContex,
+        messages: [input.initialMessage],
         dateToSwap: input.dateToSwap,
         locationToSwap: input.locationToSwap,
+        swapItemCompleted: input.swapItemCompleted,
+        returnItemCompleted: returnItemEnabled,
       };
 
       const tryParse = internalSwapSchema.safeParse(swapDocument);
@@ -63,6 +67,48 @@ export const swapRouter = {
       return { _id };
     }
   ),
+
+  deleteSwap: protectedProcedure.swap.deleteSwap.handler(async ({ input, errors, context }) => {
+    const swapToDelete = await SwapCollection.findById(input._id);
+
+    if (!swapToDelete) {
+      throw errors.NOT_FOUND({
+        data: {
+          message: "Swap Not Found",
+        },
+      });
+    }
+
+    let swapDeleteSuccess = false;
+
+    if (swapToDelete.swapItemCompleted === true) {
+      try {
+        const result = await SwapCollection.deleteOne({ _id: swapToDelete._id });
+        swapDeleteSuccess = result.deletedCount === 1;
+      } catch (error) {
+        throw errors.INTERNAL_SERVER_ERROR({
+          data: {
+            message: `Failed to delete ${swapToDelete._id}. ${error}`,
+          },
+        });
+      }
+    } else if (swapToDelete.returnItemCompleted === true) {
+      try {
+        const result = await SwapCollection.deleteOne({ _id: swapToDelete._id });
+        swapDeleteSuccess = result.deletedCount === 1;
+      } catch (error) {
+        throw errors.INTERNAL_SERVER_ERROR({
+          data: {
+            message: `Failed to delete ${swapToDelete._id}. ${error}`,
+          },
+        });
+      }
+    }
+    if (swapDeleteSuccess === false) {
+      return { success: false, message: "Swap Still In Progress" };
+    }
+    return { success: true, message: "Swap Successfully Deleted" };
+  }),
 
   addMockSwap: publicProcedure.swap.addMockSwap.handler(async ({ input, errors, context }) => {
     const [mockSellerPostBuffer] = await PostCollection.aggregate([{ $sample: { size: 1 } }, { $project: { _id: 1, createdBy: 1 } }]);

@@ -58,12 +58,20 @@ export const swapContract = {
     .output(
       z.object({
         success: z.boolean(),
-        error: z.string(),
+        message: z.string(),
       })
     )
     .errors({
-      INTERNAL_SERVER_ERROR: {},
-      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
     }),
 
   addMockSwap: oc
