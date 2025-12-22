@@ -67,14 +67,14 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           </p>
           {isHovered && currentImage < post.images.length - 1 && (
             <ChevronRight
-              className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+              className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
               size={12}
               onClick={() => setCurrentImage((prev) => prev + 1)}
             />
           )}
           {isHovered && currentImage > 0 && (
             <ChevronLeft
-              className="absolute top-1/2 left-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-sm"
+              className="absolute top-1/2 left-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
               size={12}
               onClick={() => setCurrentImage((prev) => prev - 1)}
             />
