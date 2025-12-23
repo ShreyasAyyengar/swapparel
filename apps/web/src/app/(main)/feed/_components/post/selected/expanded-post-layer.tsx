@@ -6,7 +6,7 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
-import { useFetchedPostsStore } from "../../../_hooks/state/fetched-posts-store";
+import { useFetchedPostsStore } from "../../../_hooks/use-posts-store";
 import ExpandedPost from "./expanded-post";
 
 // Note: fetchedPosts store is being injected here, instead of FilterLayer.
