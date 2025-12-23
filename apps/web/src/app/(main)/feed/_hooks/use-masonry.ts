@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 // TODO fading was not working ??????
-// TODO: fix fading between prerendered filtered posts
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
@@ -27,10 +26,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     children.forEach((child) => {
       child.style.position = "absolute";
       child.style.width = `${columnWidth}px`;
-
-      if (!child.style.transition.includes("opacity")) {
-        child.style.transition = "opacity 0.5s ease-in";
-      }
 
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
       const x = shortestColumnIndex * (columnWidth + gap);
@@ -128,8 +123,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           if (!(node instanceof HTMLElement)) return;
 
           changedChildren = true;
-          // node.classList.remove("opacity-100");
-          node.classList.add("opacity-0");
+          node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
@@ -150,17 +144,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         if (container.children.length === 0) {
           container.style.height = "0px";
         } else if (loadingImagesRef.current.size === 0) {
+          // Handle the case where all images are cached
           scheduleLayout();
-
-          // Use a single loop and DocumentFragment approach
-          const children = container.children;
-
           requestAnimationFrame(() => {
-            // biome-ignore lint/style/useForOf: <For Loops are faster>
-            for (let i = 0; i < children.length; i++) {
-              children[i]?.classList.add("opacity-100");
-              children[i]?.classList.remove("opacity-0");
-            }
+            Array.from(container.children).forEach((child) => {
+              console.log(child.classList.contains("opacity-0"));
+              child.classList.remove("opacity-0");
+              child.classList.add("opacity-100");
+            });
           });
         } else {
           scheduleLayout();
