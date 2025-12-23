@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
-import { useFetchedPostsStore } from "../../_hooks/state/fetched-posts-store";
+import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import { useStickyTrue } from "../../_hooks/use-sticky-state";
 import MasonryElement from "../post/masonry-element";
 import MasonryLayout from "../post/masonry-layout";
