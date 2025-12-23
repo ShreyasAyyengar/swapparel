@@ -154,6 +154,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
             <div className="m-8 flex w-full max-w-3/4 flex-col items-center gap-6 border border-secondary text-center" />
           </div>
           <div className="mb-10 text-center font-bold text-3xl">Could not load any more Swag...</div>
+          {/*  TODO maybe show # pages alr searched?*/}
         </div>
       )}
     </div>

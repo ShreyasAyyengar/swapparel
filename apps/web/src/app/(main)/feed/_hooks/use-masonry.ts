@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
+// TODO fading was not working ??????
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
@@ -8,7 +9,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const COLUMN_MIN = 240;
 
   const layout = useCallback(() => {
-    console.log("layout has been called");
     const container = containerRef.current;
     if (!container) return;
 
