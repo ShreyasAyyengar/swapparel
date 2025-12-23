@@ -85,6 +85,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       // Image already loaded and no other images pending
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
+
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          Array.from(container.children).forEach((child) => {
+            (child as HTMLElement).style.opacity = "1";
+          });
+        });
       }
     },
     [handleImageLoad, scheduleLayout]
