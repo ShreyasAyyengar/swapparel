@@ -8,12 +8,12 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const COLUMN_MIN = 240;
 
   const layout = useCallback(() => {
+    console.log("layout has been called");
     const container = containerRef.current;
     if (!container) return;
 
     const children = Array.from(container.children) as HTMLElement[];
     if (!children.length) {
-      console.log("no children detected");
       container.style.height = "0px";
       return;
     }
@@ -52,9 +52,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
       if (loadingImagesRef.current.size === 0) {
-        scheduleLayout(); // schedule layout
+        scheduleLayout();
 
-        // Fade in new children after layout
         requestAnimationFrame(() => {
           const container = containerRef.current;
           if (!container) return;
@@ -98,13 +97,16 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [setupImageListeners]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const handleResize = () => {
+      //NOTE: this may lead to optimization issues
+      scheduleLayout();
+    };
 
-    const resizeObserver = new ResizeObserver(scheduleLayout);
-    resizeObserver.observe(container);
+    window.addEventListener("resize", handleResize);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [scheduleLayout]);
 
   useEffect(() => {
@@ -117,15 +119,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
-          console.log("New children added");
           changedChildren = true;
-
+          node.style.opacity = "0";
+          node.style.transition = "opacity 0.3s ease";
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
-          console.log("New children removed");
           changedChildren = true;
 
           node.querySelectorAll?.("img").forEach((img) => {
@@ -134,7 +135,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
               img.removeEventListener("load", handler);
               img.removeEventListener("error", handler);
               loadingImagesRef.current.delete(img);
-              console.log("Deleted Event Listener");
             }
           });
         });
