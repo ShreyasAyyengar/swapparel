@@ -12,13 +12,12 @@ import ExpandedPost from "./expanded-post";
 // Note: fetchedPosts store is being injected here, instead of FilterLayer.
 export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
-  const { fetchedPosts, setPosts } = useFetchedPostsStore();
+  const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
-  // TODO scrolled queries dont seem to validate this find
   const tryFromFeed = useMemo(() => fetchedPosts.find((p) => p._id === selectedPost), [fetchedPosts, selectedPost]);
 
   useEffect(() => {
-    setPosts(loadedFeedPosts);
+    addPosts(loadedFeedPosts);
   }, [loadedFeedPosts]);
 
   const {
