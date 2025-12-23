@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 // TODO fading was not working ??????
+// TODO: fix fading between prerendered filtered posts
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
@@ -125,7 +126,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           console.log("added children");
 
           changedChildren = true;
-          // node.classList.remove("opacity-100");
+          node.classList.remove("opacity-100");
           node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
