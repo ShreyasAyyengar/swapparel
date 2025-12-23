@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 // TODO fading was not working ??????
+// TODO: prevent flickering when changing from filter to feed
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
+  const layoutTimeoutRef = useRef<number | null>(null);
 
   const COLUMN_MIN = 240;
 
@@ -39,14 +41,35 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [gap]);
 
   const scheduleLayout = useCallback(() => {
-    if (layoutRequestRef.current !== null) {
-      cancelAnimationFrame(layoutRequestRef.current);
+    // Clear any existing timeout
+    if (layoutTimeoutRef.current !== null) {
+      clearTimeout(layoutTimeoutRef.current);
     }
-    layoutRequestRef.current = requestAnimationFrame(() => {
-      layout();
-      layoutRequestRef.current = null;
-    });
+
+    // Debounce layout by a few ms to batch mutations
+    layoutTimeoutRef.current = window.setTimeout(() => {
+      if (layoutRequestRef.current !== null) {
+        cancelAnimationFrame(layoutRequestRef.current);
+      }
+
+      layoutRequestRef.current = requestAnimationFrame(() => {
+        layout();
+        layoutRequestRef.current = null;
+      });
+    }, 10); // Small delay to batch mutations
   }, [layout]);
+
+  useEffect(
+    () => () => {
+      if (layoutRequestRef.current !== null) {
+        cancelAnimationFrame(layoutRequestRef.current);
+      }
+      if (layoutTimeoutRef.current !== null) {
+        clearTimeout(layoutTimeoutRef.current);
+      }
+    },
+    []
+  );
 
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
@@ -127,6 +150,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
+          // console.log(`Node added ${node}`);
           changedChildren = true;
           node.style.opacity = "0";
           node.style.transition = "opacity 0.3s ease";

@@ -1,11 +1,11 @@
 import { COLOURS, MATERIALS, SIZES } from "@swapparel/contracts";
 import { X } from "lucide-react";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterSection from "./filter-section";
 
-export default function FilterOptions({
+function FilterOptions({
   sliderRef,
   onClick,
   showingFilters,
@@ -77,3 +77,4 @@ export default function FilterOptions({
     )
   );
 }
+export default memo(FilterOptions);
