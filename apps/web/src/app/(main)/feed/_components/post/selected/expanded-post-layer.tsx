@@ -26,7 +26,8 @@ export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts
     isLoading,
   } = useQuery(
     webClientORPC.posts.getPost.queryOptions({
-      input: { _id: selectedPost as string }, // Note: this will always be a defined string, see next line.
+      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
+      input: { _id: selectedPost! },
       enabled: !!selectedPost && !tryFromFeed,
     })
   );
