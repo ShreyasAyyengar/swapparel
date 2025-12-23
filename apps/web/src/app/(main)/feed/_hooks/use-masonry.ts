@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
-export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: React.Dispatch<React.SetStateAction<boolean>> }) {
+export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const loadingImagesRef = useRef(new Set<HTMLImageElement>());
+  const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
 
   const COLUMN_MIN = 240;
 
   const layout = useCallback(() => {
+    console.log("layout has been called");
     const container = containerRef.current;
     if (!container) return;
 
@@ -35,8 +36,7 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
     });
 
     container.style.height = `${Math.max(...columnHeights)}px`;
-    setReady(true);
-  }, [gap, setReady]);
+  }, [gap]);
 
   const scheduleLayout = useCallback(() => {
     if (layoutRequestRef.current !== null) {
@@ -53,32 +53,46 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
       loadingImagesRef.current.delete(img);
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
+
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          Array.from(container.children).forEach((child) => {
+            (child as HTMLElement).style.opacity = "1";
+          });
+        });
       }
     },
     [scheduleLayout]
   );
 
   const setupImageListeners = useCallback(
-    (container: HTMLElement) => {
-      const images = container.querySelectorAll("img");
-      let hasNewImages = false;
+    (root: HTMLElement) => {
+      const img = root.querySelector("img");
+      if (!img) return;
 
-      images.forEach((img) => {
-        if (loadingImagesRef.current.has(img)) return;
+      if (!(loadingImagesRef.current.has(img) || img.complete)) {
+        const handler = () => {
+          loadingImagesRef.current.delete(img);
+          handleImageLoad(img);
+        };
 
-        if (!img.complete) {
-          hasNewImages = true;
-          loadingImagesRef.current.add(img);
+        loadingImagesRef.current.set(img, handler);
+        img.addEventListener("load", handler, { once: true });
+        img.addEventListener("error", handler, { once: true });
+      }
 
-          const handler = () => handleImageLoad(img);
-          img.addEventListener("load", handler, { once: true });
-          img.addEventListener("error", handler, { once: true });
-        }
-      });
-
-      // Only schedule layout if there are no loading images
-      if (!hasNewImages && loadingImagesRef.current.size === 0) {
+      // Image already loaded and no other images pending
+      if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
+
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          Array.from(container.children).forEach((child) => {
+            (child as HTMLElement).style.opacity = "1";
+          });
+        });
       }
     },
     [handleImageLoad, scheduleLayout]
@@ -91,21 +105,55 @@ export function useMasonry<T>({ gap = 16, setReady }: { gap: number; setReady: R
   }, [setupImageListeners]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const handleResize = () => {
+      //NOTE: this may lead to optimization issues
+      scheduleLayout();
+    };
 
-    const resizeObserver = new ResizeObserver(scheduleLayout);
-    resizeObserver.observe(container);
+    window.addEventListener("resize", handleResize);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [scheduleLayout]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const observer = new MutationObserver(() => {
-      setupImageListeners(container);
+    const observer = new MutationObserver((mutations) => {
+      let changedChildren = false;
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+
+          changedChildren = true;
+          node.style.opacity = "0";
+          node.style.transition = "opacity 0.3s ease";
+          setupImageListeners(node);
+        });
+        mutation.removedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+
+          changedChildren = true;
+
+          node.querySelectorAll?.("img").forEach((img) => {
+            const handler = loadingImagesRef.current.get(img);
+            if (handler) {
+              img.removeEventListener("load", handler);
+              img.removeEventListener("error", handler);
+              loadingImagesRef.current.delete(img);
+            }
+          });
+        });
+      }
+      if (changedChildren) {
+        if (container.children.length === 0) {
+          container.style.height = "0px";
+        } else {
+          scheduleLayout();
+        }
+      }
     });
 
     observer.observe(container, {

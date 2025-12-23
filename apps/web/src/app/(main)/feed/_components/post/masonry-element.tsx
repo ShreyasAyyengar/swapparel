@@ -1,10 +1,11 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import Image from "next/image";
+import { memo } from "react";
 import type z from "zod";
 import PostTrigger from "./post-trigger";
 
-export default function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
+function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
   return (
     <PostTrigger postId={postData._id}>
       <p className="font-bold">{postData.title}</p>
@@ -46,3 +47,4 @@ export default function MasonryElement({ postData }: { postData: z.infer<typeof 
     </PostTrigger>
   );
 }
+export default memo(MasonryElement);
