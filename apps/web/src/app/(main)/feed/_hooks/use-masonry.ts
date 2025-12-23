@@ -81,7 +81,9 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           const container = containerRef.current;
           if (!container) return;
           Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).style.opacity = "1";
+            (child as HTMLElement).classList.remove("opacity-0");
+            (child as HTMLElement).classList.add("opacity-100");
+            // console.log("IMAGE LOAD: opacity = 1");
           });
         });
       }
@@ -94,7 +96,12 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       const img = root.querySelector("img");
       if (!img) return;
 
-      if (!(loadingImagesRef.current.has(img) || img.complete)) {
+      // If image is already complete AND we haven't set up a listener, just return early
+      if (img.complete && !loadingImagesRef.current.has(img)) {
+        return; // Don't do anything - layout will be triggered by the last image
+      }
+
+      if (!loadingImagesRef.current.has(img)) {
         const handler = () => {
           loadingImagesRef.current.delete(img);
           handleImageLoad(img);
@@ -103,19 +110,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         loadingImagesRef.current.set(img, handler);
         img.addEventListener("load", handler, { once: true });
         img.addEventListener("error", handler, { once: true });
-      }
-
-      // Image already loaded and no other images pending
-      if (loadingImagesRef.current.size === 0) {
-        scheduleLayout();
-
-        requestAnimationFrame(() => {
-          const container = containerRef.current;
-          if (!container) return;
-          Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).style.opacity = "1";
-          });
-        });
       }
     },
     [handleImageLoad, scheduleLayout]
@@ -145,6 +139,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
+      // console.log("mutation observer fired");
       let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
@@ -152,13 +147,11 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
           // console.log(`Node added ${node}`);
           changedChildren = true;
-          node.style.opacity = "0";
-          node.style.transition = "opacity 0.3s ease";
+          node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
-
           changedChildren = true;
 
           node.querySelectorAll?.("img").forEach((img) => {
@@ -174,6 +167,16 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       if (changedChildren) {
         if (container.children.length === 0) {
           container.style.height = "0px";
+        } else if (loadingImagesRef.current.size === 0) {
+          // Handle the case where all images are cached
+          scheduleLayout();
+          requestAnimationFrame(() => {
+            Array.from(container.children).forEach((child) => {
+              console.log(child.classList.contains("opacity-0"));
+              child.classList.remove("opacity-0");
+              child.classList.add("opacity-100");
+            });
+          });
         } else {
           scheduleLayout();
         }
