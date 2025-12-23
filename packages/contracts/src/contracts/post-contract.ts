@@ -221,6 +221,7 @@ export const postContract = {
     .route({
       method: "GET",
     })
+
     .input(internalPostSchema.pick({ createdBy: true }))
     .output(z.array(internalPostSchema))
     .errors({
