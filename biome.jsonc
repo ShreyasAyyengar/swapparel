@@ -44,6 +44,7 @@
         "noConsole": "warn"
       },
       "complexity": {
+        "useSimplifiedLogicExpression": "warn",
         "useOptionalChain": "warn",
         "noExcessiveCognitiveComplexity": {
           "options": {
