@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const loadingImagesRef = useRef(new Set<HTMLImageElement>());
+  const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
 
   const COLUMN_MIN = 240;
@@ -13,6 +13,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
     const children = Array.from(container.children) as HTMLElement[];
     if (!children.length) {
+      console.log("no children detected");
       container.style.height = "0px";
       return;
     }
@@ -72,12 +73,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       if (!img) return;
 
       if (!(loadingImagesRef.current.has(img) || img.complete)) {
-        loadingImagesRef.current.add(img);
+        const handler = () => {
+          loadingImagesRef.current.delete(img);
+          handleImageLoad(img);
+        };
 
-        const handler = () => handleImageLoad(img);
+        loadingImagesRef.current.set(img, handler);
         img.addEventListener("load", handler, { once: true });
         img.addEventListener("error", handler, { once: true });
-        return;
       }
 
       // Image already loaded and no other images pending
@@ -109,21 +112,39 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
+      let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
-          node.style.opacity = "0";
-          node.style.transition = "opacity 0.3s ease";
+          console.log("New children added");
+          changedChildren = true;
+
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
+          console.log("New children removed");
+          changedChildren = true;
+
           node.querySelectorAll?.("img").forEach((img) => {
-            loadingImagesRef.current.delete(img);
+            const handler = loadingImagesRef.current.get(img);
+            if (handler) {
+              img.removeEventListener("load", handler);
+              img.removeEventListener("error", handler);
+              loadingImagesRef.current.delete(img);
+              console.log("Deleted Event Listener");
+            }
           });
         });
+      }
+      if (changedChildren) {
+        if (container.children.length === 0) {
+          container.style.height = "0px";
+        } else {
+          scheduleLayout();
+        }
       }
     });
 
