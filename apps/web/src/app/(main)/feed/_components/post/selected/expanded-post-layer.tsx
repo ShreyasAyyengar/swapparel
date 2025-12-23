@@ -6,19 +6,18 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
-import { useFetchedPostsStore } from "../../../_hooks/state/fetched-posts-store";
+import { useFetchedPostsStore } from "../../../_hooks/use-posts-store";
 import ExpandedPost from "./expanded-post";
 
 // Note: fetchedPosts store is being injected here, instead of FilterLayer.
 export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
-  const { fetchedPosts, setPosts } = useFetchedPostsStore();
+  const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
-  // TODO scrolled queries dont seem to validate this find
   const tryFromFeed = useMemo(() => fetchedPosts.find((p) => p._id === selectedPost), [fetchedPosts, selectedPost]);
 
   useEffect(() => {
-    setPosts(loadedFeedPosts);
+    addPosts(loadedFeedPosts);
   }, [loadedFeedPosts]);
 
   const {
@@ -27,7 +26,8 @@ export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts
     isLoading,
   } = useQuery(
     webClientORPC.posts.getPost.queryOptions({
-      input: { _id: selectedPost as string }, // Note: this will always be a defined string, see next line.
+      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
+      input: { _id: selectedPost! },
       enabled: !!selectedPost && !tryFromFeed,
     })
   );

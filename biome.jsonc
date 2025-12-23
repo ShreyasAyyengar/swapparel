@@ -31,7 +31,8 @@
         "noUnusedFunctionParameters": "warn",
         "noUnusedLabels": "warn",
         "noUnusedPrivateClassMembers": "warn",
-        "noUnusedVariables": "warn"
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "warn"
       },
       "style": {
         "useBlockStatements": "off",
