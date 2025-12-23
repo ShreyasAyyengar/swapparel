@@ -1,6 +1,6 @@
 "use client";
 
-import { feedFilterSchema, filterPosts } from "@swapparel/contracts";
+import { COLOURS, feedFilterSchema, filterPosts, MATERIALS, SIZES } from "@swapparel/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
@@ -8,16 +8,17 @@ import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../_hooks/state/fetched-posts-store";
+import { useStickyTrue } from "../../_hooks/use-sticky-state";
 import MasonryElement from "../post/masonry-element";
 import MasonryLayout from "../post/masonry-layout";
 
 // TODO fix post loading, and going from fully loaded state to filtered state.
 export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: string | undefined }) {
-  const [selectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
+  const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
-  const [selectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
+  const [selectedSize, setSelectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
   const [selectedSizeOnly] = useQueryState("sizeOnly", parseAsBoolean);
-  const [selectedMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
+  const [selectedMaterial, setSelectedMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
@@ -47,7 +48,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     }
 
     // if no filters active, return undefined (so nothing is sent)
-    return Object.keys(f).length ? feedFilterSchema.parse(f) : undefined;
+    return Object.keys(f).length ? feedFilterSchema.safeParse(f) : undefined;
   }, [
     selectedColor,
     selectedColourOnly,
@@ -59,10 +60,35 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     selectedHashtagOnly,
   ]);
 
+  useEffect(() => {
+    if (filters?.error) {
+      selectedColor.forEach((color) => {
+        // biome-ignore lint/suspicious/noExplicitAny: color could be any string, not just valid COLOUR enum const
+        if (!COLOURS?.includes(color as any)) {
+          setSelectedColor((prev) => prev?.filter((c) => c !== color));
+        }
+      });
+
+      selectedMaterial.forEach((mat) => {
+        // biome-ignore lint/suspicious/noExplicitAny: mat could be any string, not just valid MATERIAL enum const
+        if (!MATERIALS?.includes(mat as any)) {
+          setSelectedMaterial((prev) => prev?.filter((m) => m !== mat));
+        }
+      });
+
+      selectedSize.forEach((size) => {
+        // biome-ignore lint/suspicious/noExplicitAny: size could be any string, not just valid SIZE enum const
+        if (!SIZES?.includes(size as any)) {
+          setSelectedSize((prev) => prev?.filter((s) => s !== size));
+        }
+      });
+    }
+  }, []);
+
   const { ref: optimisticRef, inView: optimisticInView } = useInView();
   const { ref: bottomRef, inView: bottomInView } = useInView();
 
-  const { data, fetchNextPage, isFetchingNextPage, hasNextPage } = useInfiniteQuery(
+  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery(
     webClientORPC.feed.getFeed.infiniteOptions({
       initialData: {
         pages: [{ posts: fetchedPosts, nextAvailablePost }],
@@ -71,22 +97,20 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       initialPageParam: undefined, // on first render, we didn't have a nextAvailablePost
       getNextPageParam: (lastPage) => lastPage.nextAvailablePost,
       input: (pageParam: string | undefined) => ({
-        filters,
+        filters: filters?.success ? filters.data : undefined,
         nextAvailablePost: pageParam ?? undefined,
       }),
       enabled: false,
     })
   );
+  const fetchingSticky = useStickyTrue(isFetching, 200);
 
   useEffect(() => {
     if (!data) return;
 
     const lastPage = data?.pages.at(-1);
 
-    // Skip the initial data (first page)
-    if (data.pages.length === 1) {
-      return; // Don't process or fetch for initial data
-    }
+    if (data.pages.length === 1) return; // Don't process or fetch for initial data
 
     // if there was no data, fetch again
     if (lastPage?.posts?.length === 0 && hasNextPage) {
@@ -95,15 +119,13 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     }
 
     addPosts(lastPage?.posts ?? []);
-  }, [data, fetchNextPage, hasNextPage]);
+  }, [data, hasNextPage]);
 
-  const filteredPosts = useMemo(() => filterPosts(fetchedPosts, filters), [fetchedPosts, filters]);
+  const filteredPosts = useMemo(() => filterPosts(fetchedPosts, filters?.data), [fetchedPosts, filters?.data]);
 
   useEffect(() => {
-    if (optimisticInView || bottomInView) {
-      fetchNextPage();
-    }
-  }, [optimisticInView, bottomInView, fetchNextPage]);
+    if (optimisticInView || bottomInView) fetchNextPage();
+  }, [optimisticInView, bottomInView]);
 
   return (
     <div>
@@ -113,10 +135,10 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
             <MasonryElement key={post._id} postData={post} />
           ))}
         </MasonryLayout>
-        {!isFetchingNextPage && <div ref={optimisticRef} />}
+        {!isFetching && <div ref={optimisticRef} />}
       </div>
-      {!isFetchingNextPage && <div ref={bottomRef} />}
-      {isFetchingNextPage && (
+      {!isFetching && <div ref={bottomRef} />}
+      {fetchingSticky && (
         <div className="mb-20 gap-4 text-center">
           {"Fetching Swag...".split("").map((letter, i) => (
             <span key={i} className="inline-block animate-bounce font-bold text-3xl" style={{ animationDelay: `${i * 0.1}s` }}>
