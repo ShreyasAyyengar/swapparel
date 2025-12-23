@@ -28,9 +28,6 @@ export const swapRouter = {
       //creates buyerPost only if there is a post id given as input
       const buyerPost = input.buyerPostID ? await PostCollection.findById(input.buyerPostID) : undefined;
 
-      //creates variables for boolean if seller wants buyer to return item
-      const returnItemEnabled = input.returnItemCompleted ? input.returnItemCompleted : undefined;
-
       const _id = uuidv7();
 
       const swapDocument = {
@@ -42,7 +39,7 @@ export const swapRouter = {
         dateToSwap: input.dateToSwap,
         locationToSwap: input.locationToSwap,
         swapItemCompleted: input.swapItemCompleted,
-        returnItemCompleted: returnItemEnabled,
+        returnItemCompleted: input.returnItemCompleted,
       };
 
       const tryParse = internalSwapSchema.safeParse(swapDocument);
