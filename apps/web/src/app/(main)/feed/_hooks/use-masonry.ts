@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 // TODO fading was not working ??????
-// TODO: prevent flickering when changing from filter to feed
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
-  const layoutTimeoutRef = useRef<number | null>(null);
 
   const COLUMN_MIN = 240;
 
@@ -41,35 +39,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [gap]);
 
   const scheduleLayout = useCallback(() => {
-    // Clear any existing timeout
-    if (layoutTimeoutRef.current !== null) {
-      clearTimeout(layoutTimeoutRef.current);
+    if (layoutRequestRef.current !== null) {
+      cancelAnimationFrame(layoutRequestRef.current);
     }
-
-    // Debounce layout by a few ms to batch mutations
-    layoutTimeoutRef.current = window.setTimeout(() => {
-      if (layoutRequestRef.current !== null) {
-        cancelAnimationFrame(layoutRequestRef.current);
-      }
-
-      layoutRequestRef.current = requestAnimationFrame(() => {
-        layout();
-        layoutRequestRef.current = null;
-      });
-    }, 10); // Small delay to batch mutations
+    layoutRequestRef.current = requestAnimationFrame(() => {
+      layout();
+      layoutRequestRef.current = null;
+    });
   }, [layout]);
-
-  useEffect(
-    () => () => {
-      if (layoutRequestRef.current !== null) {
-        cancelAnimationFrame(layoutRequestRef.current);
-      }
-      if (layoutTimeoutRef.current !== null) {
-        clearTimeout(layoutTimeoutRef.current);
-      }
-    },
-    []
-  );
 
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
@@ -145,14 +122,18 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
-          // console.log(`Node added ${node}`);
+          console.log("added children");
+
           changedChildren = true;
+          // node.classList.remove("opacity-100");
           node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
           changedChildren = true;
+
+          console.log("removed node");
 
           node.querySelectorAll?.("img").forEach((img) => {
             const handler = loadingImagesRef.current.get(img);
@@ -168,14 +149,23 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         if (container.children.length === 0) {
           container.style.height = "0px";
         } else if (loadingImagesRef.current.size === 0) {
-          // Handle the case where all images are cached
           scheduleLayout();
+
+          // Use a single loop and DocumentFragment approach
+          const children = container.children;
+
+          // Batch DOM reads/writes together
+          // biome-ignore lint/style/useForOf: <For loops are faster>
+          for (let i = 0; i < children.length; i++) {
+            children[i]?.classList.remove("transition-opacity", "duration-300", "ease-in");
+          }
+
           requestAnimationFrame(() => {
-            Array.from(container.children).forEach((child) => {
-              console.log(child.classList.contains("opacity-0"));
-              child.classList.remove("opacity-0");
-              child.classList.add("opacity-100");
-            });
+            // biome-ignore lint/style/useForOf: <For Loops are faster>
+            for (let i = 0; i < children.length; i++) {
+              children[i]?.classList.add("transition-opacity", "duration-300", "ease-in", "opacity-100");
+              children[i]?.classList.remove("opacity-0");
+            }
           });
         } else {
           scheduleLayout();
