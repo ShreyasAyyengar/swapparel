@@ -28,6 +28,10 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       child.style.position = "absolute";
       child.style.width = `${columnWidth}px`;
 
+      if (!child.style.transition.includes("transform")) {
+        child.style.transition = "transform 0.3s ease-in-out, opacity 0.3s ease-in";
+      }
+
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
       const x = shortestColumnIndex * (columnWidth + gap);
       const y = columnHeights[shortestColumnIndex];
@@ -126,7 +130,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           console.log("added children");
 
           changedChildren = true;
-          node.classList.remove("opacity-100");
+          // node.classList.remove("opacity-100");
           node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
@@ -154,12 +158,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
           // Use a single loop and DocumentFragment approach
           const children = container.children;
-
-          // Batch DOM reads/writes together
-          // biome-ignore lint/style/useForOf: <For loops are faster>
-          for (let i = 0; i < children.length; i++) {
-            children[i]?.classList.remove("transition-opacity", "duration-300", "ease-in");
-          }
 
           requestAnimationFrame(() => {
             // biome-ignore lint/style/useForOf: <For Loops are faster>
