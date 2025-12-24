@@ -30,7 +30,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
       if (!child.style.transition.includes("transform")) {
         child.style.transition = "transform 0.3s ease-in-out, opacity 0.3s ease-in";
-        console.log("Added transition");
       }
 
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
@@ -59,6 +58,16 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       loadingImagesRef.current.delete(img);
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
+
+        requestAnimationFrame(() => {
+          const container = containerRef.current;
+          if (!container) return;
+          Array.from(container.children).forEach((child) => {
+            (child as HTMLElement).classList.remove("opacity-0");
+            (child as HTMLElement).classList.add("opacity-100");
+            // console.log("IMAGE LOAD: opacity = 1");
+          });
+        });
       }
     },
     [scheduleLayout]
@@ -112,17 +121,24 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
+      // console.log("mutation observer fired");
       let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
+          console.log("added children");
+
           changedChildren = true;
+          // node.classList.remove("opacity-100");
+          node.classList.add("opacity-0", "transition-opacity", "duration-300", "ease-in");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
           changedChildren = true;
+
+          console.log("removed node");
 
           node.querySelectorAll?.("img").forEach((img) => {
             const handler = loadingImagesRef.current.get(img);
@@ -137,6 +153,19 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       if (changedChildren) {
         if (container.children.length === 0) {
           container.style.height = "0px";
+        } else if (loadingImagesRef.current.size === 0) {
+          scheduleLayout();
+
+          // Use a single loop and DocumentFragment approach
+          const children = container.children;
+
+          requestAnimationFrame(() => {
+            // biome-ignore lint/style/useForOf: <For Loops are faster>
+            for (let i = 0; i < children.length; i++) {
+              children[i]?.classList.add("transition-opacity", "duration-300", "ease-in", "opacity-100");
+              children[i]?.classList.remove("opacity-0");
+            }
+          });
         } else {
           scheduleLayout();
         }

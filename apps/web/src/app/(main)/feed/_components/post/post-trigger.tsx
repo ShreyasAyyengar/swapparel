@@ -9,7 +9,7 @@ export default function PostTrigger({ postId, children }: { postId: string; chil
   return (
     <button
       type="button"
-      className="flex w-60 cursor-pointer flex-col items-center gap-2 rounded-md border border-secondary bg-accent p-4 text-foreground"
+      className="flex w-60 cursor-pointer flex-col items-center gap-2 rounded-md border border-secondary bg-accent p-4 text-foreground opacity-0"
       onMouseDown={openPost}
     >
       {children}
