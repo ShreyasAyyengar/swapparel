@@ -79,4 +79,9 @@ export const swapContract = {
       method: "GET",
     })
     .output(z.boolean()),
+
+  addMessage: oc.route({
+    method: "GET",
+  }),
+  //TODO: Complete addMessages
 };
