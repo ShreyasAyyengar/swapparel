@@ -44,6 +44,19 @@ export const swapRouter = {
 
       const tryParse = internalSwapSchema.safeParse(swapDocument);
 
+      // TODO: Complete ws <--> router ----------------------
+      const roomName = `${buyerEmailFromContex} to ${sellerPost.createdBy}`;
+      const initMessage = {
+        type: "join",
+        room: roomName,
+        username: buyerEmailFromContex,
+      };
+      const ws = WebSocket("ws://localhost:3000");
+      ws.onopen = () => {
+        ws.send(JSON.stringify(initMessage));
+      };
+      // -------------------------------------------------------------------
+
       if (!tryParse.success) {
         throw BAD_REQUEST({
           data: {
