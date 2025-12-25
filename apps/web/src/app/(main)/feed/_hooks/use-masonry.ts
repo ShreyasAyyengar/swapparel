@@ -28,8 +28,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       child.style.position = "absolute";
       child.style.width = `${columnWidth}px`;
 
-      if (!child.style.transition.includes("transform")) {
-        child.style.transition = "transform 0.7s ease-in-out, opacity 0.5s ease-in";
+      if (!child.style.transition.includes("opacity")) {
+        child.style.transition = "opacity 0.5s ease-in";
       }
 
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
@@ -135,8 +135,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
           changedChildren = true;
-
-          console.log("removed node");
 
           node.querySelectorAll?.("img").forEach((img) => {
             const handler = loadingImagesRef.current.get(img);
