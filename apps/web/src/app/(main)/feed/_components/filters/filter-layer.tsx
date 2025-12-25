@@ -148,7 +148,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         </div>
       )}
 
-      {!hasNextPage && (
+      {!(hasNextPage || fetchingSticky) && (
         <div>
           <div className="flex items-center justify-center">
             <div className="m-8 flex w-full max-w-3/4 flex-col items-center gap-6 border border-secondary text-center" />
@@ -160,3 +160,5 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     </div>
   );
 }
+
+// TODO: bug, start off with http://localhost:3000/feed?colour=violet, then add green
