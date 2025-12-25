@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 

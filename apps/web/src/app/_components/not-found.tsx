@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { BackButton } from "./back-button";
