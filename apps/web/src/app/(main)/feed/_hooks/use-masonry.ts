@@ -75,10 +75,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
       // If image is already complete AND we haven't set up a listener, just return early
       if (img.complete && !loadingImagesRef.current.has(img)) {
-        requestAnimationFrame(() => {
-          root.classList.remove("opacity-0");
-          root.classList.add("opacity-100");
-        });
+        root.classList.remove("opacity-0");
+        root.classList.add("opacity-100");
         return; // Don't do anything - layout will be triggered by the last image
       }
 
