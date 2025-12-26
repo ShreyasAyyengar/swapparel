@@ -35,7 +35,6 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
 
   return (
     <ExpandedPostTrigger post={post}>
-      {/*<div className="ml-8 flex w-1/2 flex-col overflow-auto border-2 border-foreground p-2">*/}
       <p title="username" className="font-bold">
         {post.createdBy}
       </p>
@@ -77,7 +76,6 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       <hr className="my-2 border-foreground border-t-2" />
       <p className="font-bold">Q&A:</p>
       {post.qaEntries.length < 1 ? "No Q&A Entries" : entries}
-      {/*</div>*/}
     </ExpandedPostTrigger>
   );
 }

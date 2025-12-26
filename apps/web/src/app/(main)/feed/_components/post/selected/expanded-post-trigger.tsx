@@ -1,16 +1,19 @@
 "use client";
 
 import type { internalPostSchema } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
+import TradingBox from "../trading/trade";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
+  const [isTrading, setIsTrading] = useState<boolean>(false);
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -46,11 +49,12 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
+      {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       <div className="relative grid max-h-[83vh] w-1/2 grid-cols-1 items-center gap-5 overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 text-foreground xl:grid-cols-2">
         <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
           <div
-            className="flex max-h-[calc(83vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
+            className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
             ref={imageContainerRef}
           >
             <Image
@@ -81,10 +85,16 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         </div>
 
         <div
-          className="flex max-h-[calc(83vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
+          className="flex max-h-[calc(80vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
           ref={textContainerRef}
         >
           {children}
+        </div>
+        <br />
+        <div className={"flex items-center"}>
+          <Button className={"w-full cursor-pointer"} onClick={() => setIsTrading(true)}>
+            Trade
+          </Button>
         </div>
       </div>
     </div>
