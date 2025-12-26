@@ -28,10 +28,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       child.style.position = "absolute";
       child.style.width = `${columnWidth}px`;
 
-      if (!child.style.transition.includes("transform")) {
-        child.style.transition = "opacity 0.5s ease-in";
-      }
-
       const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
       const x = shortestColumnIndex * (columnWidth + gap);
       const y = columnHeights[shortestColumnIndex];
@@ -65,7 +61,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           Array.from(container.children).forEach((child) => {
             (child as HTMLElement).classList.remove("opacity-0");
             (child as HTMLElement).classList.add("opacity-100");
-            // console.log("IMAGE LOAD: opacity = 1");
           });
         });
       }
@@ -80,6 +75,10 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
       // If image is already complete AND we haven't set up a listener, just return early
       if (img.complete && !loadingImagesRef.current.has(img)) {
+        requestAnimationFrame(() => {
+          root.classList.remove("opacity-0");
+          root.classList.add("opacity-100");
+        });
         return; // Don't do anything - layout will be triggered by the last image
       }
 
@@ -129,7 +128,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
 
           changedChildren = true;
           // node.classList.remove("opacity-100");
-          node.classList.add("opacity-0");
+          node.classList.add("transition-opacity", "duration-500", "ease-in", "opacity-0");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
@@ -149,19 +148,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       if (changedChildren) {
         if (container.children.length === 0) {
           container.style.height = "0px";
-        } else if (loadingImagesRef.current.size === 0) {
-          scheduleLayout();
-
-          // Use a single loop and DocumentFragment approach
-          const children = container.children;
-
-          requestAnimationFrame(() => {
-            // biome-ignore lint/style/useForOf: <For Loops are faster>
-            for (let i = 0; i < children.length; i++) {
-              children[i]?.classList.add("opacity-100");
-              children[i]?.classList.remove("opacity-0");
-            }
-          });
         } else {
           scheduleLayout();
         }
