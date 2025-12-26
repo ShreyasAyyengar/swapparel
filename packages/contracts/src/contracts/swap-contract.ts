@@ -80,8 +80,60 @@ export const swapContract = {
     })
     .output(z.boolean()),
 
-  addMessage: oc.route({
-    method: "GET",
-  }),
-  //TODO: Complete addMessages
+  addMessage: oc
+    .route({
+      method: "PATCH",
+    })
+    .input(
+      z.object({
+        messageInput: z.string(),
+        _id: z.uuidv7(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        messageOutput: z.string().optional(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  deleteMessage: oc
+    .route({
+      method: "PATCH",
+    })
+    .input(
+      z.object({
+        _id: z.uuidv7(),
+        messageToDelete: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        messageDeleteSuccess: z.boolean(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
 };
