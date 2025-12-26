@@ -45,16 +45,35 @@ export const swapRouter = {
       const tryParse = internalSwapSchema.safeParse(swapDocument);
 
       // TODO: Complete ws <--> router ----------------------
-      const roomName = `${buyerEmailFromContex} to ${sellerPost.createdBy}`;
+      const roomName = `${buyerEmailFromContex} to ${sellerPost.createdBy} for ${sellerPost._id}`;
       const initMessage = {
         type: "join",
         room: roomName,
         username: buyerEmailFromContex,
       };
-      const ws = WebSocket("ws://localhost:3000");
-      ws.onopen = () => {
-        ws.send(JSON.stringify(initMessage));
-      };
+      type joinBuyer = typeof initMessage;
+
+
+      const wsServer = Bun.serve<joinBuyer>({
+        fetch(req, server) {
+          if (server.upgrade(req, { data: { ...joinBuyer } })) {
+            return; //NTS: DO NOT return anything
+          }
+          return new Response("Upgrade failed", { status: 500 });
+        },
+        websocket: {
+          open(ws) {
+            wsServer.publish(ws.data.room, input.initialMessage);
+          },
+          message(ws, message) {
+            wsServer.publish(ws.data.roomTest, message);
+          },
+          close(ws) {
+            ws.unsubscribe(ws.data.roomTest);
+            wsServer.publish(ws.data.roomTest, exitMessageTest);
+          },
+        },
+      });
       // -------------------------------------------------------------------
 
       if (!tryParse.success) {
@@ -118,6 +137,79 @@ export const swapRouter = {
       return { success: false, message: "Swap Still In Progress!!" };
     }
     return { success: true, message: "Swap Successfully Deleted" };
+  }),
+
+  addMessage: protectedProcedure.swap.addMessage.handler(async ({ input, errors }) => {
+    let messageAddedSuccess = false;
+    if (!input.messageInput) {
+      throw errors.NOT_FOUND({
+        data: {
+          message: "No message to be added",
+        },
+      });
+    }
+    try {
+      const result = await SwapCollection.updateOne(
+        { _id: input._id },
+        {
+          $push: {
+            messages: input.messageInput,
+          },
+        }
+      );
+      messageAddedSuccess = result.modifiedCount === 1;
+    } catch (error) {
+      throw errors.INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to add message to document: ${input._id}. ${error}`,
+        },
+      });
+    }
+    if (messageAddedSuccess) {
+      return {
+        success: true,
+        messageOutput: input.messageInput,
+      };
+    }
+    return {
+      success: false,
+    };
+  }),
+
+  deleteMessage: protectedProcedure.swap.deleteMessage.handler(async ({ input, errors }) => {
+    let messageDeleteSuccess = false;
+    if (!input._id) {
+      throw errors.NOT_FOUND({
+        data: {
+          message: "No message to be added",
+        },
+      });
+    }
+    try {
+      const result = await SwapCollection.updateOne(
+        { _id: input._id },
+        {
+          $pull: {
+            messages: input.messageToDelete,
+          },
+        }
+      );
+      messageDeleteSuccess = result.modifiedCount === 1;
+    } catch (error) {
+      throw errors.INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to delete message to document: ${input._id}. ${error}`,
+        },
+      });
+    }
+    if (messageDeleteSuccess) {
+      return {
+        messageDeleteSuccess: true,
+      };
+    }
+    return {
+      messageDeleteSuccess: false,
+    };
   }),
 
   addMockSwap: publicProcedure.swap.addMockSwap.handler(async ({ input, errors, context }) => {
