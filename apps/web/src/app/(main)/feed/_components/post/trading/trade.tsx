@@ -6,12 +6,16 @@ import type { z } from "zod";
 
 type trading = {
   post: z.infer<typeof internalPostSchema>;
+  post2: z.infer<typeof internalPostSchema>;
   onClick: () => void;
 };
 
-export default function TradingBox({ post, onClick }: trading) {
+export default function TradingBox({ post, post2, onClick }: trading) {
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
+
+  const [currentImage2, setCurrentImage2] = useState<number>(0);
+  const [isHovered2, setHovered2] = useState<boolean>(false);
 
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
@@ -45,8 +49,34 @@ export default function TradingBox({ post, onClick }: trading) {
             />
           )}
         </div>
-        <div className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary">
-          <p>HELLO</p>
+        {/* SECOND IMAGE */}
+        <div className={"relative"} onMouseEnter={() => setHovered2(true)} onMouseLeave={() => setHovered2(false)}>
+          <div className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary">
+            <Image
+              src={post2.images[currentImage2] ?? ""}
+              width={1200}
+              height={1200}
+              alt={"expanded-image"}
+              className="flex w-full items-center justify-center"
+            />
+          </div>
+          <p className={"absolute bottom-3 left-4 rounded-md bg-black/30 px-2 backdrop-blur-lg"}>
+            {currentImage2 + 1} / {post2.images.length}
+          </p>
+          {isHovered2 && currentImage2 < post2.images.length - 1 && (
+            <ChevronRight
+              className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
+              size={12}
+              onClick={() => setCurrentImage2((prev) => prev + 1)}
+            />
+          )}
+          {isHovered2 && currentImage2 > 0 && (
+            <ChevronLeft
+              className="absolute top-1/2 left-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
+              size={12}
+              onClick={() => setCurrentImage2((prev) => prev - 1)}
+            />
+          )}
         </div>
       </div>
     </div>
