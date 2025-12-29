@@ -27,11 +27,28 @@ function FilterOptions({
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
   const [garmentOnly, setGarmentOnly] = useQueryState("garmentOnly", parseAsBoolean.withDefault(false));
-  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
-  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [minPrice, _setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [maxPrice, _setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
   const [filterPrice, setFilterPrice] = useQueryState("filterPrice", parseAsBoolean.withDefault(false));
 
   const ref = useRef<HTMLDivElement | null>(null);
+
+  const setMinPrice = (v: number | null) => {
+    if (!filterPrice) return;
+    _setMinPrice(v);
+  };
+
+  const setMaxPrice = (v: number | null) => {
+    if (!filterPrice) return;
+    _setMaxPrice(v);
+  };
+
+  useEffect(() => {
+    if (!filterPrice) {
+      _setMinPrice(null);
+      _setMaxPrice(null);
+    }
+  }, [filterPrice]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
