@@ -19,6 +19,7 @@ export default function FilterHashtags({
     const trimmed = value.trim();
     if (!trimmed) return;
 
+    // biome-ignore lint/performance/useTopLevelRegex: <regex line>
     const hashtagRegex = /^#[a-zA-Z0-9_]+$/;
 
     // Split by commas and process each part
@@ -43,7 +44,7 @@ export default function FilterHashtags({
     setInputValue("");
   };
 
-  const handleDelete = (hashtag: string) => {
+  const handleDelete = (hashtag: string | undefined) => {
     const newHashtags = hashtagList.filter((hashtagItem) => hashtagItem !== hashtag);
     setHashtagList(newHashtags);
   };
@@ -58,7 +59,7 @@ export default function FilterHashtags({
       addHashtag(inputValue);
     } else if (e.key === "Backspace" && inputValue === "" && hashtagList.length > 0) {
       // Remove last hashtag when backspace is pressed with empty input
-      handleDelete(hashtagList[hashtagList.length - 1]);
+      handleDelete(hashtagList.at(-1));
     }
   };
 
