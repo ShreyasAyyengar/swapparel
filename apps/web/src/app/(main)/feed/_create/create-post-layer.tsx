@@ -1,15 +1,15 @@
 "use client";
 
-import { useCreateFormOpenStore } from "../_hooks/state/create-form-open-store";
+import { useQueryState } from "nuqs";
 import CreatePostForm from "./create-post-form";
 
 export default function CreatePostLayer() {
-  const { isOpen, setIsOpen } = useCreateFormOpenStore();
+  const [isCreating, setIsCreating] = useQueryState("create");
 
-  if (!isOpen) return null;
+  if (isCreating === null) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/80 backdrop-blur-md">
-      <CreatePostForm closeAction={() => setIsOpen(false)} />
+      <CreatePostForm closeAction={() => setIsCreating(null)} />
     </div>
   );
 }

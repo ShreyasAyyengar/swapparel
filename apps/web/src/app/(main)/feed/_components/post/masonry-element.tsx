@@ -1,17 +1,26 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import Image from "next/image";
+import { memo } from "react";
 import type z from "zod";
 import PostTrigger from "./post-trigger";
 
-export default function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
+function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSchema> }) {
   return (
     <PostTrigger postId={postData._id}>
       <p className="font-bold">{postData.title}</p>
       <span title={postData.createdBy} className="w-full truncate text-foreground">
         {postData.createdBy}
       </span>
-      <Image src={postData.images[0] ?? ""} width={200} height={200} alt="thumbnail" className="w-full rounded-md border-2 border-[#6F4D3880]" />
+      <Image
+        src={postData.images[0] ?? ""}
+        width={200}
+        height={200}
+        alt="thumbnail"
+        className="w-full rounded-md border-2 border-[#6F4D3880]"
+        loading="eager"
+        priority={false}
+      />
       <div className="w-full pt-2">
         <p title={postData.size} className="w-full truncate text-left text-foreground">
           Size: <Badge className="bg-foreground font-bold text-background">{postData.size}</Badge>
@@ -38,3 +47,4 @@ export default function MasonryElement({ postData }: { postData: z.infer<typeof 
     </PostTrigger>
   );
 }
+export default memo(MasonryElement);

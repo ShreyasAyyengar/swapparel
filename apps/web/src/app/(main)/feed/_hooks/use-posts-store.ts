@@ -10,6 +10,16 @@ type FetchedPostsStore = {
 
 export const useFetchedPostsStore = create<FetchedPostsStore>((set) => ({
   fetchedPosts: [],
-  addPosts: (newPosts) => set((state) => ({ fetchedPosts: [...state.fetchedPosts, ...newPosts] })),
+  addPosts: (newPosts) =>
+    set((state) => {
+      // map to deduplicate by _id
+      const postsMap = new Map(state.fetchedPosts.map((post) => [post._id, post]));
+
+      newPosts.forEach((post) => {
+        postsMap.set(post._id, post);
+      });
+
+      return { fetchedPosts: Array.from(postsMap.values()) };
+    }),
   setPosts: (posts) => set({ fetchedPosts: posts }),
 }));

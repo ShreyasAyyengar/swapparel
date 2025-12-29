@@ -1,10 +1,10 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { colors, internalPostSchema, materials } from "@swapparel/contracts";
+import { COLOURS, internalPostSchema, MATERIALS } from "@swapparel/contracts";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
@@ -41,9 +41,9 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
   });
   await S3.send(packageCommand);
 
-  return `https://pub-2e81624a83c94330abcd6adb590d9012.r2.dev/${postId}/${index}`;
+  return `https://cdn.swapparel.app/${postId}/${index}`;
 };
-// TODO: fix uploading multiple images, images[] array only serializes last picture
+
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
@@ -150,7 +150,8 @@ export const postRouter = {
       "500/100",
     ];
 
-    const randomFrom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    const randomFrom = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]!;
 
     const makePicsumUrl = () => {
       const [w, h] = randomFrom(imageWidthHeight).split("/");
@@ -161,10 +162,10 @@ export const postRouter = {
 
     for (let i = 0; i < 100; i++) {
       const chosenMaterials = Array.from(
-        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => materials[Math.floor(Math.random() * materials.length)]))
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => MATERIALS[Math.floor(Math.random() * MATERIALS.length)]))
       );
       const chosenColours = Array.from(
-        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => colors[Math.floor(Math.random() * colors.length)]))
+        new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => COLOURS[Math.floor(Math.random() * COLOURS.length)]))
       );
       const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
 

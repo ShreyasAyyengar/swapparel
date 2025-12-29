@@ -10,7 +10,6 @@ import { type FormValues, useFieldContext } from "./create-post-form";
 export default function UploadDropzone() {
   const field = useFieldContext<FormValues["images"]>();
 
-  const [uploads, setUploads] = useState<FormValues["images"]>([]);
   const [draggingOver, setDraggingOver] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -26,7 +25,6 @@ export default function UploadDropzone() {
   }, []);
 
   // TODO check useEffect proper usage
-  // biome-ignore lint/correctness/useExhaustiveDependencies: processUploads is not used in the callback
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDraggingOver(false);
@@ -48,7 +46,7 @@ export default function UploadDropzone() {
       if (!input.files) return;
       processUploads(input.files);
     });
-  }, [field]);
+  }, []);
 
   const processUploads = useCallback(
     (files: FileList) => {
@@ -57,21 +55,14 @@ export default function UploadDropzone() {
         mimeType: file.type as FormValues["images"][number]["mimeType"],
       }));
 
-      field.handleChange(newUploads as FormValues["images"]);
-
-      const validUploads = newUploads.filter((upload) => uploadPhotoInput.safeParse(upload).success);
-
-      setUploads((prev) => [...prev, ...validUploads]);
-
-      if (uploads.length > 0) {
-        field.state.meta.isValid = true;
-      }
+      const validUploads = newUploads.filter((u) => uploadPhotoInput.safeParse(u).success);
+      field.handleChange([...field.state.value, ...validUploads] as FormValues["images"]);
     },
     [field]
   );
 
   const handleOnClick = () => {
-    if (uploads.length === 0) {
+    if (field.state.value.length === 0) {
       onClick();
     }
   };
@@ -80,7 +71,7 @@ export default function UploadDropzone() {
     <div
       className={cn(
         "flex items-center justify-center rounded-2xl border-2 bg-popover [transition:border_0.3s]",
-        uploads.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
+        field.state.value.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
         draggingOver ? "border-blue-500" : "border-ring"
       )}
       onDragEnter={handleDragEnter}
@@ -90,24 +81,25 @@ export default function UploadDropzone() {
       onClick={handleOnClick}
       onKeyDown={handleOnClick}
     >
-      {uploads.length > 0 ? (
+      {field.state.value.length > 0 ? (
         // TODO do not reload unused elements?
         <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
           <UploadedImageThumbnail uploadDialogueClickHandler={onClick} />
-          {uploads.map((upload) => (
+          {field.state.value.map((upload) => (
             <UploadedImageThumbnail
               key={upload.file.name}
               file={upload.file}
-              removeClickHandler={() => setUploads((prev) => prev.filter((u) => u.file.name !== upload.file.name))}
+              removeClickHandler={() => {
+                field.handleChange(field.state.value.filter((u) => u.file.name !== upload.file.name) as FormValues["images"]);
+              }}
             />
           ))}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-center">
-          {/*TODO: fix linear easing */}
-          <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_3s_ease-in_infinite]" />
+          <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_1s_ease-in_infinite]" />
           <Separator className="my-4" />
-          <p className="text-foreground text-sm">Drag & Drop files here or click to browse</p>
+          <p className="p-5 text-foreground text-sm">Drag & Drop files here or click to browse</p>
         </div>
       )}
     </div>

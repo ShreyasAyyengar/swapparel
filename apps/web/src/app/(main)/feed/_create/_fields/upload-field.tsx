@@ -2,7 +2,7 @@ import { Field } from "@swapparel/shad-ui/components/field";
 import { type FormValues, useFieldContext } from "../create-post-form";
 import UploadDropzone from "../upload-dropzone";
 
-const MIME_TYPE_ERROR_REGEX = /^images\[(\d+)\]\.mimeType$/;
+const MIME_TYPE_ERROR_REGEX = /^images\[(\d+)]\.mimeType$/;
 
 export default function UploadField() {
   const field = useFieldContext<FormValues["images"]>();
@@ -60,7 +60,7 @@ export default function UploadField() {
     }));
   }
 
-  // TODO cannot create if multiple files have been uploaded but one is invalid, makes the whole field valid
+  // TODO find better solution for file validation / bubbling errors
   return (
     <Field data-invalid={hasMimeError} className="h-full w-full">
       <UploadDropzone />

@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { colors, internalPostSchema, materials } from "./post-contract";
+import { COLOURS, internalPostSchema, MATERIALS, SIZES } from "./post-contract";
 
 const FEED_AMOUNT = 20;
 
@@ -18,54 +18,32 @@ const booleanStringSchema = z.preprocess((value) => {
 }, z.boolean());
 
 export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
+  type MultiFilter<T extends string> = { value: T[]; only?: boolean };
+
+  const matchesSingle = (postValue: string, f?: MultiFilter<string>) => {
+    if (!f?.value?.length) return true;
+
+    return f.only ? postValue === f.value[0] : f.value.includes(postValue);
+  };
+
+  const matchesMulti = (postValues: string[], f?: MultiFilter<string>) => {
+    if (!f?.value?.length) return true;
+
+    const selected = f.value;
+    const selectedSet = new Set(selected);
+
+    return f.only
+      ? postValues.length === selected.length && postValues.every((v) => selectedSet.has(v))
+      : postValues.some((v) => selectedSet.has(v));
+  };
+
   if (!filters) return posts;
 
-  const hasActive =
-    (filters.material?.value?.length ?? 0) > 0 ||
-    (filters.colour?.value?.length ?? 0) > 0 ||
-    (filters.hashtag?.value?.length ?? 0) > 0 ||
-    (filters.size?.value?.length ?? 0) > 0;
-
-  if (!hasActive) return posts;
-
   return posts.filter((post) => {
-    // TODO streamline usages of this
-    if (!filters) return true;
-
-    // MATERIAL
-    if (filters.material?.value?.length) {
-      const selected = filters.material.value;
-      const ok = filters.material.only
-        ? post.material.length === selected.length && post.material.every((m) => selected.includes(m))
-        : post.material.some((m) => selected.includes(m));
-      if (!ok) return false;
-    }
-
-    // COLOUR
-    if (filters.colour?.value?.length) {
-      const selected = filters.colour.value;
-      const ok = filters.colour.only
-        ? post.colour.length === selected.length && post.colour.every((c) => selected.includes(c))
-        : post.colour.some((c) => selected.includes(c));
-      if (!ok) return false;
-    }
-
-    // HASHTAGS
-    if (filters.hashtag?.value?.length) {
-      const selected = filters.hashtag.value;
-      const ok = filters.hashtag.only
-        ? post.hashtags.length === selected.length && post.hashtags.every((h) => selected.includes(h))
-        : post.hashtags.some((h) => selected.includes(h));
-      if (!ok) return false;
-    }
-
-    // SIZE
-    if (filters.size?.value?.length) {
-      const selected = filters.size.value;
-      const ok = filters.size.only ? post.size === selected[0] : selected.includes(post.size);
-      if (!ok) return false;
-    }
-
+    if (!matchesMulti(post.material, filters.material)) return false;
+    if (!matchesMulti(post.colour, filters.colour)) return false;
+    if (!matchesMulti(post.hashtags, filters.hashtag)) return false;
+    if (!matchesSingle(post.size, filters.size)) return false;
     return true;
   });
 };
@@ -73,19 +51,19 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
 export const feedFilterSchema = z.object({
   colour: z
     .object({
-      value: z.array(z.enum(colors)),
+      value: z.array(z.enum(COLOURS)),
       only: booleanStringSchema.default(false),
     })
     .optional(),
   material: z
     .object({
-      value: z.array(z.enum(materials)),
+      value: z.array(z.enum(MATERIALS)),
       only: booleanStringSchema.default(false),
     })
     .optional(),
   size: z
     .object({
-      value: z.array(z.enum(["XXS", "XS", "S", "M", "L", "XL", "XXL"])),
+      value: z.array(z.enum(SIZES)),
       only: booleanStringSchema.default(false),
     })
     .optional(),

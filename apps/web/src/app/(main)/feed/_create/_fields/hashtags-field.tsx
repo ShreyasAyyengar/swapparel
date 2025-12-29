@@ -3,6 +3,7 @@ import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/fie
 import { X } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { type FormValues, useFieldContext } from "../create-post-form";
+
 export default function HashtagsField() {
   const field = useFieldContext<FormValues["postData"]["hashtags"]>();
   const [inputValue, setInputValue] = useState("");

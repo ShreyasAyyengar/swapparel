@@ -1,5 +1,4 @@
 import type React from "react";
-import { useState } from "react";
 import { useMasonry } from "../../_hooks/use-masonry";
 
 type MasonryLayoutProps = {
@@ -8,11 +7,11 @@ type MasonryLayoutProps = {
 };
 
 export default function MasonryLayout({ children, gap = 20 }: MasonryLayoutProps) {
-  const [ready, setReady] = useState(false);
-  const masonryRef = useMasonry({ gap, setReady });
+  // const [ready, setReady] = useState(true);
+  const masonryRef = useMasonry({ gap });
 
   return (
-    <div ref={masonryRef} className={`w-full ${ready ? "opacity-100" : "opacity-0"}`}>
+    <div ref={masonryRef} className={"w-full"}>
       {children}
     </div>
   );
