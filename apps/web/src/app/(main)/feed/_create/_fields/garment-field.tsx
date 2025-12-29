@@ -15,7 +15,6 @@ export default function GarmentField() {
 
   return (
     <Field data-invalid={isInvalid}>
-      {/*TODO: fix highlighting bug*/}
       <FieldLabel htmlFor={field.name}>Garment Type</FieldLabel>
       <Select
         name={field.name}

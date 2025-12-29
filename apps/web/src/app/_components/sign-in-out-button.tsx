@@ -5,7 +5,7 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import { authClient } from "../../lib/auth-client";
 
-// TODO refactor this to just be a sign in button if no session, else profile skeleton -> profile PFP + dropdown.
+// TODO<landing> refactor this to just be a sign in button if no session, else profile skeleton -> profile PFP + dropdown.
 export default function SignInOutButton() {
   const { data: session, isPending } = authClient.useSession();
 

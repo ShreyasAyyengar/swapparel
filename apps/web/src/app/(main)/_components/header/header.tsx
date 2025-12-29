@@ -6,7 +6,6 @@ import SlimBanner from "./simple-banner-slim.svg";
 import ThemeChanger from "./theme-changer";
 
 export default function Header() {
-  // TODO make header not look like shit-brown on dark mode
   return (
     <header className="sticky inset-0 top-0 z-1 flex items-center bg-primary-800 p-3 dark:bg-foreground">
       <Link href={"/feed"}>

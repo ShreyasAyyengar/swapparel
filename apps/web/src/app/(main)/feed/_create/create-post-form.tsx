@@ -16,12 +16,13 @@ import DescriptionField from "./_fields/description-field";
 import GarmentField from "./_fields/garment-field";
 import HashtagsField from "./_fields/hashtags-field";
 import MaterialField from "./_fields/material-field";
+import PriceField from "./_fields/price-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
 
 export type FormValues = z.input<typeof userFormPostSchema>;
-export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
+export const { fieldContext, formContext, useFieldContext, useFormContext } = createFormHookContexts();
 export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
@@ -32,8 +33,10 @@ export const { useAppForm } = createFormHook({
     SizeField,
     ColorField,
     MaterialField,
+    PriceField,
     HashtagsField,
     UploadField,
+    // TODO some fields can be highlighted by highlighting texts, others not
   },
   formComponents: {},
 });
@@ -51,8 +54,8 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
   );
 
   const form = useAppForm({
-    onSubmit: ({ value }) => {
-      createPostMutation.mutate({
+    onSubmit: async ({ value }) => {
+      await createPostMutation.mutateAsync({
         postData: {
           title: value.postData.title,
           description: value.postData.description,
@@ -61,6 +64,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
           colour: value.postData.colour,
           material: value.postData.material,
           hashtags: value.postData.hashtags,
+          price: value.postData.price,
         },
         images: value.images,
       });
@@ -74,6 +78,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
         colour: [] as FormValues["postData"]["colour"],
         material: [] as FormValues["postData"]["material"],
         hashtags: [] as FormValues["postData"]["hashtags"],
+        price: undefined as FormValues["postData"]["price"],
       },
       images: [] as FormValues["images"],
     } satisfies FormValues as FormValues,
@@ -89,12 +94,11 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     };
   }, []);
 
-  // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
     <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
       <div className="rounded-2xl border border-foreground">
         <div className="rounded-2xl bg-primary-200/40">
-          <p className={"pt-5 text-center font-semibold text-2xl"}>Create New Post!</p>
+          <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
           <Separator className="mt-3" />
           <form
             className="w-full"
@@ -104,7 +108,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
             }}
           >
             <div className="flex">
-              {/*DROPDOWNS AND TEXT*/}
+              {/*region fields*/}
               <FieldGroup className="mt-3 w-1/2 pr-5 pb-10 pl-5">
                 <form.AppField name="postData.title">{(field) => <field.TitleField />}</form.AppField>
 
@@ -115,15 +119,14 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                   <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
                   <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
                   <form.AppField name="postData.garmentType">{(field) => <field.GarmentField />}</form.AppField>
+                  <form.AppField name="postData.price">{(field) => <field.PriceField />}</form.AppField>
                   <form.AppField
                     name="postData.hashtags"
                     validators={{
                       onBlur: ({ value }) => {
                         // Extract just the hashtags validation from schema
                         const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
-                        if (!result.success) {
-                          return result.error.issues[0]?.message;
-                        }
+                        if (!result.success) return result.error.issues[0]?.message;
                         return;
                       },
                     }}
@@ -132,19 +135,17 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                   </form.AppField>
                 </div>
               </FieldGroup>
-              {/*DROPDOWNS AND TEXT*/}
+              {/*endregion fields*/}
 
-              {/*LINE*/}
               <div className="h-auto border" />
-              {/*LINE*/}
 
-              {/*UPLOAD PHOTO*/}
+              {/*region photo upload*/}
               <div className="mt-3 w-1/2 pt-7.5 pr-5 pb-10 pl-5">
                 <FieldGroup className="h-full w-full">
                   <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
                 </FieldGroup>
               </div>
-              {/*UPLOAD PHOTO*/}
+              {/*endregion photo upload*/}
             </div>
           </form>
           <div className="w-auto border" />
@@ -154,20 +155,18 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
             </Button>
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => {
-                return (
-                  <Button
-                    className={cn(
-                      "m-3 mr-5 w-1/8 text-background",
-                      `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:cursor-not-allowed hover:bg-foreground/50"}`
-                    )}
-                    onClick={form.handleSubmit}
-                    // disabled={!canSubmit || isSubmitting}
-                  >
-                    {isSubmitting ? "..." : "Create"}
-                  </Button>
-                );
-              }}
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  className={cn(
+                    "m-3 mr-5 w-1/8 text-background",
+                    `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:cursor-not-allowed hover:bg-foreground/50"}`
+                  )}
+                  onClick={form.handleSubmit}
+                  disabled={!canSubmit || isSubmitting}
+                >
+                  {isSubmitting ? "Creating..." : "Create"}
+                </Button>
+              )}
             </form.Subscribe>
           </div>
         </div>
@@ -175,3 +174,5 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     </div>
   );
 }
+
+// TODO: determine how fields turn 'red' on invalid fields.

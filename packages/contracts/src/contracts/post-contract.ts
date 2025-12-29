@@ -30,6 +30,7 @@ const qaEntrySchema = z.object({
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
 
 export const uploadPhotoInput = z.object({
+  id: z.string().uuid(),
   file: z.file("Invalid file."),
   mimeType: z.enum(VALID_MIME_TYPES, "Invalid file type."),
 });
@@ -156,6 +157,7 @@ export const internalPostSchema = z.object({
   qaEntries: z
     .array(qaEntrySchema)
     .default([]),
+  price: z.coerce.number().min(0).optional(),
 });
 
 export const userFormPostSchema = z.object({
@@ -167,6 +169,7 @@ export const userFormPostSchema = z.object({
     colour: true,
     material: true,
     hashtags: true,
+    price: true,
   }),
   images: z.array(uploadPhotoInput).min(1, "At least one image is required to create a post."),
 });
@@ -176,7 +179,8 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(userFormPostSchema)
+    // id is only for frontend state management. we do not need it in the payload
+    .input(userFormPostSchema.omit({ images: true }).extend({ images: z.array(uploadPhotoInput.omit({ id: true })).min(1) }))
     .output(
       z.object({
         id: z.uuidv7(),
