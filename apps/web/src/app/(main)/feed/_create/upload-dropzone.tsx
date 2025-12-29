@@ -24,7 +24,6 @@ export default function UploadDropzone() {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) setDraggingOver(false);
   }, []);
 
-  // TODO check useEffect proper usage
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDraggingOver(false);
@@ -34,6 +33,13 @@ export default function UploadDropzone() {
       processUploads(e.dataTransfer.files);
     }
   }, []);
+
+  const removeById = useCallback(
+    (fileName: string) => {
+      field.handleChange(field.state.value.filter((u) => u.file.name !== fileName) as FormValues["images"]);
+    },
+    [field]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: processUploads is not used in the callback
   const onClick = useCallback(() => {
@@ -86,13 +92,7 @@ export default function UploadDropzone() {
         <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
           <UploadedImageThumbnail uploadDialogueClickHandler={onClick} />
           {field.state.value.map((upload) => (
-            <UploadedImageThumbnail
-              key={upload.file.name}
-              file={upload.file}
-              removeClickHandler={() => {
-                field.handleChange(field.state.value.filter((u) => u.file.name !== upload.file.name) as FormValues["images"]);
-              }}
-            />
+            <UploadedImageThumbnail key={crypto.randomUUID()} file={upload.file} removeClickHandler={() => removeById(upload.file.name)} />
           ))}
         </div>
       ) : (

@@ -36,6 +36,7 @@ export const { useAppForm } = createFormHook({
     PriceField,
     HashtagsField,
     UploadField,
+    // TODO some fields can be highlighted by highlighting texts, others not
   },
   formComponents: {},
 });
@@ -93,7 +94,6 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     };
   }, []);
 
-  // TODO: maybe find better way to center form (make h-<size> be exact)
   return (
     <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
       <div className="rounded-2xl border border-foreground">

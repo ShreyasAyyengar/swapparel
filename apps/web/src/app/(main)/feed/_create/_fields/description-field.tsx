@@ -9,6 +9,7 @@ export default function DescriptionField() {
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+      {/*TODO: wrap in scroll area*/}
       <Textarea
         id={field.name}
         name={field.name}
@@ -16,7 +17,6 @@ export default function DescriptionField() {
         onChange={(e) => field.handleChange(e.target.value)}
         placeholder="Relaxed fit, worn-in buttons, and gently frayed collar, in new condition..."
         aria-invalid={isInvalid}
-        // TODO: experiment with max-h-<size>
         className="max-h-35"
       />
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
