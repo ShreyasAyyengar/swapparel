@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 // TODO fading was not working ??????
+// TODO: fix fading between prerendered filtered posts
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
@@ -58,7 +59,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           const container = containerRef.current;
           if (!container) return;
           Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).style.opacity = "1";
+            (child as HTMLElement).classList.remove("opacity-0");
+            (child as HTMLElement).classList.add("opacity-100");
           });
         });
       }
@@ -71,7 +73,14 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       const img = root.querySelector("img");
       if (!img) return;
 
-      if (!(loadingImagesRef.current.has(img) || img.complete)) {
+      // If image is already complete AND we haven't set up a listener, just return early
+      if (img.complete && !loadingImagesRef.current.has(img)) {
+        root.classList.remove("opacity-0");
+        root.classList.add("opacity-100");
+        return; // Don't do anything - layout will be triggered by the last image
+      }
+
+      if (!loadingImagesRef.current.has(img)) {
         const handler = () => {
           loadingImagesRef.current.delete(img);
           handleImageLoad(img);
@@ -80,19 +89,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         loadingImagesRef.current.set(img, handler);
         img.addEventListener("load", handler, { once: true });
         img.addEventListener("error", handler, { once: true });
-      }
-
-      // Image already loaded and no other images pending
-      if (loadingImagesRef.current.size === 0) {
-        scheduleLayout();
-
-        requestAnimationFrame(() => {
-          const container = containerRef.current;
-          if (!container) return;
-          Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).style.opacity = "1";
-          });
-        });
       }
     },
     [handleImageLoad, scheduleLayout]
@@ -122,19 +118,19 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
+      // console.log("mutation observer fired");
       let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
 
           changedChildren = true;
-          node.style.opacity = "0";
-          node.style.transition = "opacity 0.3s ease";
+          // node.classList.remove("opacity-100");
+          node.classList.add("transition-opacity", "duration-500", "ease-in", "opacity-0");
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
           if (!(node instanceof HTMLElement)) return;
-
           changedChildren = true;
 
           node.querySelectorAll?.("img").forEach((img) => {
