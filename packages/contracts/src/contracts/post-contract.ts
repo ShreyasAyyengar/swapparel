@@ -4,6 +4,7 @@ import { z } from "zod";
 // Magic constants
 const DESCRIPTION_MAX_LENGTH = 1000;
 const TITLE_MAX_LENGTH = 25;
+export const PRICE_MAX = 500;
 
 // Internal Schema Definitions
 const qaSimpleSchema = z.object({
@@ -157,7 +158,7 @@ export const internalPostSchema = z.object({
   qaEntries: z
     .array(qaEntrySchema)
     .default([]),
-  price: z.coerce.number().min(0).optional(),
+  price: z.coerce.number().min(1).max(PRICE_MAX).optional(),
 });
 
 export const userFormPostSchema = z.object({

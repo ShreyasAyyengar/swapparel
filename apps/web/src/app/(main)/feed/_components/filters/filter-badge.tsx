@@ -2,7 +2,7 @@
 
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
-import { useId } from "react";
+import { memo, useId } from "react";
 
 const FilterBadge = ({
   value,
@@ -37,4 +37,4 @@ const FilterBadge = ({
   );
 };
 
-export default FilterBadge;
+export default memo(FilterBadge);
