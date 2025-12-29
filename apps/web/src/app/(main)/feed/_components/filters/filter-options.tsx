@@ -1,8 +1,9 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, SIZES } from "@swapparel/contracts";
 import { X } from "lucide-react";
-import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
+import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { memo, useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
+import FilterPrice from "./filter-price";
 import FilterSection from "./filter-section";
 
 function FilterOptions({
@@ -26,6 +27,9 @@ function FilterOptions({
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
   const [garmentOnly, setGarmentOnly] = useQueryState("garmentOnly", parseAsBoolean.withDefault(false));
+  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [filterPrice, setFilterPrice] = useQueryState("filterPrice", parseAsBoolean.withDefault(false));
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -81,6 +85,7 @@ function FilterOptions({
           setSelectedArray={setSize}
           setOnlyBoolean={setSizeOnly}
         />
+        <FilterPrice setMinRange={setMinPrice} setMaxRange={setMaxPrice} onlyBoolean={filterPrice} setOnlyBoolean={setFilterPrice} />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}
       </div>
