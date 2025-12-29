@@ -18,7 +18,11 @@ export default function TradingBox({ post, onClick }: trading) {
           {/* FIRST IMAGE */}
           <TradingImage images={post.images} />
           {/* SECOND IMAGE */}
-          <TradingImage images={post.images} />
+          <div className={"flex min-h-150 rounded-md border-2 border-secondary"}>
+            <p>Choose your post</p>
+          </div>
+
+          {/*<TradingImage images={post.images} />*/}
         </div>
         <Button className={"mt-5 flex w-full cursor-pointer items-center justify-center"}>SUBMIT</Button>
       </div>
