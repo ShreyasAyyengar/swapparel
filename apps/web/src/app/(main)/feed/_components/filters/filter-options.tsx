@@ -1,4 +1,4 @@
-import { COLOURS, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, MATERIALS, SIZES } from "@swapparel/contracts";
 import { X } from "lucide-react";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { memo, useEffect, useRef } from "react";
@@ -24,6 +24,8 @@ function FilterOptions({
   const [materialOnly, setMaterialOnly] = useQueryState("materialOnly", parseAsBoolean.withDefault(false));
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
+  const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
+  const [garmentOnly, setGarmentOnly] = useQueryState("garmentOnly", parseAsBoolean.withDefault(false));
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -47,6 +49,14 @@ function FilterOptions({
         <div className="flex justify-end">
           <X className="fixed hover:cursor-pointer" onClick={onClick} />
         </div>
+        <FilterSection
+          title={"Garment Type"}
+          valueArray={GARMENT_TYPES}
+          selectedValues={garmentType}
+          onlyBoolean={garmentOnly}
+          setSelectedArray={setGarmentType}
+          setOnlyBoolean={setGarmentOnly}
+        />
         <FilterSection
           title="Colors"
           valueArray={COLOURS}
