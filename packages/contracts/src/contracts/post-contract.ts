@@ -105,7 +105,6 @@ export const COLOURS = [
 
 export const SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
-// TODO implement garment type later
 export const GARMENT_TYPES = [
   "shirt",
   "shorts",
@@ -133,9 +132,8 @@ export const internalPostSchema = z.object({
     .min(1, "Description must be at least 1 character.")
     .max(DESCRIPTION_MAX_LENGTH, `Description must be ${DESCRIPTION_MAX_LENGTH} characters or less.`),
   // biome-ignore format: readability
-  colour: z
-    .array(z.enum(COLOURS))
-    .min(1, "At least one provided colour must be selected."),
+  garmentType: z.enum(GARMENT_TYPES, "One provided garment type must be selected."),
+  colour: z.array(z.enum(COLOURS)).min(1, "At least one provided colour must be selected."),
   // biome-ignore format: readability
   size: z.enum(SIZES, "One provided size must be selected."),
   // biome-ignore format: readability
@@ -164,6 +162,7 @@ export const userFormPostSchema = z.object({
   postData: internalPostSchema.pick({
     title: true,
     description: true,
+    garmentType: true,
     size: true,
     colour: true,
     material: true,

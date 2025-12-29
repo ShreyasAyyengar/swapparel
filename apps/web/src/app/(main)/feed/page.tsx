@@ -1,4 +1,4 @@
-import { safe } from "@orpc/client";
+import { isDefinedError, safe } from "@orpc/client";
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import FilterLayer from "./_components/filters/filter-layer";
@@ -9,7 +9,10 @@ export default async function Page() {
   // const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({ amount: 100 })); // todo check coerce bug
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
 
-  if (!isSuccess) return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>; // TODO beautify this
+  if (!isSuccess) {
+    if (isDefinedError(error)) console.log(error.defined);
+    return <p>Error loading feed: {JSON.stringify(error, null, 2)}</p>; // TODO beautify this
+  }
 
   // TODO: customize scroll bar
   return (

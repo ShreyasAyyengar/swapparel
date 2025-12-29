@@ -17,8 +17,17 @@ export const feedRouter = {
     const nextDoc = postDocuments.length > limit ? postDocuments[limit] : undefined;
     const slicedDocs = postDocuments.slice(0, limit);
 
-    let posts = z.array(internalPostSchema).parse(slicedDocs);
+    const tryPosts = z.array(internalPostSchema).safeParse(slicedDocs);
+    if (!tryPosts.success) {
+      throw INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to parse posts: ${tryPosts.error}`,
+        },
+      });
+    }
+    let posts = tryPosts.data;
 
+    // TODO final verdict on this??
     // if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
 
     if (input.filters !== undefined) posts = filterPosts(posts, input.filters);

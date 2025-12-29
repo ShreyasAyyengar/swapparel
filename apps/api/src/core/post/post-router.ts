@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { COLOURS, internalPostSchema, MATERIALS } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
@@ -167,13 +167,15 @@ export const postRouter = {
       const chosenColours = Array.from(
         new Set(Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(() => COLOURS[Math.floor(Math.random() * COLOURS.length)]))
       );
-      const size = ["XXS", "XS", "S", "M", "L", "XL", "XXL"][Math.floor(Math.random() * 7)];
+      const garmentType = GARMENT_TYPES[Math.floor(Math.random() * GARMENT_TYPES.length)];
+      const size = SIZES[Math.floor(Math.random() * SIZES.length)];
 
       const randomPostData = {
         _id: uuidv7(),
         title: `Post ${i + 1}`,
         createdBy: `random${Math.floor(Math.random() * 1000)}@example.com`,
         description: `Random Number: ${Math.random()}`,
+        garmentType,
         colour: chosenColours,
         size,
         material: chosenMaterials,

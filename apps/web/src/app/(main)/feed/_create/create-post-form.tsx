@@ -13,6 +13,7 @@ import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import ColorField from "./_fields/colour-field";
 import DescriptionField from "./_fields/description-field";
+import GarmentField from "./_fields/garment-field";
 import HashtagsField from "./_fields/hashtags-field";
 import MaterialField from "./_fields/material-field";
 import SizeField from "./_fields/size-field";
@@ -27,6 +28,7 @@ export const { useAppForm } = createFormHook({
   fieldComponents: {
     TitleField,
     DescriptionField,
+    GarmentField,
     SizeField,
     ColorField,
     MaterialField,
@@ -54,6 +56,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
         postData: {
           title: value.postData.title,
           description: value.postData.description,
+          garmentType: value.postData.garmentType,
           size: value.postData.size,
           colour: value.postData.colour,
           material: value.postData.material,
@@ -66,6 +69,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
       postData: {
         title: "" as FormValues["postData"]["title"],
         description: "" as FormValues["postData"]["description"],
+        garmentType: "" as FormValues["postData"]["garmentType"],
         size: "" as FormValues["postData"]["size"],
         colour: [] as FormValues["postData"]["colour"],
         material: [] as FormValues["postData"]["material"],
@@ -110,6 +114,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                   <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
                   <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
                   <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
+                  <form.AppField name="postData.garmentType">{(field) => <field.GarmentField />}</form.AppField>
                   <form.AppField
                     name="postData.hashtags"
                     validators={{

@@ -95,7 +95,11 @@ export const feedContract = {
     )
     .errors({
       NOT_FOUND: {},
-      INTERNAL_SERVER_ERROR: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
     }),
 
   testRoute: oc
