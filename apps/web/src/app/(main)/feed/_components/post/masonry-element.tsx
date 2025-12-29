@@ -47,7 +47,7 @@ function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSch
           ))}
         </p>
         {postData.price && (
-          <p>
+          <p className="w-full truncate text-left text-foreground">
             Price: <Badge className="bg-foreground font-bold text-background">{postData.price}</Badge>
           </p>
         )}
