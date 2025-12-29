@@ -47,8 +47,11 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       </p>
       <hr className="my-2 border-foreground border-t-2" />
 
-      <p>{post.price}</p>
-      {post.price && <p>Price:</p>}
+      {post.price && (
+        <p>
+          Price: <Badge className="mr-1 bg-foreground font-bold text-background">{post.price}</Badge>
+        </p>
+      )}
 
       <p>
         Garment Type: <Badge className="mr-1 bg-foreground font-bold text-background">{post.garmentType}</Badge>
