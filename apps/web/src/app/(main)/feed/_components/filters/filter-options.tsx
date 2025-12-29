@@ -94,9 +94,8 @@ function FilterOptions({
           title={"Garment Type"}
           valueArray={GARMENT_TYPES}
           selectedValues={garmentType}
-          onlyBoolean={garmentOnly}
           setSelectedArray={setGarmentType}
-          setOnlyBoolean={setGarmentOnly}
+          matchOnly={false}
         />
         <FilterSection
           title="Colors"
@@ -105,6 +104,7 @@ function FilterOptions({
           onlyBoolean={colourOnly}
           setSelectedArray={setColor}
           setOnlyBoolean={setColourOnly}
+          matchOnly={true}
         />
         <FilterSection
           title="Materials"
@@ -113,6 +113,7 @@ function FilterOptions({
           onlyBoolean={materialOnly}
           setSelectedArray={setMaterial}
           setOnlyBoolean={setMaterialOnly}
+          matchOnly={true}
         />
         <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
         />

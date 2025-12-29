@@ -8,23 +8,31 @@ export default function FilterSection({
   onlyBoolean,
   setSelectedArray,
   setOnlyBoolean,
+  matchOnly,
 }: {
   title: string;
   valueArray: readonly string[];
   selectedValues: string[];
-  onlyBoolean: boolean;
+  onlyBoolean?: boolean;
   setSelectedArray: (values: string[]) => void;
-  setOnlyBoolean: (only: boolean) => void;
+  setOnlyBoolean?: (only: boolean) => void;
+  matchOnly: boolean;
 }) {
-  const handleCheck = (checked: boolean) => setOnlyBoolean(checked);
+  const handleCheck = (checked: boolean) => {
+    setOnlyBoolean?.(checked);
+  };
 
   return (
     <>
       <div className="mb-2 w-auto border" />
       <p className="mb-2 font-bold">
         {title}
-        <span className="font-normal text-xs"> | Match ONLY</span>
-        <Checkbox className={"ml-2"} checked={onlyBoolean} onCheckedChange={handleCheck} />
+        {matchOnly && (
+          <>
+            <span className="font-normal text-xs"> | Match ONLY</span>
+            <Checkbox className={"ml-2"} checked={onlyBoolean} onCheckedChange={handleCheck} />
+          </>
+        )}
       </p>
 
       <div className="mb-2">
