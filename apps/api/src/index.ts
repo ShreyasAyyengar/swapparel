@@ -1,15 +1,18 @@
 import cors from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
+import { RPCHandler } from "@orpc/server/bun-ws";
 import Elysia, { type Context as ElysiaContext } from "elysia";
-import { appRouter } from "./app-router";
 import { env } from "./env";
 import { authServer } from "./libs/auth-server";
 import { createContext } from "./libs/http-context";
 import { logger } from "./libs/logger";
+import { httpRouter } from "./routers/http-router";
+import { webSocketRouter } from "./routers/web-socket-router";
 
 const port = 3001;
 
-const handler = new OpenAPIHandler(appRouter);
+const httpHandler = new OpenAPIHandler(httpRouter);
+const wsHandler = new RPCHandler(webSocketRouter);
 
 const isDevelopment = env.NEXT_PUBLIC_NODE_ENV === "development";
 const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
@@ -36,7 +39,7 @@ new Elysia()
       const elysiaContext: ElysiaContext = { request } as ElysiaContext;
       const authContext = await createContext({ context: elysiaContext });
 
-      const { matched, response } = await handler.handle(request, {
+      const { matched, response } = await httpHandler.handle(request, {
         prefix: apiPrefix,
         context: authContext,
       });
@@ -51,6 +54,39 @@ new Elysia()
       parse: "none",
     }
   )
+  .ws(isDevelopment ? "/api/ws" : "/ws", {
+    parse(_ws, message) {
+      // oRPC client sends JSON, oRPC server must receive raw text to decode back into JSON.
+      // this prevents Elysia's native JSON re-writing, so downstream code sees a raw frame again.
+
+      if (message && typeof message === "object" && !(message instanceof ArrayBuffer) && !(message instanceof Uint8Array)) {
+        return JSON.stringify(message);
+      }
+      return message;
+    },
+
+    async message(ws, message: string | ArrayBuffer) {
+      try {
+        let msg: string | Uint8Array;
+
+        if (typeof message === "string") msg = message;
+        else msg = new Uint8Array(message);
+
+        // Get session from WebSocket upgrade request headers
+        const session = await authServer.api.getSession({
+          headers: ws.data.headers,
+        });
+
+        await wsHandler.message(ws, msg, { context: session ?? { session: null, user: null } });
+      } catch (error) {
+        logger.error({ error }, "WebSocket message error");
+      }
+    },
+
+    close(ws) {
+      wsHandler.close(ws);
+    },
+  })
   .listen(
     {
       port,
@@ -61,5 +97,3 @@ new Elysia()
       logger.info(`API server started | ${protocol}://${server.hostname}:${server.port}`);
     }
   );
-
-export type { appRouter } from "./app-router";
