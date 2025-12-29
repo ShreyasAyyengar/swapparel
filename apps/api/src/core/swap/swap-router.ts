@@ -5,6 +5,7 @@ import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures"
 import { PostCollection } from "../post/post-schema";
 import { SwapCollection } from "./swap-schema";
 
+// TODO incorporate different types of swaps: e.g. one-way, two-way. etc
 export const swapRouter = {
   createSwap: protectedProcedure.swap.createSwap.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
@@ -14,18 +15,18 @@ export const swapRouter = {
       const sellerPost = await PostCollection.findById(input.sellerPostID);
       if (!sellerPost) {
         throw NOT_FOUND({
-          data: { message: "Seller post not found" },
+          data: { message: `Seller with post ${input.sellerPostID} not found.` },
         });
       }
 
-      // Checks if user attempts to trade with themselves
+      // prevent trading with themselves
       if (sellerPost.createdBy === buyerEmailFromContex) {
         throw BAD_REQUEST({
-          data: { message: "User cannot trade with themselves" },
+          data: { message: "User cannot trade with themselves." },
         });
       }
 
-      //creates buyerPost only if there is a post id given as input
+      // creates buyerPost only if there is a post id given as input
       const buyerPost = input.buyerPostID ? await PostCollection.findById(input.buyerPostID) : undefined;
 
       const _id = uuidv7();
