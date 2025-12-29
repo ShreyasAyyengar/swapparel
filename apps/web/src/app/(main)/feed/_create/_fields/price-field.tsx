@@ -39,7 +39,7 @@ export default function PriceField() {
           }}
           inputMode="numeric"
           pattern="\d*"
-          placeholder={Math.floor(Math.random() * 30 + 1).toString()}
+          placeholder={"15"}
           type="text"
           aria-invalid={isInvalid}
           className="pl-7"
