@@ -1,7 +1,7 @@
-import { COLOURS, GARMENT_TYPES, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import FilterHashtags from "./filter-hashtags";
 import FilterPrice from "./filter-price";
 import FilterSection from "./filter-section";
@@ -25,20 +25,20 @@ function FilterOptions({
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
-  const [minPrice, _setMinPrice] = useQueryState("minPrice", parseAsInteger);
-  const [maxPrice, _setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
-  const [filterPrice, setFilterPrice] = useQueryState("filterPrice", parseAsBoolean.withDefault(false));
+  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [filterPrice, setFilterPrice] = useState(false);
 
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const setMinPrice = (v: number | null) => {
+  const setMinPriceState = (v: number | null) => {
     if (!filterPrice) return;
-    _setMinPrice(v);
+    setMinPrice(v);
   };
 
-  const setMaxPrice = (v: number | null) => {
+  const setMaxPriceState = (v: number | null) => {
     if (!filterPrice) return;
-    _setMaxPrice(v);
+    setMaxPrice(v);
   };
 
   const clearFilters = () => {
@@ -56,14 +56,14 @@ function FilterOptions({
 
     // price
     setFilterPrice(false);
-    _setMinPrice(null);
-    _setMaxPrice(null);
+    setMinPrice(1);
+    setMaxPrice(PRICE_MAX);
   };
 
   useEffect(() => {
     if (!filterPrice) {
-      _setMinPrice(null);
-      _setMaxPrice(null);
+      setMinPrice(null);
+      setMaxPrice(null);
     }
   }, [filterPrice]);
 
@@ -116,6 +116,13 @@ function FilterOptions({
           matchOnly={true}
         />
         <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
+        <FilterPrice
+          minPrice={minPrice || 1}
+          maxPrice={maxPrice || PRICE_MAX}
+          setMinRange={setMinPriceState}
+          setMaxRange={setMaxPriceState}
+          onlyBoolean={filterPrice}
+          setOnlyBoolean={setFilterPrice}
         />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}

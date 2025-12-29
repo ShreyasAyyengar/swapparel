@@ -4,20 +4,28 @@ import { DualRangeSlider } from "@swapparel/shad-ui/components/duel-range-slider
 import { useEffect, useState } from "react";
 
 type PropTypes = {
+  minPrice: number;
+  maxPrice: number;
   setMinRange: (value: number) => void;
   setMaxRange: (value: number) => void;
   onlyBoolean: boolean;
   setOnlyBoolean: (only: boolean) => void;
 };
 
-export default function FilterPrice({ setMinRange, setMaxRange, onlyBoolean, setOnlyBoolean }: PropTypes) {
+export default function FilterPrice({ minPrice, maxPrice, setMinRange, setMaxRange, onlyBoolean, setOnlyBoolean }: PropTypes) {
   const handleCheck = (checked: boolean) => setOnlyBoolean(checked);
   const [prices, setPrices] = useState<number[]>([1, PRICE_MAX]);
 
   useEffect(() => {
     setMinRange(prices[0] ?? 1);
     setMaxRange(prices[1] ?? PRICE_MAX);
-  }, [prices, onlyBoolean]);
+  }, [prices]);
+
+  useEffect(() => {
+    if (minPrice !== prices[0] || maxPrice !== prices[1]) {
+      setPrices([minPrice, maxPrice]);
+    }
+  }, [minPrice, maxPrice]);
 
   return (
     <>

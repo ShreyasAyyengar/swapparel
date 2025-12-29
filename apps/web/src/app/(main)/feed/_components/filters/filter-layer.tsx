@@ -2,7 +2,7 @@
 
 import { COLOURS, feedFilterSchema, filterPosts, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
+import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import type { z } from "zod";
@@ -20,6 +20,9 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
+  const [selectedGarmentType, setSelectedGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
+  const [selectedMinPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [selectedMaxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
@@ -47,6 +50,9 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       >["colour"];
     }
 
+    if (selectedMinPrice !== null) f.minPrice = selectedMinPrice;
+    if (selectedMaxPrice !== null) f.maxPrice = selectedMaxPrice;
+
     // if no filters active, return undefined (so nothing is sent)
     return Object.keys(f).length ? feedFilterSchema.safeParse(f) : undefined;
   }, [
@@ -56,6 +62,9 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     selectedMaterialOnly,
     selectedSize,
     selectedHashtag,
+    selectedGarmentType,
+    selectedMinPrice,
+    selectedMaxPrice,
   ]);
 
   useEffect(() => {
@@ -87,6 +96,9 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
           setSelectedGarmentType((prev) => prev?.filter((t) => t !== type));
         }
       });
+
+      if (selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
+      if (selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
     }
   }, []);
 

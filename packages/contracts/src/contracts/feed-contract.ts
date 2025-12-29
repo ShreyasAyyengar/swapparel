@@ -44,10 +44,17 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     if (!matchesMulti(post.colour, filters.colour)) return false;
     if (!matchesMulti(post.hashtags, filters.hashtag)) return false;
     if (!matchesSingle(post.size, filters.size)) return false;
+    if (!matchesSingle(post.garmentType, filters.garmentType)) return false;
+
+    if (post.price) {
+      if (filters.minPrice && post.price < filters.minPrice) return false;
+      if (filters.maxPrice && post.price > filters.maxPrice) return false;
+    }
     return true;
   });
 };
 
+// TODO flatten this
 export const feedFilterSchema = z.object({
   colour: z
     .object({
@@ -71,6 +78,8 @@ export const feedFilterSchema = z.object({
       value: z.array(z.enum(GARMENT_TYPES)),
     })
     .optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
   hashtag: z
     .object({
       value: z.array(z.string()),
