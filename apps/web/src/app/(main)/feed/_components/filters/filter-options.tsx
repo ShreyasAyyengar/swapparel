@@ -56,8 +56,8 @@ function FilterOptions({
 
     // price
     setFilterPrice(false);
-    setMinPrice(1);
-    setMaxPrice(PRICE_MAX);
+    setMinPrice(null);
+    setMaxPrice(null);
   };
 
   useEffect(() => {
