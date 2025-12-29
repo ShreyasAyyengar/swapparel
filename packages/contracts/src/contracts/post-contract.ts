@@ -156,6 +156,7 @@ export const internalPostSchema = z.object({
   qaEntries: z
     .array(qaEntrySchema)
     .default([]),
+  price: z.number().min(0).optional(),
 });
 
 export const userFormPostSchema = z.object({
@@ -167,6 +168,7 @@ export const userFormPostSchema = z.object({
     colour: true,
     material: true,
     hashtags: true,
+    price: true,
   }),
   images: z.array(uploadPhotoInput).min(1, "At least one image is required to create a post."),
 });

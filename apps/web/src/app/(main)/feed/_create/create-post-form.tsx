@@ -16,6 +16,7 @@ import DescriptionField from "./_fields/description-field";
 import GarmentField from "./_fields/garment-field";
 import HashtagsField from "./_fields/hashtags-field";
 import MaterialField from "./_fields/material-field";
+import PriceField from "./_fields/price-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
@@ -32,6 +33,7 @@ export const { useAppForm } = createFormHook({
     SizeField,
     ColorField,
     MaterialField,
+    PriceField,
     HashtagsField,
     UploadField,
   },
@@ -61,6 +63,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
           colour: value.postData.colour,
           material: value.postData.material,
           hashtags: value.postData.hashtags,
+          price: value.postData.price,
         },
         images: value.images,
       });
@@ -74,6 +77,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
         colour: [] as FormValues["postData"]["colour"],
         material: [] as FormValues["postData"]["material"],
         hashtags: [] as FormValues["postData"]["hashtags"],
+        price: undefined as FormValues["postData"]["price"],
       },
       images: [] as FormValues["images"],
     } satisfies FormValues as FormValues,
@@ -115,15 +119,14 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                   <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
                   <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
                   <form.AppField name="postData.garmentType">{(field) => <field.GarmentField />}</form.AppField>
+                  <form.AppField name="postData.price">{(field) => <field.PriceField />}</form.AppField>
                   <form.AppField
                     name="postData.hashtags"
                     validators={{
                       onBlur: ({ value }) => {
                         // Extract just the hashtags validation from schema
                         const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
-                        if (!result.success) {
-                          return result.error.issues[0]?.message;
-                        }
+                        if (!result.success) return result.error.issues[0]?.message;
                         return;
                       },
                     }}
