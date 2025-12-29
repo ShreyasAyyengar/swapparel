@@ -25,6 +25,9 @@ function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSch
         <p title={postData.size} className="w-full truncate text-left text-foreground">
           Size: <Badge className="bg-foreground font-bold text-background">{postData.size}</Badge>
         </p>
+        <p title={postData.garmentType} className="w-full truncate text-left text-foreground">
+          Garment Type: <Badge className="bg-foreground font-bold text-background">{postData.garmentType}</Badge>
+        </p>
         <p title={postData.colour.join(", ")} className="w-full truncate text-left text-foreground">
           {/*Colors: {postData.colour.join(", ")}*/}
           Color:{" "}
@@ -43,6 +46,11 @@ function MasonryElement({ postData }: { postData: z.infer<typeof internalPostSch
             </Badge>
           ))}
         </p>
+        {postData.price && (
+          <p>
+            Price: <Badge className="bg-foreground font-bold text-background">{postData.price}</Badge>
+          </p>
+        )}
       </div>
     </PostTrigger>
   );
