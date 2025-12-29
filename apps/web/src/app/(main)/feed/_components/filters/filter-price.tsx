@@ -22,12 +22,13 @@ export default function FilterPrice({ setMinRange, setMaxRange, onlyBoolean, set
 
   return (
     <>
+      <div className="mb-2 w-auto border" />
       <p className="mb-2 font-bold">
         Price
         <span className="font-normal text-xs">| Filter Price</span>
         <Checkbox className={"mr-2 ml-2"} checked={onlyBoolean} onCheckedChange={handleCheck} />
       </p>
-      <div className="mb-2 w-auto border" />
+
       <DualRangeSlider
         className={cn("mt-6 mb-2", !onlyBoolean && "opacity-50")}
         label={(value) => value}

@@ -73,11 +73,12 @@ export default function FilterHashtags({
 
   return (
     <>
+      <div className="my-2 w-auto border" />
       <p className="mb-2 font-bold">
-        HashTags <span className="font-normal text-xs"> | Match ONLY</span>
+        Hashtags <span className="font-normal text-xs"> | Match ONLY</span>
         <Checkbox className={"ml-2"} checked={onlyHashtag} onCheckedChange={handleCheck} />
       </p>
-      <div className="mb-2 w-auto border" />
+
       <input
         type="text"
         placeholder="e.g. #spooky"
@@ -92,7 +93,7 @@ export default function FilterHashtags({
           }
         }}
         onPaste={handlePaste}
-        className="mb-2 w-full max-w-xl rounded-full border border-foreground bg-secondary-foreground p-1 pl-2 placeholder-gray-400 transition duration-200 focus:border-accent focus:outline-none focus:ring-accent"
+        className="focu mb-2 w-full max-w-xl rounded-full border border-foreground bg-secondary-foreground p-1 pl-2 placeholder-gray-400 transition duration-200 focus:border-accent focus:ring-accent"
       />
       <div className={"flex flex-wrap gap-1"}>{hashtagList.length > 0 && hashtagBadges}</div>
     </>

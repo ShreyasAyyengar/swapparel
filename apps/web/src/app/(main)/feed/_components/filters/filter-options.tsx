@@ -1,6 +1,5 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, SIZES } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
-import { X } from "lucide-react";
 import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { memo, useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
@@ -87,11 +86,14 @@ function FilterOptions({
     showingFilters && (
       <div
         ref={ref}
-        className="mt-2 flex max-h-[80vh] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
+        className="mt-2 flex max-h-[80vh] w-150 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
       >
-        <div className="flex justify-end">
-          <X className="fixed hover:cursor-pointer" onClick={onClick} />
-        </div>
+        {/*<div className="flex justify-end">*/}
+        {/*  <X className="fixed hover:cursor-pointer" onClick={onClick} />*/}
+        {/*</div>*/}
+        <Button className={"my-4 cursor-pointer"} onClick={clearFilters}>
+          CLEAR FILTERS
+        </Button>
         <FilterSection
           title={"Garment Type"}
           valueArray={GARMENT_TYPES}
@@ -124,13 +126,8 @@ function FilterOptions({
           setSelectedArray={setSize}
           setOnlyBoolean={setSizeOnly}
         />
-        <FilterPrice setMinRange={setMinPrice} setMaxRange={setMaxPrice} onlyBoolean={filterPrice} setOnlyBoolean={setFilterPrice} />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}
-        <div className="my-2 w-auto border" />
-        <Button className={"mt-2 cursor-pointer"} onClick={clearFilters}>
-          CLEAR FILTERS
-        </Button>
       </div>
     )
   );
