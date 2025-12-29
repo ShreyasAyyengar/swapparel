@@ -20,7 +20,7 @@ export default function UploadField() {
     [key: string]: unknown;
   };
 
-  // TODO temp find better solution for file validation / bubbling errors
+  // TODO EVENTUALLY find better solution for file validation / bubbling errors
   const allErrors = field.form.state.errors[0];
   const errorMap = allErrors && typeof allErrors === "object" ? (allErrors as Record<string, unknown>) : {};
   const images = field.state.value ?? [];
