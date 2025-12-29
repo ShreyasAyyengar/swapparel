@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { COLOURS, internalPostSchema, MATERIALS, SIZES } from "./post-contract";
+import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "./post-contract";
 
 const FEED_AMOUNT = 20;
 
@@ -64,7 +64,11 @@ export const feedFilterSchema = z.object({
   size: z
     .object({
       value: z.array(z.enum(SIZES)),
-      only: booleanStringSchema.default(false),
+    })
+    .optional(),
+  garmentType: z
+    .object({
+      value: z.array(z.enum(GARMENT_TYPES)),
     })
     .optional(),
   hashtag: z

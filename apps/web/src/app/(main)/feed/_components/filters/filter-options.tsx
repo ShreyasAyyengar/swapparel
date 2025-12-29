@@ -20,13 +20,11 @@ function FilterOptions({
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
   const [sizes, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
-  const [sizeOnly, setSizeOnly] = useQueryState("sizeOnly", parseAsBoolean.withDefault(false));
   const [materials, setMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
   const [materialOnly, setMaterialOnly] = useQueryState("materialOnly", parseAsBoolean.withDefault(false));
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
-  const [garmentOnly, setGarmentOnly] = useQueryState("garmentOnly", parseAsBoolean.withDefault(false));
   const [minPrice, _setMinPrice] = useQueryState("minPrice", parseAsInteger);
   const [maxPrice, _setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
   const [filterPrice, setFilterPrice] = useQueryState("filterPrice", parseAsBoolean.withDefault(false));
@@ -53,10 +51,8 @@ function FilterOptions({
 
     // booleans (withDefault)
     setColourOnly(false);
-    setSizeOnly(false);
     setMaterialOnly(false);
     setHashtagOnly(false);
-    setGarmentOnly(false);
 
     // price
     setFilterPrice(false);
@@ -118,13 +114,7 @@ function FilterOptions({
           setSelectedArray={setMaterial}
           setOnlyBoolean={setMaterialOnly}
         />
-        <FilterSection
-          title="Size"
-          valueArray={SIZES}
-          selectedValues={sizes}
-          onlyBoolean={sizeOnly}
-          setSelectedArray={setSize}
-          setOnlyBoolean={setSizeOnly}
+        <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
         />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}

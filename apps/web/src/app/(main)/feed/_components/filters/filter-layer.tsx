@@ -1,6 +1,6 @@
 "use client";
 
-import { COLOURS, feedFilterSchema, filterPosts, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, feedFilterSchema, filterPosts, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
@@ -16,12 +16,10 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
   const [selectedSize, setSelectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
-  const [selectedSizeOnly] = useQueryState("sizeOnly", parseAsBoolean);
   const [selectedMaterial, setSelectedMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
-  // TODO filter by garment type and price
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
@@ -38,9 +36,11 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         typeof feedFilterSchema
       >["material"];
     }
-    if (selectedSize?.length) {
-      f.size = (selectedSizeOnly ? { value: selectedSize, only: true } : { value: selectedSize }) as z.infer<typeof feedFilterSchema>["size"];
-    }
+
+    if (selectedSize?.length) f.size = { value: selectedSize as (typeof SIZES)[number][] };
+
+    if (selectedGarmentType?.length) f.garmentType = { value: selectedGarmentType as (typeof GARMENT_TYPES)[number][] };
+
     if (selectedHashtag?.length) {
       f.hashtag = (selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag }) as z.infer<
         typeof feedFilterSchema
@@ -55,9 +55,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     selectedMaterial,
     selectedMaterialOnly,
     selectedSize,
-    selectedSizeOnly,
     selectedHashtag,
-    selectedHashtagOnly,
   ]);
 
   useEffect(() => {
@@ -80,6 +78,13 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         // biome-ignore lint/suspicious/noExplicitAny: size could be any string, not just valid SIZE enum const
         if (!SIZES?.includes(size as any)) {
           setSelectedSize((prev) => prev?.filter((s) => s !== size));
+        }
+      });
+
+      selectedGarmentType.forEach((type) => {
+        // biome-ignore lint/suspicious/noExplicitAny: type could be any string, not just valid GARMENT_TYPE enum const
+        if (!GARMENT_TYPES?.includes(type as any)) {
+          setSelectedGarmentType((prev) => prev?.filter((t) => t !== type));
         }
       });
     }
