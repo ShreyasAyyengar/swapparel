@@ -25,6 +25,11 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
+  useEffect(() => {
+    console.log("selectedMaxPrice", selectedMaxPrice);
+    console.log("selectedMinPrice", selectedMinPrice);
+  }, [selectedMaxPrice, selectedMinPrice]);
+
   const filters = useMemo(
     () =>
       feedFilterSchema.safeParse({
@@ -72,8 +77,8 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         }
       });
 
-      if (selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
-      if (selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
+      if (!!selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
+      if (!!selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
     }
   }, []);
 

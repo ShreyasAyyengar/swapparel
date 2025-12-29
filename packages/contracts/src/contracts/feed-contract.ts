@@ -71,8 +71,8 @@ export const feedFilterSchema = z.object({
   garmentType: z.array(z.enum(GARMENT_TYPES)).optional(),
   hashtag: z.array(z.string()).optional(),
   hashtagOnly: booleanStringSchema.default(false),
-  minPrice: z.number().optional(),
-  maxPrice: z.number().optional(),
+  minPrice: z.coerce.number().optional(),
+  maxPrice: z.coerce.number().optional(),
 });
 
 export const feedContract = {
