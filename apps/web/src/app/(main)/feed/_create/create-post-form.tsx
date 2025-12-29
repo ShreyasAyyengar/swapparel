@@ -22,7 +22,7 @@ import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
 
 export type FormValues = z.input<typeof userFormPostSchema>;
-export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
+export const { fieldContext, formContext, useFieldContext, useFormContext } = createFormHookContexts();
 export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
