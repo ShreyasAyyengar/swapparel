@@ -4,7 +4,7 @@ import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
 import { logger } from "../../libs/logger";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 

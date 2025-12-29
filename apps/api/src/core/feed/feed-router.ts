@@ -1,6 +1,6 @@
 import { filterPosts, internalPostSchema } from "@swapparel/contracts";
 import { z } from "zod";
-import { publicProcedure } from "../../libs/orpc";
+import { publicProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
 
 export const feedRouter = {
