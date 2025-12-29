@@ -27,9 +27,6 @@ export const feedRouter = {
     }
     let posts = tryPosts.data;
 
-    // TODO final verdict on this??
-    // if (context.user?.email) posts = posts.filter((post) => post.createdBy !== context.user.email);
-
     if (input.filters !== undefined) posts = filterPosts(posts, input.filters);
 
     return {

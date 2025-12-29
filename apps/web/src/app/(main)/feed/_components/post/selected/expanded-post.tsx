@@ -2,7 +2,7 @@ import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import type { z } from "zod";
 import ExpandedPostTrigger from "./expanded-post-trigger";
-// TODO: add Min width for description
+
 export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
 
@@ -45,6 +45,16 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
         {`${post.description.slice(0, MAX_DESCRIPTION)}${post.description.length > MAX_DESCRIPTION ? "..." : ""}`}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
+
+      {post.price && (
+        <p>
+          Price: <Badge className="mr-1 bg-foreground font-bold text-background">{post.price}</Badge>
+        </p>
+      )}
+
+      <p>
+        Garment Type: <Badge className="mr-1 bg-foreground font-bold text-background">{post.garmentType}</Badge>
+      </p>
       <p>
         Color:{" "}
         {post.colour.map((color) => (

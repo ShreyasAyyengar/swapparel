@@ -12,7 +12,6 @@ import { useStickyTrue } from "../../_hooks/use-sticky-state";
 import MasonryElement from "../post/masonry-element";
 import MasonryLayout from "../post/masonry-layout";
 
-// TODO fix post loading, and going from fully loaded state to filtered state.
 export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: string | undefined }) {
   const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
@@ -22,6 +21,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
+  // TODO filter by garment type and price
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
@@ -154,11 +154,8 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
             <div className="m-8 flex w-full max-w-3/4 flex-col items-center gap-6 border border-secondary text-center" />
           </div>
           <div className="mb-10 text-center font-bold text-3xl">Could not load any more Swag...</div>
-          {/*  TODO maybe show # pages alr searched?*/}
         </div>
       )}
     </div>
   );
 }
-
-// TODO: bug, start off with http://localhost:3000/feed?colour=violet, then add green

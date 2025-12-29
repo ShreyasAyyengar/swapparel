@@ -54,6 +54,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       <div className="relative max-h-[83vh] w-1/2 items-center overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 text-foreground">
         <div className={"grid grid-cols-1 items-center gap-5 xl:grid-cols-2"}>
           <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+            <p className="m-5 text-center font-bold text-2xl">{post.title}</p>
             <div
               className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
               ref={imageContainerRef}
@@ -95,8 +96,12 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
         <br />
         <div className={"flex items-center"}>
-          <Button className={"w-full cursor-pointer"} onClick={() => setIsTrading(true)}>
-            Trade
+          <Button
+            className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
+            onClick={() => setIsTrading(true)}
+            disabled={isTrading}
+          >
+            {isTrading ? "Trading..." : "Trade"}
           </Button>
         </div>
       </div>
