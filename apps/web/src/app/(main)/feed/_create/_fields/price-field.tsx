@@ -14,38 +14,37 @@ export default function PriceField() {
   return (
     <Field data-invalid={isInvalid}>
       <div className="flex items-center space-x-3">
-        <FieldLabel htmlFor={field.name}>Price</FieldLabel>
+        <FieldLabel htmlFor={field.name}>Set a Price</FieldLabel>
         <Checkbox checked={enabled} onCheckedChange={(checked) => setEnabled(checked.valueOf() as boolean)} />
       </div>
 
-      {enabled && (
-        <div className="relative">
-          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-foreground/70">$</span>
+      <div className="relative">
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-foreground/70">$</span>
 
-          <Input
-            id={field.name}
-            name={field.name}
-            // keep only digits in form state (no $)
-            value={value}
-            onChange={(e) => {
-              const digitsOnly = e.target.value.replace(/[^\d]/g, "");
-              field.handleChange(Number(digitsOnly));
-            }}
-            onPaste={(e) => {
-              e.preventDefault();
-              const pasted = e.clipboardData.getData("text");
-              const digitsOnly = pasted.replace(/[^\d]/g, "");
-              field.handleChange(Number(digitsOnly));
-            }}
-            inputMode="numeric"
-            pattern="\d*"
-            placeholder={Math.floor(Math.random() * 30 + 1).toString()}
-            type="text"
-            aria-invalid={isInvalid}
-            className="pl-7"
-          />
-        </div>
-      )}
+        <Input
+          id={field.name}
+          name={field.name}
+          disabled={!enabled}
+          // keep only digits in form state (no $)
+          value={value}
+          onChange={(e) => {
+            const digitsOnly = e.target.value.replace(/[^\d]/g, "");
+            field.handleChange(Number(digitsOnly));
+          }}
+          onPaste={(e) => {
+            e.preventDefault();
+            const pasted = e.clipboardData.getData("text");
+            const digitsOnly = pasted.replace(/[^\d]/g, "");
+            field.handleChange(Number(digitsOnly));
+          }}
+          inputMode="numeric"
+          pattern="\d*"
+          placeholder={Math.floor(Math.random() * 30 + 1).toString()}
+          type="text"
+          aria-invalid={isInvalid}
+          className="pl-7"
+        />
+      </div>
 
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
