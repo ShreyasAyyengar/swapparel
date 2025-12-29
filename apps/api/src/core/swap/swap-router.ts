@@ -1,9 +1,9 @@
 import { internalSwapSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { logger } from "../../libs/logger";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc";
+import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
-import { SwapCollection } from "../swap/swap-schema";
+import { SwapCollection } from "./swap-schema";
 
 export const swapRouter = {
   createSwap: protectedProcedure.swap.createSwap.handler(
