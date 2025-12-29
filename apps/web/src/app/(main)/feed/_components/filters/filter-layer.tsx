@@ -1,11 +1,10 @@
 "use client";
 
-import { COLOURS, feedFilterSchema, filterPosts, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, feedFilterSchema, filterPosts, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
+import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
-import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import { useStickyTrue } from "../../_hooks/use-sticky-state";
@@ -16,49 +15,37 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
   const [selectedSize, setSelectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
-  const [selectedSizeOnly] = useQueryState("sizeOnly", parseAsBoolean);
   const [selectedMaterial, setSelectedMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
   const [selectedMaterialOnly] = useQueryState("materialOnly", parseAsBoolean);
   const [selectedHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [selectedHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean);
-  // TODO filter by garment type and price
+  const [selectedGarmentType, setSelectedGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
+  const [selectedMinPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [selectedMaxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
-  const filters = useMemo(() => {
-    const f: Partial<z.input<typeof feedFilterSchema>> = {};
+  useEffect(() => {
+    console.log("selectedMaxPrice", selectedMaxPrice);
+    console.log("selectedMinPrice", selectedMinPrice);
+  }, [selectedMaxPrice, selectedMinPrice]);
 
-    if (selectedColor?.length) {
-      f.colour = (selectedColourOnly ? { value: selectedColor, only: true } : { value: selectedColor }) as z.infer<
-        typeof feedFilterSchema
-      >["colour"];
-    }
-    if (selectedMaterial?.length) {
-      f.material = (selectedMaterialOnly ? { value: selectedMaterial, only: true } : { value: selectedMaterial }) as z.infer<
-        typeof feedFilterSchema
-      >["material"];
-    }
-    if (selectedSize?.length) {
-      f.size = (selectedSizeOnly ? { value: selectedSize, only: true } : { value: selectedSize }) as z.infer<typeof feedFilterSchema>["size"];
-    }
-    if (selectedHashtag?.length) {
-      f.hashtag = (selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag }) as z.infer<
-        typeof feedFilterSchema
-      >["colour"];
-    }
-
-    // if no filters active, return undefined (so nothing is sent)
-    return Object.keys(f).length ? feedFilterSchema.safeParse(f) : undefined;
-  }, [
-    selectedColor,
-    selectedColourOnly,
-    selectedMaterial,
-    selectedMaterialOnly,
-    selectedSize,
-    selectedSizeOnly,
-    selectedHashtag,
-    selectedHashtagOnly,
-  ]);
+  const filters = useMemo(
+    () =>
+      feedFilterSchema.safeParse({
+        color: selectedColor.length > 0 ? selectedColor : undefined,
+        colorOnly: !!selectedColourOnly,
+        material: selectedMaterial.length > 0 ? selectedMaterial : undefined,
+        materialOnly: !!selectedMaterialOnly,
+        size: selectedSize.length > 0 ? selectedSize : undefined,
+        garmentType: selectedGarmentType.length > 0 ? selectedGarmentType : undefined,
+        hashtag: selectedHashtag.length > 0 ? selectedHashtag : undefined,
+        hashtagOnly: !!selectedHashtagOnly,
+        minPrice: selectedMinPrice !== null ? selectedMinPrice : undefined,
+        maxPrice: selectedMaxPrice !== null ? selectedMaxPrice : undefined,
+      }),
+    [selectedColor, selectedColourOnly, selectedMaterial, selectedSize, selectedGarmentType, selectedHashtag, selectedMinPrice, selectedMaxPrice]
+  );
 
   useEffect(() => {
     if (filters?.error) {
@@ -82,6 +69,16 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
           setSelectedSize((prev) => prev?.filter((s) => s !== size));
         }
       });
+
+      selectedGarmentType.forEach((type) => {
+        // biome-ignore lint/suspicious/noExplicitAny: type could be any string, not just valid GARMENT_TYPE enum const
+        if (!GARMENT_TYPES?.includes(type as any)) {
+          setSelectedGarmentType((prev) => prev?.filter((t) => t !== type));
+        }
+      });
+
+      if (!!selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
+      if (!!selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
     }
   }, []);
 

@@ -169,6 +169,8 @@ export const postRouter = {
       );
       const garmentType = GARMENT_TYPES[Math.floor(Math.random() * GARMENT_TYPES.length)];
       const size = SIZES[Math.floor(Math.random() * SIZES.length)];
+      const containPrice = Math.random() > 0.5;
+      const price = containPrice ? Math.floor(Math.random() * 100) + 1 : undefined;
 
       const randomPostData = {
         _id: uuidv7(),
@@ -177,6 +179,7 @@ export const postRouter = {
         description: `Random Number: ${Math.random()}`,
         garmentType,
         colour: chosenColours,
+        price,
         size,
         material: chosenMaterials,
         images: Array.from({ length: 4 }).map(() => makePicsumUrl()),

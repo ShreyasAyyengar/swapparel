@@ -1,8 +1,9 @@
-import { COLOURS, MATERIALS, SIZES } from "@swapparel/contracts";
-import { X } from "lucide-react";
-import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { memo, useEffect, useRef } from "react";
+import { COLOURS, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
+import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
+import { memo, useEffect, useRef, useState } from "react";
 import FilterHashtags from "./filter-hashtags";
+import FilterPrice from "./filter-price";
 import FilterSection from "./filter-section";
 
 function FilterOptions({
@@ -19,13 +20,52 @@ function FilterOptions({
   const [colors, setColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [colourOnly, setColourOnly] = useQueryState("colourOnly", parseAsBoolean.withDefault(false));
   const [sizes, setSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
-  const [sizeOnly, setSizeOnly] = useQueryState("sizeOnly", parseAsBoolean.withDefault(false));
   const [materials, setMaterial] = useQueryState("material", parseAsNativeArrayOf(parseAsString));
   const [materialOnly, setMaterialOnly] = useQueryState("materialOnly", parseAsBoolean.withDefault(false));
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
+  const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
+  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [filterPrice, setFilterPrice] = useState(false);
 
   const ref = useRef<HTMLDivElement | null>(null);
+
+  const setMinPriceState = (v: number | null) => {
+    if (!filterPrice) return;
+    setMinPrice(v);
+  };
+
+  const setMaxPriceState = (v: number | null) => {
+    if (!filterPrice) return;
+    setMaxPrice(v);
+  };
+
+  const clearFilters = () => {
+    // arrays
+    setColor(null);
+    setSize(null);
+    setMaterial(null);
+    setHashtag(null);
+    setGarmentType(null);
+
+    // booleans (withDefault)
+    setColourOnly(false);
+    setMaterialOnly(false);
+    setHashtagOnly(false);
+
+    // price
+    setFilterPrice(false);
+    setMinPrice(null);
+    setMaxPrice(null);
+  };
+
+  useEffect(() => {
+    if (!filterPrice) {
+      setMinPrice(null);
+      setMaxPrice(null);
+    }
+  }, [filterPrice]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -42,11 +82,21 @@ function FilterOptions({
     showingFilters && (
       <div
         ref={ref}
-        className="mt-2 flex max-h-[calc(100vh-100px)] w-100 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
+        className="mt-2 flex max-h-[80vh] w-150 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
       >
-        <div className="flex justify-end">
-          <X className="fixed hover:cursor-pointer" onClick={onClick} />
-        </div>
+        {/*<div className="flex justify-end">*/}
+        {/*  <X className="fixed hover:cursor-pointer" onClick={onClick} />*/}
+        {/*</div>*/}
+        <Button className={"my-4 cursor-pointer"} onClick={clearFilters}>
+          CLEAR FILTERS
+        </Button>
+        <FilterSection
+          title={"Garment Type"}
+          valueArray={GARMENT_TYPES}
+          selectedValues={garmentType}
+          setSelectedArray={setGarmentType}
+          matchOnly={false}
+        />
         <FilterSection
           title="Colors"
           valueArray={COLOURS}
@@ -54,6 +104,7 @@ function FilterOptions({
           onlyBoolean={colourOnly}
           setSelectedArray={setColor}
           setOnlyBoolean={setColourOnly}
+          matchOnly={true}
         />
         <FilterSection
           title="Materials"
@@ -62,14 +113,16 @@ function FilterOptions({
           onlyBoolean={materialOnly}
           setSelectedArray={setMaterial}
           setOnlyBoolean={setMaterialOnly}
+          matchOnly={true}
         />
-        <FilterSection
-          title="Size"
-          valueArray={SIZES}
-          selectedValues={sizes}
-          onlyBoolean={sizeOnly}
-          setSelectedArray={setSize}
-          setOnlyBoolean={setSizeOnly}
+        <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
+        <FilterPrice
+          minPrice={minPrice || 1}
+          maxPrice={maxPrice || PRICE_MAX}
+          setMinRange={setMinPriceState}
+          setMaxRange={setMaxPriceState}
+          onlyBoolean={filterPrice}
+          setOnlyBoolean={setFilterPrice}
         />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}
