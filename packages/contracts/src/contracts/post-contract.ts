@@ -158,8 +158,7 @@ export const internalPostSchema = z.object({
   qaEntries: z
     .array(qaEntrySchema)
     .default([]),
-  price: z.coerce.number().min(0).optional(),
-  price: z.number().min(1).max(PRICE_MAX).optional(),
+  price: z.coerce.number().min(1).max(PRICE_MAX).optional(),
 });
 
 export const userFormPostSchema = z.object({
