@@ -46,6 +46,13 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
         {`${post.description.slice(0, MAX_DESCRIPTION)}${post.description.length > MAX_DESCRIPTION ? "..." : ""}`}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
+
+      <p>{post.price}</p>
+      {post.price && <p>Price:</p>}
+
+      <p>
+        Garment Type: <Badge className="mr-1 bg-foreground font-bold text-background">{post.garmentType}</Badge>
+      </p>
       <p>
         Color:{" "}
         {post.colour.map((color) => (
