@@ -1,11 +1,11 @@
-import { uploadPhotoInput } from "@swapparel/contracts";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { ImageUp } from "lucide-react";
 import { useCallback, useState } from "react";
-import { z } from "zod";
 import UploadedImageThumbnail from "./_fields/uploaded-image-thumbnail";
 import { type FormValues, useFieldContext } from "./create-post-form";
+
+// No longer needed - we use upload.id directly
 
 export default function UploadDropzone() {
   const field = useFieldContext<FormValues["images"]>();
@@ -24,24 +24,41 @@ export default function UploadDropzone() {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) setDraggingOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setDraggingOver(false);
+  const processUploads = useCallback(
+    (files: FileList) => {
+      const newUploads = Array.from(files).map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        mimeType: file.type,
+      }));
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      processUploads(e.dataTransfer.files);
-    }
-  }, []);
-
-  const removeById = useCallback(
-    (fileName: string) => {
-      field.handleChange(field.state.value.filter((u) => u.file.name !== fileName) as FormValues["images"]);
+      // Always append to current state value to avoid stale closures
+      const currentValue = field.state.value;
+      field.handleChange([...currentValue, ...newUploads] as FormValues["images"]);
     },
     [field]
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: processUploads is not used in the callback
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setDraggingOver(false);
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        processUploads(e.dataTransfer.files);
+      }
+    },
+    [processUploads]
+  );
+
+  const removeById = useCallback(
+    (id: string) => {
+      field.handleChange(field.state.value.filter((u) => u.id !== id) as FormValues["images"]);
+    },
+    [field]
+  );
+
   const onClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
@@ -52,20 +69,7 @@ export default function UploadDropzone() {
       if (!input.files) return;
       processUploads(input.files);
     });
-  }, []);
-
-  const processUploads = useCallback(
-    (files: FileList) => {
-      const newUploads = Array.from(files).map((file) => ({
-        file: z.file().parse(file),
-        mimeType: file.type as FormValues["images"][number]["mimeType"],
-      }));
-
-      const validUploads = newUploads.filter((u) => uploadPhotoInput.safeParse(u).success);
-      field.handleChange([...field.state.value, ...validUploads] as FormValues["images"]);
-    },
-    [field]
-  );
+  }, [processUploads]);
 
   const handleOnClick = () => {
     if (field.state.value.length === 0) {
@@ -88,11 +92,10 @@ export default function UploadDropzone() {
       onKeyDown={handleOnClick}
     >
       {field.state.value.length > 0 ? (
-        // TODO do not reload unused elements?
         <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
           <UploadedImageThumbnail uploadDialogueClickHandler={onClick} />
           {field.state.value.map((upload) => (
-            <UploadedImageThumbnail key={crypto.randomUUID()} file={upload.file} removeClickHandler={() => removeById(upload.file.name)} />
+            <UploadedImageThumbnail key={upload.id} file={upload.file} removeClickHandler={() => removeById(upload.id)} />
           ))}
         </div>
       ) : (

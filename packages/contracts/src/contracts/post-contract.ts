@@ -30,6 +30,7 @@ const qaEntrySchema = z.object({
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
 
 export const uploadPhotoInput = z.object({
+  id: z.string().uuid(),
   file: z.file("Invalid file."),
   mimeType: z.enum(VALID_MIME_TYPES, "Invalid file type."),
 });
@@ -178,7 +179,8 @@ export const postContract = {
     .route({
       method: "POST",
     })
-    .input(userFormPostSchema)
+    // id is only for frontend state management. we do not need it in the payload
+    .input(userFormPostSchema.omit({ images: true }).extend({ images: z.array(uploadPhotoInput.omit({ id: true })).min(1) }))
     .output(
       z.object({
         id: z.uuidv7(),
