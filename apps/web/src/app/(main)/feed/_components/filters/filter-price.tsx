@@ -1,6 +1,7 @@
 import { PRICE_MAX } from "@swapparel/contracts";
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
 import { DualRangeSlider } from "@swapparel/shad-ui/components/duel-range-slider";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { useEffect, useState } from "react";
 
 type PropTypes = {
@@ -17,7 +18,7 @@ export default function FilterPrice({ setMinRange, setMaxRange, onlyBoolean, set
   useEffect(() => {
     setMinRange(prices[0] ?? 1);
     setMaxRange(prices[1] ?? PRICE_MAX);
-  }, [prices]);
+  }, [prices, onlyBoolean]);
 
   return (
     <>
@@ -28,7 +29,7 @@ export default function FilterPrice({ setMinRange, setMaxRange, onlyBoolean, set
       </p>
       <div className="mb-2 w-auto border" />
       <DualRangeSlider
-        className={"mt-6 mb-2"}
+        className={cn("mt-6 mb-2", !onlyBoolean && "opacity-50")}
         label={(value) => value}
         value={prices}
         onValueChange={setPrices}
