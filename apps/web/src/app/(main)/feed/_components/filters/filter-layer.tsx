@@ -5,7 +5,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
-import type { z } from "zod";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import { useStickyTrue } from "../../_hooks/use-sticky-state";
@@ -26,46 +25,22 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
-  const filters = useMemo(() => {
-    const f: Partial<z.input<typeof feedFilterSchema>> = {};
-
-    if (selectedColor?.length) {
-      f.colour = (selectedColourOnly ? { value: selectedColor, only: true } : { value: selectedColor }) as z.infer<
-        typeof feedFilterSchema
-      >["colour"];
-    }
-    if (selectedMaterial?.length) {
-      f.material = (selectedMaterialOnly ? { value: selectedMaterial, only: true } : { value: selectedMaterial }) as z.infer<
-        typeof feedFilterSchema
-      >["material"];
-    }
-
-    if (selectedSize?.length) f.size = { value: selectedSize as (typeof SIZES)[number][] };
-
-    if (selectedGarmentType?.length) f.garmentType = { value: selectedGarmentType as (typeof GARMENT_TYPES)[number][] };
-
-    if (selectedHashtag?.length) {
-      f.hashtag = (selectedHashtagOnly ? { value: selectedHashtag, only: true } : { value: selectedHashtag }) as z.infer<
-        typeof feedFilterSchema
-      >["colour"];
-    }
-
-    if (selectedMinPrice !== null) f.minPrice = selectedMinPrice;
-    if (selectedMaxPrice !== null) f.maxPrice = selectedMaxPrice;
-
-    // if no filters active, return undefined (so nothing is sent)
-    return Object.keys(f).length ? feedFilterSchema.safeParse(f) : undefined;
-  }, [
-    selectedColor,
-    selectedColourOnly,
-    selectedMaterial,
-    selectedMaterialOnly,
-    selectedSize,
-    selectedHashtag,
-    selectedGarmentType,
-    selectedMinPrice,
-    selectedMaxPrice,
-  ]);
+  const filters = useMemo(
+    () =>
+      feedFilterSchema.safeParse({
+        color: selectedColor.length > 0 ? selectedColor : undefined,
+        colorOnly: !!selectedColourOnly,
+        material: selectedMaterial.length > 0 ? selectedMaterial : undefined,
+        materialOnly: !!selectedMaterialOnly,
+        size: selectedSize.length > 0 ? selectedSize : undefined,
+        garmentType: selectedGarmentType.length > 0 ? selectedGarmentType : undefined,
+        hashtag: selectedHashtag.length > 0 ? selectedHashtag : undefined,
+        hashtagOnly: !!selectedHashtagOnly,
+        minPrice: selectedMinPrice !== null ? selectedMinPrice : undefined,
+        maxPrice: selectedMaxPrice !== null ? selectedMaxPrice : undefined,
+      }),
+    [selectedColor, selectedColourOnly, selectedMaterial, selectedSize, selectedGarmentType, selectedHashtag, selectedMinPrice, selectedMaxPrice]
+  );
 
   useEffect(() => {
     if (filters?.error) {

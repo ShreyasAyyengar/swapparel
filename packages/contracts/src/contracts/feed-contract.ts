@@ -18,74 +18,61 @@ const booleanStringSchema = z.preprocess((value) => {
 }, z.boolean());
 
 export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
-  type MultiFilter<T extends string> = { value: T[]; only?: boolean };
+  // single-valued post fields (e.g., size is a single string on the post)
+  const matchesSingle = (postValue: string | undefined, selected?: string[], only?: boolean) => {
+    if (!selected?.length) return true;
+    if (!postValue) return false;
 
-  const matchesSingle = (postValue: string, f?: MultiFilter<string>) => {
-    if (!f?.value?.length) return true;
-
-    return f.only ? postValue === f.value[0] : f.value.includes(postValue);
+    return only ? postValue === selected[0] : selected.includes(postValue);
   };
 
-  const matchesMulti = (postValues: string[], f?: MultiFilter<string>) => {
-    if (!f?.value?.length) return true;
+  // multi-valued post fields (e.g., material is string[] on the post)
+  const matchesMulti = (postValues: string[] | undefined, selected?: string[], only?: boolean) => {
+    if (!selected?.length) return true;
+    if (!postValues?.length) return false;
 
-    const selected = f.value;
     const selectedSet = new Set(selected);
 
-    return f.only
-      ? postValues.length === selected.length && postValues.every((v) => selectedSet.has(v))
-      : postValues.some((v) => selectedSet.has(v));
+    if (only) {
+      // "only" means the exact set match
+      if (postValues.length !== selected.length) return false;
+      return postValues.every((v) => selectedSet.has(v));
+    }
+
+    // normal mode: any overlap
+    return postValues.some((v) => selectedSet.has(v));
   };
 
   if (!filters) return posts;
 
   return posts.filter((post) => {
-    if (!matchesMulti(post.material, filters.material)) return false;
-    if (!matchesMulti(post.colour, filters.colour)) return false;
-    if (!matchesMulti(post.hashtags, filters.hashtag)) return false;
-    if (!matchesSingle(post.size, filters.size)) return false;
-    if (!matchesSingle(post.garmentType, filters.garmentType)) return false;
+    if (!matchesMulti(post.material, filters.material, filters.materialOnly)) return false;
+    if (!matchesMulti(post.colour, filters.color, filters.colorOnly)) return false;
+    if (!matchesMulti(post.hashtags, filters.hashtag, filters.hashtagOnly)) return false;
 
-    if (post.price) {
-      if (filters.minPrice && post.price < filters.minPrice) return false;
-      if (filters.maxPrice && post.price > filters.maxPrice) return false;
+    if (!matchesSingle(post.size, filters.size, false)) return false;
+    if (!matchesSingle(post.garmentType, filters.garmentType, false)) return false;
+
+    // price
+    if (typeof post.price === "number") {
+      if (typeof filters.minPrice === "number" && post.price < filters.minPrice) return false;
+      if (typeof filters.maxPrice === "number" && post.price > filters.maxPrice) return false;
     }
     return true;
   });
 };
-
 // TODO flatten this
 export const feedFilterSchema = z.object({
-  colour: z
-    .object({
-      value: z.array(z.enum(COLOURS)),
-      only: booleanStringSchema.default(false),
-    })
-    .optional(),
-  material: z
-    .object({
-      value: z.array(z.enum(MATERIALS)),
-      only: booleanStringSchema.default(false),
-    })
-    .optional(),
-  size: z
-    .object({
-      value: z.array(z.enum(SIZES)),
-    })
-    .optional(),
-  garmentType: z
-    .object({
-      value: z.array(z.enum(GARMENT_TYPES)),
-    })
-    .optional(),
+  color: z.array(z.enum(COLOURS)).optional(),
+  colorOnly: booleanStringSchema.default(false),
+  material: z.array(z.enum(MATERIALS)).optional(),
+  materialOnly: booleanStringSchema.default(false),
+  size: z.array(z.enum(SIZES)).optional(),
+  garmentType: z.array(z.enum(GARMENT_TYPES)).optional(),
+  hashtag: z.array(z.string()).optional(),
+  hashtagOnly: booleanStringSchema.default(false),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
-  hashtag: z
-    .object({
-      value: z.array(z.string()),
-      only: booleanStringSchema.default(false),
-    })
-    .optional(),
 });
 
 export const feedContract = {
