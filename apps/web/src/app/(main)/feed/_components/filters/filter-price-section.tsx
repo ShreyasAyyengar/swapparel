@@ -6,31 +6,141 @@ import { useEffect, useRef, useState } from "react";
 
 const PRICE_MIN_DEFAULT = 1;
 
-
-type PropTypes = {
-  minPrice: number;
-  maxPrice: number;
-  setMinRange: (value: number) => void;
-  setMaxRange: (value: number) => void;
-  onlyBoolean: boolean;
-  setOnlyBoolean: (only: boolean) => void;
+type PriceState = {
+  minPrice: number | null;
+  maxPrice: number | null;
+  filteringPrice: boolean;
+  showFreeOnly: boolean;
+  showPricedOnly: boolean;
 };
 
-export default function FilterPrice({ minPrice, maxPrice, setMinRange, setMaxRange, onlyBoolean, setOnlyBoolean }: PropTypes) {
-  const handleCheck = (checked: boolean) => setOnlyBoolean(checked);
-  const [prices, setPrices] = useState<number[]>([1, PRICE_MAX]);
+function normalizePriceState(s: PriceState): PriceState {
+  const hasMinMax = s.minPrice !== null && s.maxPrice !== null;
 
-  useEffect(() => {
-    setMinRange(prices[0] ?? 1);
-    setMaxRange(prices[1] ?? PRICE_MAX);
-  }, [prices]);
+  // Free-only dominates everything
+  if (s.showFreeOnly) {
+    return {
+      ...s,
+      filteringPrice: false,
+      showPricedOnly: false,
+      minPrice: null,
+      maxPrice: null,
+    };
+  }
 
+  // If URL has min/max, price filtering must be on
+  let filteringPrice = s.filteringPrice || hasMinMax;
+
+  // priced-only implies filteringPrice
+  if (s.showPricedOnly) filteringPrice = true;
+
+  // If filtering is off, clear min/max
+  if (!filteringPrice) {
+    return {
+      ...s,
+      filteringPrice: false,
+      minPrice: null,
+      maxPrice: null,
+    };
+  }
+
+  // Filtering is on: default min/max if missing
+  const minPrice = s.minPrice ?? PRICE_MIN_DEFAULT;
+  const maxPrice = s.maxPrice ?? PRICE_MAX;
+
+  // invalid mix -> reset entirely
+  if (minPrice > maxPrice) {
+    return {
+      ...s,
+      filteringPrice: false,
+      showPricedOnly: false,
+      minPrice: null,
+      maxPrice: null,
+    };
+  }
+
+  return {
+    ...s,
+    filteringPrice: true,
+    minPrice,
+    maxPrice,
+  };
+}
+
+export default function FilterPriceSection() {
+  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
+  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [filteringPrice, setFilteringPrice] = useQueryState("price", parseAsBoolean.withDefault(false));
+  const [showFreeOnly, setShowFreeOnly] = useQueryState("free", parseAsBoolean.withDefault(false));
+  const [showPricedOnly, setShowPricedOnly] = useQueryState("priced", parseAsBoolean.withDefault(false));
+
+  // Initialize slider values from URL params if they exist, otherwise use defaults
+  const [sliderValues, setSliderValues] = useState<[number, number]>(() => {
+    if (minPrice !== null && maxPrice !== null) {
+      return [minPrice, maxPrice];
+    }
+    return [PRICE_MIN_DEFAULT, PRICE_MAX];
+  });
+
+  // guard prevents normalization loop while we "apply" a multi-field change
+  const normalizingRef = useRef(false);
+
+  // ✅ Always reflect URL min/max in the slider when they exist (even on initial reload)
   useEffect(() => {
-    if (minPrice !== prices[0] || maxPrice !== prices[1]) {
-      setPrices([minPrice, maxPrice]);
+    if (minPrice !== null && maxPrice !== null) {
+      setSliderValues([minPrice, maxPrice]);
     }
   }, [minPrice, maxPrice]);
 
+  // Single source of truth: normalize whenever URL state changes (unless guarded)
+  useEffect(() => {
+    if (normalizingRef.current) return;
+
+    const current: PriceState = { minPrice, maxPrice, filteringPrice, showFreeOnly, showPricedOnly };
+    const normalized = normalizePriceState(current);
+
+    const changed =
+      normalized.minPrice !== current.minPrice ||
+      normalized.maxPrice !== current.maxPrice ||
+      normalized.filteringPrice !== current.filteringPrice ||
+      normalized.showFreeOnly !== current.showFreeOnly ||
+      normalized.showPricedOnly !== current.showPricedOnly;
+
+    if (!changed) return;
+
+    normalizingRef.current = true;
+
+    setShowFreeOnly(normalized.showFreeOnly);
+    setShowPricedOnly(normalized.showPricedOnly);
+    setFilteringPrice(normalized.filteringPrice);
+    setMinPrice(normalized.minPrice);
+    setMaxPrice(normalized.maxPrice);
+
+    queueMicrotask(() => {
+      normalizingRef.current = false;
+    });
+  }, [
+    minPrice,
+    maxPrice,
+    filteringPrice,
+    showFreeOnly,
+    showPricedOnly,
+    setMinPrice,
+    setMaxPrice,
+    setFilteringPrice,
+    setShowFreeOnly,
+    setShowPricedOnly,
+  ]);
+
+  const priceUIEnabled = !showFreeOnly && (filteringPrice || showPricedOnly);
+
+  const setMany = (fn: () => void) => {
+    normalizingRef.current = true;
+    fn();
+    queueMicrotask(() => {
+      normalizingRef.current = false;
+    });
+  };
 
   return (
     <>
