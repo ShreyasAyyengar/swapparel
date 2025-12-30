@@ -71,8 +71,8 @@ export default function FilterPriceSection() {
   const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
   const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
   const [filteringPrice, setFilteringPrice] = useQueryState("price", parseAsBoolean.withDefault(false));
-  const [showFreeOnly, setShowFreeOnly] = useQueryState("free", parseAsBoolean.withDefault(false));
-  const [showPricedOnly, setShowPricedOnly] = useQueryState("priced", parseAsBoolean.withDefault(false));
+  const [showFreeOnly, setShowFreeOnly] = useQueryState("freeOnly", parseAsBoolean.withDefault(false));
+  const [showPricedOnly, setShowPricedOnly] = useQueryState("pricedOnly", parseAsBoolean.withDefault(false));
 
   // Initialize slider values from URL params if they exist, otherwise use defaults
   const [sliderValues, setSliderValues] = useState<[number, number]>(() => {

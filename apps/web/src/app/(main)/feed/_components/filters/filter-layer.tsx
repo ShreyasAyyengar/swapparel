@@ -22,7 +22,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedGarmentType, setSelectedGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
   const [selectedMinPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
   const [selectedMaxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
-  const [selectedPriceOnly] = useQueryState("priceOnly", parseAsBoolean);
+  const [selectedPriceOnly] = useQueryState("pricedOnly", parseAsBoolean);
   const [selectedFreeOnly] = useQueryState("freeOnly", parseAsBoolean);
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();

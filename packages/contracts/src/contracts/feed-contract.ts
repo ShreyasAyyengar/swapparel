@@ -45,6 +45,8 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
 
   if (!filters) return posts;
 
+  console.log(JSON.stringify(filters, null, 2));
+
   return posts.filter((post) => {
     if (!matchesMulti(post.material, filters.material, filters.materialOnly)) return false;
     if (!matchesMulti(post.colour, filters.color, filters.colorOnly)) return false;
@@ -53,11 +55,18 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     if (!matchesSingle(post.size, filters.size, false)) return false;
     if (!matchesSingle(post.garmentType, filters.garmentType, false)) return false;
 
-    // price
-    if (typeof post.price === "number") {
-      if (typeof filters.minPrice === "number" && post.price < filters.minPrice) return false;
-      if (typeof filters.maxPrice === "number" && post.price > filters.maxPrice) return false;
-    }
+    const hasPrice = post.price !== undefined;
+    const isFree = !hasPrice || post.price === 0; // handles null/undefined OR 0
+    const isPriced = hasPrice && post.price && post.price > 0;
+
+    // mutually exclusive modes
+    if (filters.freeOnly) return isFree;
+    if (filters.priceOnly) return isPriced;
+
+    // range filtering (only applies to priced items usually)
+    if (typeof filters.minPrice === "number" && hasPrice && post.price < filters.minPrice) return false;
+    if (typeof filters.maxPrice === "number" && hasPrice && post.price > filters.maxPrice) return false;
+
     return true;
   });
 };

@@ -25,6 +25,9 @@ function FilterOptions({
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
+  const [_, setFilteringPrice] = useQueryState("price", parseAsBoolean.withDefault(false));
+  const [__, setShowFreeOnly] = useQueryState("freeOnly", parseAsBoolean.withDefault(false));
+  const [___, setShowPricedOnly] = useQueryState("pricedOnly", parseAsBoolean.withDefault(false));
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -40,6 +43,9 @@ function FilterOptions({
     setColourOnly(false);
     setMaterialOnly(false);
     setHashtagOnly(false);
+    setFilteringPrice(false);
+    setShowFreeOnly(false);
+    setShowPricedOnly(false);
   };
 
   useEffect(() => {
