@@ -73,6 +73,8 @@ export const feedFilterSchema = z.object({
   hashtagOnly: booleanStringSchema.default(false),
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
+  priceOnly: booleanStringSchema.default(false),
+  freeOnly: booleanStringSchema.default(false),
 });
 
 export const feedContract = {
