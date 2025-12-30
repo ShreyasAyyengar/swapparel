@@ -22,13 +22,10 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedGarmentType, setSelectedGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
   const [selectedMinPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
   const [selectedMaxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
+  const [selectedPriceOnly] = useQueryState("priceOnly", parseAsBoolean);
+  const [selectedFreeOnly] = useQueryState("freeOnly", parseAsBoolean);
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
-
-  useEffect(() => {
-    console.log("selectedMaxPrice", selectedMaxPrice);
-    console.log("selectedMinPrice", selectedMinPrice);
-  }, [selectedMaxPrice, selectedMinPrice]);
 
   const filters = useMemo(
     () =>
@@ -43,8 +40,21 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         hashtagOnly: !!selectedHashtagOnly,
         minPrice: selectedMinPrice !== null ? selectedMinPrice : undefined,
         maxPrice: selectedMaxPrice !== null ? selectedMaxPrice : undefined,
+        priceOnly: !!selectedPriceOnly,
+        freeOnly: !!selectedFreeOnly,
       }),
-    [selectedColor, selectedColourOnly, selectedMaterial, selectedSize, selectedGarmentType, selectedHashtag, selectedMinPrice, selectedMaxPrice]
+    [
+      selectedColor,
+      selectedColourOnly,
+      selectedMaterial,
+      selectedSize,
+      selectedGarmentType,
+      selectedHashtag,
+      selectedMinPrice,
+      selectedMaxPrice,
+      selectedPriceOnly,
+      selectedFreeOnly,
+    ]
   );
 
   useEffect(() => {
