@@ -3,7 +3,6 @@ import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@s
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "../../env";
-import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
@@ -107,10 +106,9 @@ export const postRouter = {
     return { success: true };
   }),
 
-  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    logger.info(`Test route called: ${input} | ${context}`);
-    return PostCollection.find({});
-  }),
+  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
+    PostCollection.find({ createdBy: input.createdBy })
+  ),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ _id: input._id }).lean();
