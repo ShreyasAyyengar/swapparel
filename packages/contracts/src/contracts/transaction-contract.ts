@@ -4,24 +4,25 @@ import { internalPostSchema } from "./post-contract";
 
 const MESSAGE_MIN_LENGTH = 1000;
 
-export const internalSwapSchema = z.object({
+export const transaction = z.object({
   _id: z.uuidv7(),
-  sellerPostID: internalPostSchema.pick({ _id: true }),
-  buyerPostID: internalPostSchema.pick({ _id: true }).optional(),
+  sellerPostID: internalPostSchema.pick({ _id: true }), // post from the feed
+  buyerPostID: z.array(internalPostSchema.pick({ _id: true })).optional(), // personal posts that viewing user wants to give away
   buyerEmail: z.email("Buyer's email is required."),
-  messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
   dateToSwap: z.date(),
   locationToSwap: z.string(),
   swapItemCompleted: z.boolean().default(false),
   returnItemCompleted: z.boolean().optional(),
+
+  messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
 });
 
-export const swapContract = {
-  createSwap: oc
+export const transactionContract = {
+  createTransaction: oc
     .route({
       method: "POST",
     })
-    .input(internalSwapSchema.omit({ messages: true }).extend({ initialMessage: z.string() }))
+    .input(transaction.omit({ messages: true }).extend({ initialMessage: z.string() }))
     .output(
       z.object({
         _id: z.uuidv7(),
@@ -46,7 +47,7 @@ export const swapContract = {
       },
     }),
 
-  deleteSwap: oc
+  deleteTransaction: oc
     .route({
       method: "DELETE",
     })
@@ -74,7 +75,7 @@ export const swapContract = {
       },
     }),
 
-  addMockSwap: oc
+  addMockTransaction: oc
     .route({
       method: "GET",
     })

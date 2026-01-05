@@ -1,13 +1,13 @@
-import { internalSwapSchema } from "@swapparel/contracts";
+import { transaction } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
-import { SwapCollection } from "./swap-schema";
+import { TransactionCollection } from "./transaction-schema";
 
 // TODO incorporate different types of swaps: e.g. one-way, two-way. etc
-export const swapRouter = {
-  createSwap: protectedProcedure.swap.createSwap.handler(
+export const transactionRouter = {
+  createTransaction: protectedProcedure.transaction.createTransaction.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
       const buyerEmailFromContex = context.user.email;
 
@@ -43,7 +43,7 @@ export const swapRouter = {
         returnItemCompleted: input.returnItemCompleted,
       };
 
-      const tryParse = internalSwapSchema.safeParse(swapDocument);
+      const tryParse = transaction.safeParse(swapDocument);
 
       if (!tryParse.success) {
         throw BAD_REQUEST({
@@ -54,7 +54,7 @@ export const swapRouter = {
         });
       }
       try {
-        await SwapCollection.insertOne(swapDocument);
+        await TransactionCollection.insertOne(swapDocument);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
@@ -66,8 +66,8 @@ export const swapRouter = {
     }
   ),
 
-  deleteSwap: protectedProcedure.swap.deleteSwap.handler(async ({ input, errors }) => {
-    const swapToDelete = await SwapCollection.findById(input._id);
+  deleteTransaction: protectedProcedure.transaction.deleteTransaction.handler(async ({ input, errors }) => {
+    const swapToDelete = await TransactionCollection.findById(input._id);
 
     if (!swapToDelete) {
       throw errors.NOT_FOUND({
@@ -81,7 +81,7 @@ export const swapRouter = {
 
     if (swapToDelete.swapItemCompleted === true) {
       try {
-        const result = await SwapCollection.deleteOne({ _id: swapToDelete._id });
+        const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
         swapDeleteSuccess = result.deletedCount === 1;
       } catch (error) {
         throw errors.INTERNAL_SERVER_ERROR({
@@ -92,7 +92,7 @@ export const swapRouter = {
       }
     } else if (swapToDelete.returnItemCompleted === true) {
       try {
-        const result = await SwapCollection.deleteOne({ _id: swapToDelete._id });
+        const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
         swapDeleteSuccess = result.deletedCount === 1;
       } catch (error) {
         throw errors.INTERNAL_SERVER_ERROR({
@@ -108,7 +108,7 @@ export const swapRouter = {
     return { success: true, message: "Swap Successfully Deleted" };
   }),
 
-  addMockSwap: publicProcedure.swap.addMockSwap.handler(async ({ input, errors, context }) => {
+  addMockTransaction: publicProcedure.transaction.addMockTransaction.handler(async ({ input, errors, context }) => {
     const [mockSellerPostBuffer] = await PostCollection.aggregate([{ $sample: { size: 1 } }, { $project: { _id: 1, createdBy: 1 } }]);
 
     const mockSellerPost = mockSellerPostBuffer?._id ?? null;
@@ -152,7 +152,7 @@ export const swapRouter = {
         dateToSwap: mockDate,
         locationToSwap: mockLocation,
       };
-      await SwapCollection.insertOne(randomSwapData);
+      await TransactionCollection.insertOne(randomSwapData);
     } catch (error) {
       logger.error(`Failed to add mock swap: ${error}`);
     }
