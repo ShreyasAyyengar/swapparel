@@ -18,7 +18,7 @@ export const commentsSchema = z.object({
   // biome-ignore format: readability
   childReplies: z
     .array(singleCommentSchema)
-    .optional(),
+    .default([]),
 });
 
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
@@ -244,7 +244,7 @@ export const postContract = {
     .input(
       z.object({
         postId: internalPostSchema.shape._id,
-        commentIndex: z.number().min(0),
+        commentIndex: z.coerce.number().min(0),
         reply: z.string().min(1, "Reply must be at least 1 character."),
       })
     )
