@@ -255,6 +255,23 @@ export const postContract = {
       INTERNAL_SERVER_ERROR: {},
     }),
 
+  createNewComment: oc
+    .route({
+      method: "POST",
+    })
+    .input(
+      z.object({
+        postId: internalPostSchema.shape._id,
+        comment: singleCommentSchema.shape.comment,
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      NOT_FOUND: {},
+      BAD_REQUEST: {},
+      INTERNAL_SERVER_ERROR: {},
+    }),
+
   addMockPost: oc
     .route({
       method: "GET",
