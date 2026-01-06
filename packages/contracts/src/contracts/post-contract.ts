@@ -1,5 +1,5 @@
-import { oc } from "@orpc/contract";
-import { z } from "zod";
+import {oc} from "@orpc/contract";
+import {z} from "zod";
 
 // Magic constants
 const DESCRIPTION_MAX_LENGTH = 1000;
@@ -12,7 +12,7 @@ const qaSimpleSchema = z.object({
   answer: z.string().optional(),
 });
 
-const qaEntrySchema = z.object({
+export const qaEntrySchema = z.object({
   // biome-ignore format: readability
   question: z
     .string()
