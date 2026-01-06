@@ -22,16 +22,15 @@ export default function DisplayPostThumbnail({
   return (
     <div
       className={cn(
-        "transition-all duration-50",
-        "relative flex h-20 w-20 cursor-pointer items-center justify-center rounded-2xl text-sm",
+        "relative flex aspect-square w-20 cursor-pointer items-center justify-center rounded-2xl text-sm transition-all duration-50",
         selected && "border-3 border-success"
       )}
       onClick={onClick}
       onKeyDown={onClick}
     >
-      <div className="group relative h-full w-full rounded-2xl border border-foreground">
+      <div className={cn("group relative h-full w-full rounded-2xl", !selected && "border border-foreground")}>
         {/** biome-ignore lint/style/noNonNullAssertion: every post has at least one image */}
-        <Image src={post.images[0]!} alt={post.title} width={65} height={65} className="h-full w-full rounded-2xl object-cover" />
+        <Image src={post.images[0]!} alt={post.title} fill className="rounded-2xl object-cover" />
         {selected && (
           <Check size={50} className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 rounded-full text-success transition-all" />
         )}

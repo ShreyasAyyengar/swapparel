@@ -18,7 +18,7 @@ export default function ChoosePostGrid({
   return (
     <div
       className={cn(
-        "flex h-full items-center justify-center rounded-2xl border-2 border-red-500 bg-popover [transition:border_0.3s]",
+        "@container mx-4 flex h-full items-center justify-center rounded-2xl border border-ring bg-popover [transition:border_0.3s]",
         !hasPosts && "cursor-pointer border-dashed hover:border-foreground"
       )}
       onClick={hasPosts ? undefined : onBackgroundClick}
@@ -27,7 +27,7 @@ export default function ChoosePostGrid({
       tabIndex={hasPosts ? undefined : 0}
     >
       {hasPosts ? (
-        <div className="m-4 grid grid-cols-1 place-items-center gap-x-8 gap-y-5 text-center md:grid-cols-3 lg:grid-cols-5">
+        <div className="m-4 grid w-full @2xs:grid-cols-1 @lg:grid-cols-6 @md:grid-cols-5 @sm:grid-cols-3 @xs:grid-cols-2 place-items-center gap-x-8 gap-y-5 text-center">
           {postsByUser.map((postByUser) => (
             <DisplayPostThumbnail key={postByUser._id} post={postByUser} handleTradeSelection={handleTradeSelection} />
           ))}
