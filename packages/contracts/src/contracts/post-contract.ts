@@ -6,26 +6,19 @@ const DESCRIPTION_MAX_LENGTH = 1000;
 const TITLE_MAX_LENGTH = 25;
 export const PRICE_MAX = 500;
 
-// Internal Schema Definitions
-const qaSimpleSchema = z.object({
-  question: z.string().min(1, "Question must be at least 1 character."),
-  answer: z.string().optional(),
+// TODO change back to z.email()
+export const singleCommentSchema = z.object({
+  comment: z.string().min(1, "Reply must be at least 1 character."),
+  author: z.string("Author's email is required."),
 });
 
-const qaEntrySchema = z.object({
+export const commentsSchema = z.object({
   // biome-ignore format: readability
-  question: z
-    .string()
-    .min(1, "Question must be at least 1 character."),
+  rootComment: singleCommentSchema,
   // biome-ignore format: readability
-  answer: z
-    .string()
-    .min(1, "Answer must be at least 1 character.")
-    .optional(),
-  // biome-ignore format: readability
-  followUps: z
-    .array(qaSimpleSchema)
-    .optional(),
+  childReplies: z
+    .array(singleCommentSchema)
+    .default([]),
 });
 
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
@@ -155,9 +148,10 @@ export const internalPostSchema = z.object({
     )
     .default([]),
   // biome-ignore format: readability
-  qaEntries: z
-    .array(qaEntrySchema)
+  comments: z
+    .array(commentsSchema)
     .default([]),
+
   price: z.coerce.number().min(1).max(PRICE_MAX).optional(),
 });
 
@@ -240,6 +234,49 @@ export const postContract = {
     .output(internalPostSchema)
     .errors({
       NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
+    }),
+
+  replyToComment: oc
+    .route({
+      method: "POST",
+    })
+    .input(
+      z.object({
+        postId: internalPostSchema.shape._id,
+        commentIndex: z.coerce.number().min(0),
+        reply: z.string().min(1, "Reply must be at least 1 character."),
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      BAD_REQUEST: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  createNewComment: oc
+    .route({
+      method: "POST",
+    })
+    .input(
+      z.object({
+        postId: internalPostSchema.shape._id,
+        comment: singleCommentSchema.shape.comment,
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      NOT_FOUND: {},
+      BAD_REQUEST: {},
       INTERNAL_SERVER_ERROR: {},
     }),
 
