@@ -184,16 +184,35 @@ export const postRouter = {
         material: chosenMaterials,
         images: Array.from({ length: 4 }).map(() => makePicsumUrl()),
         hashtags: [],
-        qaEntries: [
+        comments: [
           {
-            question: "Why do some birds migrate thousands of miles every year?",
-            answer:
-              "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
-            followUps: [
+            rootComment: { comment: "Why do some birds migrate thousands of miles every year?", author: "random@example.com" },
+            childReplies: [
               {
-                question: "How do they know which direction to fly?",
-                answer:
-                  " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
+                comment:
+                  "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
+                author: "random@example.com",
+              },
+              { comment: "vro what r u talmbt?", author: "random@example.com" },
+            ],
+          },
+
+          {
+            rootComment: { comment: "What is the fastest land animal?", author: "random@example.com" },
+            childReplies: [
+              {
+                comment: "Cheetahs can reach speeds of up to 70 mph (113 km/h) in short bursts.",
+                author: "random@example.com",
+              },
+            ],
+          },
+
+          {
+            rootComment: { comment: "What is the largest animal?", author: "random@example.com" },
+            childReplies: [
+              {
+                comment: "Blue whales are the largest animals on Earth, reaching lengths of up to 100 feet (30 meters).",
+                author: "random@example.com",
               },
             ],
           },

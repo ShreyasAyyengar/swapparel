@@ -1,8 +1,8 @@
-import type {internalPostSchema} from "@swapparel/contracts";
-import {Badge} from "@swapparel/shad-ui/components/badge";
-import type {z} from "zod";
+import type { internalPostSchema } from "@swapparel/contracts";
+import { Badge } from "@swapparel/shad-ui/components/badge";
+import type { z } from "zod";
+import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
-import Comments from "./q-and-a";
 
 export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
@@ -59,8 +59,8 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
         ))}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
-      <p className="font-bold">Q&A:</p>
-      {post.qaEntries.length < 1 ? "No Q&A Entries" : <Comments qaEntries={post.qaEntries} />}
+      <p className="font-bold">Comments:</p>
+      {post.comments.length < 1 ? "No Comments" : <Comments comments={post.comments} />}
       {/*</div>*/}
     </ExpandedPostTrigger>
   );
