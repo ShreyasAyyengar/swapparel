@@ -1,14 +1,17 @@
-import { transaction } from "@swapparel/contracts";
+import { transactionSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
-import type { z } from "zod";
+import { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
-const TransactionSchemaMongooseZod = transaction;
+const TransactionSchemaMongooseZod = transactionSchema
+  // certain 'Zod Types' (z.url(), z.email(), z.uuid()) must be redefined as more primitive types to serialise with Mongoose
+  .omit({ _id: true, sellerPostID: true, buyerPostIDs: true, buyerEmail: true })
+  .extend({ _id: z.string(), sellerPostID: z.string(), buyerPostIDs: z.array(z.string()), buyerEmail: z.string() });
 
-const SwapSchemaMongoose = toMongooseSchema(
+const TransactionSchemaMongoose = toMongooseSchema(
   TransactionSchemaMongooseZod.mongoose({
     schemaOptions: {
-      collection: "swaps",
+      collection: "transactions",
       versionKey: false,
     },
   })
@@ -16,4 +19,8 @@ const SwapSchemaMongoose = toMongooseSchema(
 
 export interface ITransactionSchemaMongoose extends z.infer<typeof TransactionSchemaMongooseZod> {}
 
-export const TransactionCollection = databaseConnection.model<ITransactionSchemaMongoose>("swaps", SwapSchemaMongoose, "swaps");
+export const TransactionCollection = databaseConnection.model<ITransactionSchemaMongoose>(
+  "transactions",
+  TransactionSchemaMongoose,
+  "transactions"
+);

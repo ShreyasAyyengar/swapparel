@@ -1,4 +1,4 @@
-import { transaction } from "@swapparel/contracts";
+import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
@@ -27,23 +27,18 @@ export const transactionRouter = {
       }
 
       // creates buyerPost only if there is a post id given as input
-      const buyerPost = input.buyerPostID ? await PostCollection.findById(input.buyerPostID) : undefined;
+      const buyerPosts = input.buyerPostIDs ? await PostCollection.find({ _id: { $in: input.buyerPostIDs } }) : [];
 
       const _id = uuidv7();
 
-      const swapDocument = {
+      const tryParse = transactionSchema.safeParse({
         _id,
         sellerPostID: sellerPost._id,
-        buyerPostID: buyerPost?._id,
+        buyerPostIDs: buyerPosts.map((p) => p._id),
         buyerEmail: buyerEmailFromContex,
-        messages: [input.initialMessage],
+        messages: input.initialMessage ? [input.initialMessage] : [],
         dateToSwap: input.dateToSwap,
-        locationToSwap: input.locationToSwap,
-        swapItemCompleted: input.swapItemCompleted,
-        returnItemCompleted: input.returnItemCompleted,
-      };
-
-      const tryParse = transaction.safeParse(swapDocument);
+      });
 
       if (!tryParse.success) {
         throw BAD_REQUEST({
@@ -54,7 +49,7 @@ export const transactionRouter = {
         });
       }
       try {
-        await TransactionCollection.insertOne(swapDocument);
+        await TransactionCollection.insertOne(tryParse.data);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
@@ -66,47 +61,47 @@ export const transactionRouter = {
     }
   ),
 
-  deleteTransaction: protectedProcedure.transaction.deleteTransaction.handler(async ({ input, errors }) => {
-    const swapToDelete = await TransactionCollection.findById(input._id);
-
-    if (!swapToDelete) {
-      throw errors.NOT_FOUND({
-        data: {
-          message: "Swap Not Found",
-        },
-      });
-    }
-
-    let swapDeleteSuccess = false;
-
-    if (swapToDelete.swapItemCompleted === true) {
-      try {
-        const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
-        swapDeleteSuccess = result.deletedCount === 1;
-      } catch (error) {
-        throw errors.INTERNAL_SERVER_ERROR({
-          data: {
-            message: `Failed to delete ${swapToDelete._id}. ${error}`,
-          },
-        });
-      }
-    } else if (swapToDelete.returnItemCompleted === true) {
-      try {
-        const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
-        swapDeleteSuccess = result.deletedCount === 1;
-      } catch (error) {
-        throw errors.INTERNAL_SERVER_ERROR({
-          data: {
-            message: `Failed to delete ${swapToDelete._id}. ${error}`,
-          },
-        });
-      }
-    }
-    if (!swapDeleteSuccess) {
-      return { success: false, message: "Swap Still In Progress!!" };
-    }
-    return { success: true, message: "Swap Successfully Deleted" };
-  }),
+  // deleteTransaction: protectedProcedure.transaction.deleteTransaction.handler(async ({ input, errors }) => {
+  //   const swapToDelete = await TransactionCollection.findById(input._id);
+  //
+  //   if (!swapToDelete) {
+  //     throw errors.NOT_FOUND({
+  //       data: {
+  //         message: "Swap Not Found",
+  //       },
+  //     });
+  //   }
+  //
+  //   let swapDeleteSuccess = false;
+  //
+  //   if (swapToDelete.swapItemCompleted === true) {
+  //     try {
+  //       const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
+  //       swapDeleteSuccess = result.deletedCount === 1;
+  //     } catch (error) {
+  //       throw errors.INTERNAL_SERVER_ERROR({
+  //         data: {
+  //           message: `Failed to delete ${swapToDelete._id}. ${error}`,
+  //         },
+  //       });
+  //     }
+  //   } else if (swapToDelete.returnItemCompleted === true) {
+  //     try {
+  //       const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
+  //       swapDeleteSuccess = result.deletedCount === 1;
+  //     } catch (error) {
+  //       throw errors.INTERNAL_SERVER_ERROR({
+  //         data: {
+  //           message: `Failed to delete ${swapToDelete._id}. ${error}`,
+  //         },
+  //       });
+  //     }
+  //   }
+  //   if (!swapDeleteSuccess) {
+  //     return { success: false, message: "Swap Still In Progress!!" };
+  //   }
+  //   return { success: true, message: "Swap Successfully Deleted" };
+  // }),
 
   addMockTransaction: publicProcedure.transaction.addMockTransaction.handler(async ({ input, errors, context }) => {
     const [mockSellerPostBuffer] = await PostCollection.aggregate([{ $sample: { size: 1 } }, { $project: { _id: 1, createdBy: 1 } }]);
