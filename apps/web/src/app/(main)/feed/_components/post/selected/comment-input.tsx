@@ -9,7 +9,7 @@ export default function CommentInput({ post }: { post: z.infer<typeof internalPo
 
   const addCommentMutation = useMutation(
     webClientORPC.posts.createNewComment.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: () => {
         window.location.reload();
       },
     })
