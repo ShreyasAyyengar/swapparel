@@ -2,19 +2,17 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { internalPostSchema } from "./post-contract";
 
-const MESSAGE_MIN_LENGTH = 1000;
+const MESSAGE_MAX_LENGTH = 1000;
 
-export const transaction = z.object({
+export const transactionSchema = z.object({
   _id: z.uuidv7(),
-  sellerPostID: internalPostSchema.pick({ _id: true }), // post from the feed
-  buyerPostID: z.array(internalPostSchema.pick({ _id: true })).optional(), // personal posts that viewing user wants to give away
+  sellerPostID: internalPostSchema.shape._id, // post from the feed
   buyerEmail: z.email("Buyer's email is required."),
-  dateToSwap: z.date(),
-  locationToSwap: z.string(),
-  swapItemCompleted: z.boolean().default(false),
-  returnItemCompleted: z.boolean().optional(),
-
-  messages: z.array(z.string().min(MESSAGE_MIN_LENGTH)),
+  buyerPostIDs: z.array(internalPostSchema.shape._id).optional(), // personal posts that viewing user wants to give away
+  dateToSwap: z.coerce.date(),
+  locationToSwap: z.string().optional(),
+  messages: z.array(z.string().max(MESSAGE_MAX_LENGTH)),
+  completed: z.boolean().default(false),
 });
 
 export const transactionContract = {
@@ -22,7 +20,11 @@ export const transactionContract = {
     .route({
       method: "POST",
     })
-    .input(transaction.omit({ messages: true }).extend({ initialMessage: z.string() }))
+    .input(
+      transactionSchema
+        .omit({ messages: true, locationToSwap: true, _id: true, completed: true })
+        .extend({ initialMessage: z.string().optional() })
+    )
     .output(
       z.object({
         _id: z.uuidv7(),
