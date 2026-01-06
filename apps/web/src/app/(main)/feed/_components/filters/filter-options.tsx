@@ -1,9 +1,9 @@
-import { COLOURS, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, MATERIALS, SIZES } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
-import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
-import { memo, useEffect, useRef, useState } from "react";
+import { parseAsBoolean, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
+import { memo, useEffect, useRef } from "react";
 import FilterHashtags from "./filter-hashtags";
-import FilterPrice from "./filter-price";
+import FilterPriceSection from "./filter-price-section";
 import FilterSection from "./filter-section";
 
 function FilterOptions({
@@ -25,21 +25,11 @@ function FilterOptions({
   const [hashtags, setHashtag] = useQueryState("hashtag", parseAsNativeArrayOf(parseAsString));
   const [hashtagOnly, setHashtagOnly] = useQueryState("hashtagOnly", parseAsBoolean.withDefault(false));
   const [garmentType, setGarmentType] = useQueryState("garmentType", parseAsNativeArrayOf(parseAsString));
-  const [minPrice, setMinPrice] = useQueryState("minPrice", parseAsInteger);
-  const [maxPrice, setMaxPrice] = useQueryState("maxPrice", parseAsInteger);
-  const [filterPrice, setFilterPrice] = useState(false);
+  const [_, setFilteringPrice] = useQueryState("price", parseAsBoolean.withDefault(false));
+  const [__, setShowFreeOnly] = useQueryState("freeOnly", parseAsBoolean.withDefault(false));
+  const [___, setShowPricedOnly] = useQueryState("pricedOnly", parseAsBoolean.withDefault(false));
 
   const ref = useRef<HTMLDivElement | null>(null);
-
-  const setMinPriceState = (v: number | null) => {
-    if (!filterPrice) return;
-    setMinPrice(v);
-  };
-
-  const setMaxPriceState = (v: number | null) => {
-    if (!filterPrice) return;
-    setMaxPrice(v);
-  };
 
   const clearFilters = () => {
     // arrays
@@ -53,19 +43,10 @@ function FilterOptions({
     setColourOnly(false);
     setMaterialOnly(false);
     setHashtagOnly(false);
-
-    // price
-    setFilterPrice(false);
-    setMinPrice(null);
-    setMaxPrice(null);
+    setFilteringPrice(false);
+    setShowFreeOnly(false);
+    setShowPricedOnly(false);
   };
-
-  useEffect(() => {
-    if (!filterPrice) {
-      setMinPrice(null);
-      setMaxPrice(null);
-    }
-  }, [filterPrice]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -84,9 +65,6 @@ function FilterOptions({
         ref={ref}
         className="mt-2 flex max-h-[80vh] w-150 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
       >
-        {/*<div className="flex justify-end">*/}
-        {/*  <X className="fixed hover:cursor-pointer" onClick={onClick} />*/}
-        {/*</div>*/}
         <Button className={"my-4 cursor-pointer"} onClick={clearFilters}>
           CLEAR FILTERS
         </Button>
@@ -116,14 +94,7 @@ function FilterOptions({
           matchOnly={true}
         />
         <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
-        <FilterPrice
-          minPrice={minPrice || 1}
-          maxPrice={maxPrice || PRICE_MAX}
-          setMinRange={setMinPriceState}
-          setMaxRange={setMaxPriceState}
-          onlyBoolean={filterPrice}
-          setOnlyBoolean={setFilterPrice}
-        />
+        <FilterPriceSection />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
         {/*TODO: Clear all filters button*/}
       </div>

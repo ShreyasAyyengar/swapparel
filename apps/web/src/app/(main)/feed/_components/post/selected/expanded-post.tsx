@@ -1,37 +1,12 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import type { z } from "zod";
+import CommentInput from "./comment-input";
+import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
 
 export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
-
-  const entries = post.qaEntries.map((entry, index) => (
-    <div key={index}>
-      <p className="mb-2 font-bold">
-        Q:
-        <span className="font-normal"> {entry.question}</span>
-      </p>
-      <div className="pl-7">
-        <p className="mb-2 font-bold">
-          A:
-          <span className="font-normal"> {entry.answer}</span>
-        </p>
-        {entry.followUps?.map((followUp, indexFollowUp) => (
-          <div key={indexFollowUp}>
-            <p className="mb-2 font-bold">
-              Q:
-              <span className="font-normal"> {followUp.question}</span>
-            </p>
-            <p className="mb-2 font-bold">
-              A:
-              <span className="font-normal"> {followUp.answer}</span>
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  ));
 
   return (
     <ExpandedPostTrigger post={post}>
@@ -84,8 +59,8 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
         ))}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
-      <p className="font-bold">Q&A:</p>
-      {post.qaEntries.length < 1 ? "No Q&A Entries" : entries}
+      <p className="font-bold">Comments:</p>
+      {post.comments.length < 1 ? <CommentInput post={post} /> : <Comments post={post} />}
     </ExpandedPostTrigger>
   );
 }

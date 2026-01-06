@@ -2,10 +2,10 @@
 
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 import Image from "next/image";
-import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useRef, useState } from "react";
+import {parseAsString, useQueryState} from "nuqs";
+import {useEffect, useRef, useState} from "react";
 import type z from "zod";
 import TradingBox from "../trading/trade";
 
@@ -87,7 +87,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
           </div>
 
           <div
-            className="flex max-h-[calc(80vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
+            className="relative flex max-h-[calc(80vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
             ref={textContainerRef}
           >
             {children}

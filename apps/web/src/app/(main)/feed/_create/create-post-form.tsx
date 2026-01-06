@@ -8,6 +8,7 @@ import { cn } from "@swapparel/shad-ui/lib/utils";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { useEffect } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
@@ -22,7 +23,7 @@ import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
 
 export type FormValues = z.input<typeof userFormPostSchema>;
-export const { fieldContext, formContext, useFieldContext, useFormContext } = createFormHookContexts();
+export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
 export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
@@ -43,12 +44,13 @@ export const { useAppForm } = createFormHook({
 
 export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
   const router = useRouter();
+  const [_, setPost] = useQueryState("post");
 
   const createPostMutation = useMutation(
     webClientORPC.posts.createPost.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
+        await setPost(data.id);
         closeAction();
-        router.push(`/feed?post=${data.id}`);
       },
     })
   );
