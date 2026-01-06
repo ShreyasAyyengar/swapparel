@@ -29,6 +29,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
     accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
     bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+    endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   });
 
   await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
