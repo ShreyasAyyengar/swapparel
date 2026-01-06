@@ -1,10 +1,10 @@
-import type { commentsSchema } from "@swapparel/contracts";
-import type { z } from "zod";
+import type {commentsSchema} from "@swapparel/contracts";
+import type {z} from "zod";
 import Comment from "./root-comment";
 
 export default function Comments({ comments }: { comments?: z.infer<typeof commentsSchema>[] }) {
   return comments?.map((entry, index) => (
-    <div key={index} className="bg-black">
+    <div key={index}>
       <Comment comment={entry.rootComment} />
 
       <div className="pl-7">
