@@ -1,6 +1,6 @@
-import type { internalPostSchema } from "@swapparel/contracts";
-import { Badge } from "@swapparel/shad-ui/components/badge";
-import type { z } from "zod";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {Badge} from "@swapparel/shad-ui/components/badge";
+import type {z} from "zod";
 import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
 
@@ -9,7 +9,6 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
 
   return (
     <ExpandedPostTrigger post={post}>
-      {/*<div className="ml-8 flex w-1/2 flex-col overflow-auto border-2 border-foreground p-2">*/}
       <p title="username" className="font-bold">
         {post.createdBy}
       </p>
@@ -61,7 +60,6 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       <hr className="my-2 border-foreground border-t-2" />
       <p className="font-bold">Comments:</p>
       {post.comments.length < 1 ? "No Comments" : <Comments comments={post.comments} />}
-      {/*</div>*/}
     </ExpandedPostTrigger>
   );
 }
