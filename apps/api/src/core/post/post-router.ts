@@ -1,16 +1,25 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
-import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
+import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
+const S3 = new S3Client({
+  region: "auto",
+  endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
+  credentials: {
+    accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+  },
+});
+
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
   let finalMimeType = mimeType;
   const key = `${postId}/${index}`;
-  let fileExtension = file.name.split(".").pop();
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   let body = fileBuffer;
 
@@ -21,20 +30,18 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
       quality: 1,
     });
 
-    fileExtension = "jpg";
     finalMimeType = "image/jpeg";
   }
 
-  const s3 = new S3Client({
-    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
-    bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
-    endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  const packageCommand = new PutObjectCommand({
+    Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
+    Key: key,
+    Body: body,
+    ContentType: finalMimeType,
   });
+  await S3.send(packageCommand);
 
-  await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
-
-  return `https://cdn.swapparel.app/${key}.${fileExtension}`;
+  return `https://cdn.swapparel.app/${postId}/${index}`;
 };
 
 export const postRouter = {
@@ -177,16 +184,35 @@ export const postRouter = {
         material: chosenMaterials,
         images: Array.from({ length: 4 }).map(() => makePicsumUrl()),
         hashtags: [],
-        qaEntries: [
+        comments: [
           {
-            question: "Why do some birds migrate thousands of miles every year?",
-            answer:
-              "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
-            followUps: [
+            rootComment: { comment: "Why do some birds migrate thousands of miles every year?", author: "random@example.com" },
+            childReplies: [
               {
-                question: "How do they know which direction to fly?",
-                answer:
-                  " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
+                comment:
+                  "Many birds migrate long distances to reach environments with better food availability and safer breeding conditions, following seasonal patterns that help them survive.",
+                author: "random@example.com",
+              },
+              { comment: "vro what r u talmbt?", author: "random@example.com" },
+            ],
+          },
+
+          {
+            rootComment: { comment: "What is the fastest land animal?", author: "random@example.com" },
+            childReplies: [
+              {
+                comment: "Cheetahs can reach speeds of up to 70 mph (113 km/h) in short bursts.",
+                author: "random@example.com",
+              },
+            ],
+          },
+
+          {
+            rootComment: { comment: "What is the largest animal?", author: "random@example.com" },
+            childReplies: [
+              {
+                comment: "Blue whales are the largest animals on Earth, reaching lengths of up to 100 feet (30 meters).",
+                author: "random@example.com",
               },
             ],
           },
@@ -199,4 +225,63 @@ export const postRouter = {
 
     return true;
   }),
+
+  replyToComment: protectedProcedure.posts.replyToComment.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    try {
+      const result = await PostCollection.updateOne(
+        { _id: input.postId },
+        {
+          $push: {
+            [`comments.${input.commentIndex}.childReplies`]: {
+              comment: input.reply,
+              author: context.user.email,
+            },
+          },
+        }
+      );
+
+      if (result.modifiedCount === 1) {
+        return { success: true };
+      }
+      return { success: false };
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to serialize reply for post with id ${input.postId}. ${error}`,
+        },
+      });
+    }
+  }),
+
+  createNewComment: protectedProcedure.posts.createNewComment.handler(
+    async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+      if (!(input.postId && input.comment)) {
+        throw NOT_FOUND({
+          data: { message: "No Post Found" },
+        });
+      }
+
+      try {
+        const result = await PostCollection.updateOne(
+          { _id: input.postId },
+          {
+            $push: {
+              comments: {
+                rootComment: { comment: input.comment, author: context.user.email },
+                childReplies: [],
+              },
+            },
+          }
+        );
+        if (result.modifiedCount === 1) return { success: true };
+        return { success: false };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: {
+            message: `Failed to add reply to ${input.postId}. ${error}`,
+          },
+        });
+      }
+    }
+  ),
 };
