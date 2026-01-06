@@ -225,4 +225,66 @@ export const postRouter = {
 
     return true;
   }),
+
+  //TODO: fix replyToComment
+  replyToComment: publicProcedure.posts.replyToComment.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    let replyToCommentSuccess = false;
+    if (!input.commentIndex) {
+      throw NOT_FOUND({
+        data: { message: "Invalid Input" },
+      });
+    }
+
+    try {
+      const result = await PostCollection.updateOne({
+        $push: {
+          comments: {
+            $position: input.commentIndex,
+            $push: {
+              childReplies:,
+            },
+          },
+        },
+      });
+      replyToCommentSuccess = result.modifiedCount === 1;
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to add reply to ${input.postId}. ${error}`,
+        },
+      });
+    }
+    if (!replyToCommentSuccess) {
+      return { success: false };
+    }
+    return { success: true };
+  }),
+
+  createNewComment: publicProcedure.posts.createNewComment.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    let createNewCommentSuccess = false;
+    if (!(input.postId && input.comment)) {
+      throw NOT_FOUND({
+        data: { message: "No Post Found" },
+      });
+    }
+
+    try {
+      const result = await PostCollection.updateOne({
+        $push: {
+          comments: { comment: input.comment, author: context.user },
+        },
+      });
+      createNewCommentSuccess = result.modifiedCount === 1;
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: {
+          message: `Failed to add reply to ${input.postId}. ${error}`,
+        },
+      });
+    }
+    if (!createNewCommentSuccess) {
+      return { success: false };
+    }
+    return { success: true };
+  }),
 };

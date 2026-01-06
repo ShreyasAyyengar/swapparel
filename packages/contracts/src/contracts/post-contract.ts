@@ -250,9 +250,17 @@ export const postContract = {
     )
     .output(z.object({ success: z.boolean() }))
     .errors({
-      NOT_FOUND: {},
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
       BAD_REQUEST: {},
-      INTERNAL_SERVER_ERROR: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
     }),
 
   createNewComment: oc
