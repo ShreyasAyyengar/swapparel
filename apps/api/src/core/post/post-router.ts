@@ -1,7 +1,8 @@
 import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
-import { s3, write } from "bun";
+import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
+import { env } from "../../env";
 import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
@@ -24,6 +25,11 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
     fileExtension = "jpg";
     finalMimeType = "image/jpeg";
   }
+  const s3 = new S3Client({
+    accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+    bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
+  });
 
   await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
 
@@ -179,7 +185,7 @@ export const postRouter = {
               {
                 question: "How do they know which direction to fly?",
                 answer:
-                  " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, and even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
+                  " Birds use a mix of cues—Earth’s magnetic field, the position of the sun and stars, andF even familiar landmarks—to navigate incredibly long routes with surprising accuracy.",
               },
             ],
           },
