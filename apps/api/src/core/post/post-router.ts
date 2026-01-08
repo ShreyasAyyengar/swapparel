@@ -82,6 +82,7 @@ export const postRouter = {
     }
   ),
 
+  // TODO convert to idempotent operation { deleted: true/false }
   deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
     if (!post) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });

@@ -3,6 +3,7 @@
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Loader } from "lucide-react";
 import Image from "next/image";
+import { env } from "../../env";
 import { authClient } from "../../lib/auth-client";
 
 // TODO<landing> refactor this to just be a sign in button if no session, else profile skeleton -> profile PFP + dropdown.
@@ -25,14 +26,11 @@ export default function SignInOutButton() {
         variant="ghost"
         className="#bg-[#F2F2F2] rounded-2xl bg-primary text-primary-foreground"
         onClick={() => {
-          authClient.signIn.social(
-            {
-              provider: "google",
-              callbackURL: "http://localhost:3000/feed",
-              errorCallbackURL: "http://localhost:3000/error",
-            },
-            {}
-          );
+          authClient.signIn.social({
+            provider: "google",
+            callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/feed`,
+            errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/error`,
+          });
         }}
       >
         <div className="flex items-center">

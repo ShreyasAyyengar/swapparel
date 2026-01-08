@@ -97,7 +97,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
   }, []);
 
   return (
-    <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
+    <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 border-5 border-lime-500 backdrop-blur-2xl">
       <div className="rounded-2xl border border-foreground">
         <div className="rounded-2xl bg-primary-200/40">
           <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
@@ -152,7 +152,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
           </form>
           <div className="w-auto border" />
           <div className="flex justify-between">
-            <Button className="m-3 mr-5 w-1/8" onClick={closeAction}>
+            <Button className="m-3 mr-5 w-1/8 cursor-pointer" onClick={closeAction}>
               Cancel
             </Button>
 

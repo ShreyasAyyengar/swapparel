@@ -99,6 +99,17 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [setupImageListeners]);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // 🔥 Force layout when returning to route
+    requestAnimationFrame(() => {
+      setupImageListeners(container);
+      scheduleLayout();
+    });
+  }, [scheduleLayout, setupImageListeners]);
+
+  useEffect(() => {
     const handleResize = () => {
       //NOTE: this may lead to optimization issues
       scheduleLayout();
