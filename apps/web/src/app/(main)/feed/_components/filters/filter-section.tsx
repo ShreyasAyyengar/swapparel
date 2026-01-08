@@ -1,3 +1,4 @@
+import { SIZES } from "@swapparel/contracts";
 import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
 import FilterBadge from "./filter-badge";
 
@@ -22,6 +23,12 @@ export default function FilterSection({
     setOnlyBoolean?.(checked);
   };
 
+  let sortedValueArray: string[] = [...valueArray];
+
+  if (valueArray !== SIZES) {
+    sortedValueArray = [...valueArray].sort();
+  }
+
   return (
     <>
       <div className="mb-2 w-auto border" />
@@ -36,7 +43,7 @@ export default function FilterSection({
       </p>
 
       <div className="mb-2">
-        {valueArray.map((value) => (
+        {sortedValueArray.map((value) => (
           <FilterBadge value={value} key={value} selectedFilters={selectedValues} setSelectedFilters={setSelectedArray} />
         ))}
       </div>

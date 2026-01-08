@@ -3,11 +3,13 @@ import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/fie
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@swapparel/shad-ui/components/select";
 import { type FormValues, useFieldContext } from "../create-post-form";
 
-const garmentSelectContent = GARMENT_TYPES.map((size, index) => (
-  <SelectItem key={index} value={size}>
-    {size}
-  </SelectItem>
-));
+const garmentSelectContent = [...GARMENT_TYPES]
+  .sort((a, b) => a.localeCompare(b))
+  .map((type) => (
+    <SelectItem key={type} value={type}>
+      {type}
+    </SelectItem>
+  ));
 
 export default function GarmentField() {
   const field = useFieldContext<FormValues["postData"]["garmentType"]>();
