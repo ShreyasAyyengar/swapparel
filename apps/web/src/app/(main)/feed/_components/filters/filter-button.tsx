@@ -1,10 +1,11 @@
 "use client";
 
-import { SlidersHorizontal } from "lucide-react";
-import { useRef, useState } from "react";
+import {cn} from "@swapparel/shad-ui/lib/utils";
+import {SlidersHorizontal} from "lucide-react";
+import {useRef, useState} from "react";
 import FilterOptions from "./filter-options";
 
-export default function FilterButton() {
+export default function FilterButton({ className = "fixed" }: { className: string }) {
   const [showingFilters, setShowingFilters] = useState(false);
   const toggleFilterOptions = () => setShowingFilters((prev) => !prev);
 
@@ -12,7 +13,7 @@ export default function FilterButton() {
 
   // TODO: create proper hashtag filter to match create post
   return (
-    <div className="fixed">
+    <div className={cn("fixed", className)}>
       <SlidersHorizontal ref={sliderRef} size={37.5} className="hover:cursor-pointer" onClick={toggleFilterOptions} />
       <FilterOptions sliderRef={sliderRef} onClick={toggleFilterOptions} showingFilters={showingFilters} setShowingFilters={setShowingFilters} />
     </div>
