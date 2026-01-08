@@ -2,11 +2,12 @@
 
 import type { internalPostSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import {parseAsString, useQueryState} from "nuqs";
-import {useEffect, useRef, useState} from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
+import { authClient } from "../../../../../../lib/auth-client";
 import TradingBox from "../trading/trade";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
@@ -14,6 +15,21 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
   const [isTrading, setIsTrading] = useState<boolean>(false);
+  const [matchedUser, setMatchedUser] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"; // path to your placeholder
+  const { data } = authClient.useSession();
+
+  useEffect(() => {
+    if (data?.user?.email === post.createdBy) {
+      setMatchedUser(true);
+    } else {
+      setMatchedUser(false);
+    }
+  }, [data, post.createdBy]);
+
+  // if (data) && (data.user.email === whatever) {... render trade button here}
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -47,6 +63,10 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     };
   }, []);
 
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [currentImage]);
+
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
@@ -56,17 +76,24 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         <div className={"grid grid-cols-1 items-center gap-5 xl:grid-cols-2"}>
           <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <div
-              className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
+              className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-hidden rounded-md border-2 border-secondary"
               ref={imageContainerRef}
             >
+              {!imgLoaded && (
+                <Image src={PLACEHOLDER_IMAGE} width={1200} height={1200} alt="LOADING..." className="h-full w-full object-contain" />
+              )}
+
               <Image
                 src={post.images[currentImage] ?? ""}
                 width={1200}
                 height={1200}
-                alt={"expanded-image"}
-                className="flex w-full items-center justify-center"
+                alt="expanded-image"
+                className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoadingComplete={() => setImgLoaded(true)}
+                unoptimized
               />
             </div>
+
             <p className={"absolute bottom-3 left-4 rounded-md bg-black/30 px-2 backdrop-blur-lg"}>
               {currentImage + 1} / {post.images.length}
             </p>
@@ -95,15 +122,17 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         </div>
 
         <br />
-        <div className={"flex items-center"}>
-          <Button
-            className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
-            onClick={() => setIsTrading(true)}
-            disabled={isTrading}
-          >
-            {isTrading ? "Trading..." : "Trade"}
-          </Button>
-        </div>
+        {!matchedUser && (
+          <div className={"flex items-center"}>
+            <Button
+              className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
+              onClick={() => setIsTrading(true)}
+              disabled={isTrading}
+            >
+              {isTrading ? "Trading..." : "Trade"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

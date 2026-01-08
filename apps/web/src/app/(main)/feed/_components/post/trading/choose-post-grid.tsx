@@ -1,5 +1,6 @@
 import type { internalPostSchema } from "@swapparel/contracts";
 import { cn } from "@swapparel/shad-ui/lib/utils";
+import { useQueryState } from "nuqs";
 import type { z } from "zod";
 import DisplayPostThumbnail from "./display-post-thumbnail";
 
@@ -13,6 +14,7 @@ export default function ChoosePostGrid({
   handleTradeSelection: (post: z.infer<typeof internalPostSchema>) => void;
 }) {
   const hasPosts = postsByUser && (postsByUser?.length ?? 0) > 0;
+  const [_, setIsCreating] = useQueryState("create");
 
   // TODO fix resizing:
   return (
@@ -34,7 +36,19 @@ export default function ChoosePostGrid({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-center">
-          <p className="p-5 text-foreground text-sm">Empty State</p>
+          <p className="p-5 text-foreground text-sm">
+            You have not created any posts to trade with.{" "}
+            <span
+              className="underline"
+              onClick={() => setIsCreating("")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") setIsCreating("");
+              }}
+            >
+              Create one now
+            </span>{" "}
+            or trade without selecting a post.
+          </p>
         </div>
       )}
     </div>
