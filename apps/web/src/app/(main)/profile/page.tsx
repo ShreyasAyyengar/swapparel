@@ -1,40 +1,22 @@
 "use client";
 
+import type {internalPostSchema} from "@swapparel/contracts";
+import {useQuery} from "@tanstack/react-query";
 import Image from "next/image";
 import {useEffect, useState} from "react";
+import type {z} from "zod";
+import {webClientORPC} from "../../../lib/orpc-web-client";
 import FilterButton from "../feed/_components/filters/filter-button";
 import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 
 export default function Page() {
-  const MOCK_INTERNAL_POST = {
-    _id: "0192e45c-8b62-7f63-b9b2-5c52c1b42a71", // valid uuidv7 format
-    createdBy: "seller@swapparel.com",
-
-    title: "Vintage Washed Denim Jacket",
-
-    description:
-      "Lightly worn oversized denim jacket with a vintage wash. Perfect for layering in fall and spring. No stains, no tears, smoke-free home.",
-
-    garmentType: "Jackets",
-
-    colour: ["Blue"],
-
-    size: "M",
-
-    material: ["Denim", "Cotton"],
-
-    images: ["https://picsum.photos/200"],
-
-    hashtags: ["#vintage", "#denim", "#streetwear", "#oversized"],
-
-    comments: [],
-
-    price: 65,
-  };
-
   const [mounted, setMounted] = useState(false);
-
+  const { data: posts } = useQuery(
+    webClientORPC.posts.getPosts.queryOptions({
+      input: { createdBy: "althlin@ucsc.edu" },
+    })
+  );
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
@@ -77,9 +59,9 @@ export default function Page() {
         </div>
         <div className={"flex w-full items-center justify-center px-10"}>
           <MasonryLayout>
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
+            {posts?.map((post: z.infer<typeof internalPostSchema>) => (
+              <MasonryElement key={post._id} className={"bg-primary"} postData={post} />
+            ))}
           </MasonryLayout>
         </div>
       </div>
