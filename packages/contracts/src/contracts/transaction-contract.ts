@@ -15,6 +15,8 @@ export const transactionSchema = z.object({
   completed: z.boolean().default(false),
 });
 
+export const transactionSchemaWithAvatar = transactionSchema.extend({ avatarURL: z.string() });
+
 export const transactionContract = {
   createTransaction: oc
     .route({
@@ -77,9 +79,22 @@ export const transactionContract = {
       },
     }),
 
-  addMockTransaction: oc
+  getTransactions: oc
     .route({
       method: "GET",
     })
-    .output(z.boolean()),
+    .output(
+      z.object({
+        initiatedTransactions: z.array(transactionSchemaWithAvatar),
+        receivedTransactions: z.array(transactionSchemaWithAvatar),
+      })
+    )
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
 };

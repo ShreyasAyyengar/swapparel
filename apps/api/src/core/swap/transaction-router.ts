@@ -1,11 +1,10 @@
 import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
-import { logger } from "../../libs/logger";
-import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
+import { protectedProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
+import { UserCollection } from "../users/user-schema";
 import { TransactionCollection } from "./transaction-schema";
 
-// TODO incorporate different types of swaps: e.g. one-way, two-way. etc
 export const transactionRouter = {
   createTransaction: protectedProcedure.transaction.createTransaction.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
@@ -61,6 +60,7 @@ export const transactionRouter = {
     }
   ),
 
+  // TODO
   // deleteTransaction: protectedProcedure.transaction.deleteTransaction.handler(async ({ input, errors }) => {
   //   const swapToDelete = await TransactionCollection.findById(input._id);
   //
@@ -103,54 +103,45 @@ export const transactionRouter = {
   //   return { success: true, message: "Swap Successfully Deleted" };
   // }),
 
-  addMockTransaction: publicProcedure.transaction.addMockTransaction.handler(async ({ input, errors, context }) => {
-    const [mockSellerPostBuffer] = await PostCollection.aggregate([{ $sample: { size: 1 } }, { $project: { _id: 1, createdBy: 1 } }]);
+  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
+    const email = context.user.email;
 
-    const mockSellerPost = mockSellerPostBuffer?._id ?? null;
-    const mockSellerEmail = mockSellerPostBuffer?.createdBy ?? null;
-
-    const [mockBuyerPostBuffer] = await PostCollection.aggregate([
-      { $match: { createdBy: { $ne: mockSellerEmail } } },
-      { $sample: { size: 1 } },
-      { $project: { _id: 1, createdBy: 1 } },
+    const [initiatedTransactions, myPostIds] = await Promise.all([
+      TransactionCollection.find({ buyerEmail: email }).lean(),
+      PostCollection.distinct("_id", { createdBy: email }),
     ]);
 
-    const mockBuyerPost = mockBuyerPostBuffer?._id ?? null;
-    const mockBuyerEmail = mockBuyerPostBuffer?.createdBy ?? null;
+    const initiatedWithAvatars = await Promise.all(
+      initiatedTransactions.map(async (transaction) => {
+        const sellerPost = await PostCollection.findById(transaction.sellerPostID).lean();
+        const sellerUser = sellerPost ? await UserCollection.findOne({ email: sellerPost.createdBy }).lean() : null;
 
-    const mockMessageArray = [
-      "Hello, I am interested in trading!",
-      "Hi, are you willing to sell",
-      "I am looking to trade at McHenry instead if that is okay with you?",
-      "Really cool shirt, would go great with with my pants",
-    ];
-    const randomNum = Math.floor(Math.random() * mockMessageArray.length);
-    const mockMessage = mockMessageArray[randomNum];
+        return {
+          ...transaction,
+          avatarURL: sellerUser?.image ?? "",
+        };
+      })
+    );
 
-    const mockDate = new Date();
-    const mockLocationArray = [
-      "McHenry Library, Santa Cruz, California",
-      "East Field, Santa Cruz, California",
-      "The Crepe Place, Santa Cruz, California",
-      "Santa Cruz Cinema, Santa Cruz, California",
-    ];
-    const randomNumTwo = Math.floor(Math.random() * mockLocationArray.length);
-    const mockLocation = mockLocationArray[randomNumTwo];
-    try {
-      const randomSwapData = {
-        _id: uuidv7(),
-        sellerEmail: mockSellerEmail,
-        buyerEmail: mockBuyerEmail,
-        sellerPostID: mockSellerPost,
-        buyerPostID: mockBuyerPost,
-        messageToSeller: mockMessage,
-        dateToSwap: mockDate,
-        locationToSwap: mockLocation,
-      };
-      await TransactionCollection.insertOne(randomSwapData);
-    } catch (error) {
-      logger.error(`Failed to add mock swap: ${error}`);
-    }
-    return true;
+    const receivedTransactions = await TransactionCollection.find({
+      sellerPostID: { $in: myPostIds },
+    }).lean();
+
+    const receivedWithAvatars = await Promise.all(
+      receivedTransactions.map(async (transaction) => {
+        const buyerPost = await PostCollection.findById(transaction.sellerPostID).lean();
+        const buyerUser = buyerPost ? await UserCollection.findOne({ email: buyerPost.createdBy }).lean() : null;
+
+        return {
+          ...transaction,
+          avatarURL: buyerUser?.image ?? "",
+        };
+      })
+    );
+
+    return {
+      initiatedTransactions: initiatedWithAvatars,
+      receivedTransactions: receivedWithAvatars,
+    };
   }),
 };
