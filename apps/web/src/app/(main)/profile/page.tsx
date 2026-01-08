@@ -1,59 +1,54 @@
 "use client";
 
+import type {internalPostSchema} from "@swapparel/contracts";
+import {useQuery} from "@tanstack/react-query";
 import Image from "next/image";
+import {useEffect, useState} from "react";
+import type {z} from "zod";
+import {webClientORPC} from "../../../lib/orpc-web-client";
 import FilterButton from "../feed/_components/filters/filter-button";
 import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 
 export default function Page() {
-  const MOCK_INTERNAL_POST = {
-    _id: "0192e45c-8b62-7f63-b9b2-5c52c1b42a71", // valid uuidv7 format
-    createdBy: "seller@swapparel.com",
-
-    title: "Vintage Washed Denim Jacket",
-
-    description:
-      "Lightly worn oversized denim jacket with a vintage wash. Perfect for layering in fall and spring. No stains, no tears, smoke-free home.",
-
-    garmentType: "Jackets",
-
-    colour: ["Blue"],
-
-    size: "M",
-
-    material: ["Denim", "Cotton"],
-
-    images: ["https://picsum.photos/200"],
-
-    hashtags: ["#vintage", "#denim", "#streetwear", "#oversized"],
-
-    comments: [],
-
-    price: 65,
-  };
+  const [mounted, setMounted] = useState(false);
+  const { data: posts } = useQuery(
+    webClientORPC.posts.getPosts.queryOptions({
+      input: { createdBy: "althlin@ucsc.edu" },
+    })
+  );
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
-      <div className="mt-5 grid w-1/2 grid-cols-1 justify-items-center rounded-full border border-secondary bg-primary p-5 px-10 text-foreground md:grid-cols-2 md:justify-between md:justify-items-stretch">
-        <Image
-          src="https://picsum.photos/200"
-          alt="profile picture"
-          width="100"
-          height="100"
-          className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0"
-        />
-        <div className="flex flex-col items-center gap-2 md:items-end">
-          <p className="text-center font-bold text-2xl md:text-end">althlin@ucsc.edu</p>
-          <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
-            <div className="flex items-center justify-between">
-              <p>12 Posts</p>
-              <p>Rating: 3/5</p>
+      <div
+        className={`mt-5 grid grid-cols-1 justify-items-center overflow-hidden rounded-full border border-secondary bg-primary p-5 px-10 text-foreground transition-[width] duration-700 ease-out ${mounted ? "w-1/2" : "w-0"} md:grid-cols-2 md:justify-between md:justify-items-stretch`}
+      >
+        {mounted && (
+          <>
+            <Image
+              src="https://picsum.photos/200"
+              alt="profile picture"
+              width="100"
+              height="100"
+              className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0"
+            />
+            <div className="flex flex-col items-center gap-2 md:items-end">
+              <p className="text-center font-bold text-2xl md:text-end">althlin@ucsc.edu</p>
+              <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
+                <div className="flex items-center justify-between">
+                  <p>12 Posts</p>
+                  <p>Rating: 3/5</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p>14 Items Traded</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <p>14 Items Traded</p>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 rounded-md border-2 border-foreground bg-accent">
@@ -64,9 +59,9 @@ export default function Page() {
         </div>
         <div className={"flex w-full items-center justify-center px-10"}>
           <MasonryLayout>
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
-            <MasonryElement className={"bg-primary"} postData={MOCK_INTERNAL_POST} />
+            {posts?.map((post: z.infer<typeof internalPostSchema>) => (
+              <MasonryElement key={post._id} className={"bg-primary"} postData={post} />
+            ))}
           </MasonryLayout>
         </div>
       </div>
