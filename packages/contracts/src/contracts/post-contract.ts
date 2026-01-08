@@ -239,7 +239,7 @@ export const postContract = {
 
   replyToComment: oc
     .route({
-      method: "POST",
+      method: "PUT",
     })
     .input(
       z.object({
@@ -265,7 +265,7 @@ export const postContract = {
 
   createNewComment: oc
     .route({
-      method: "POST",
+      method: "PUT",
     })
     .input(
       z.object({
