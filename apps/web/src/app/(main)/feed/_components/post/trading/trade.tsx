@@ -56,7 +56,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
       buyerEmail: authData.user.email,
       // biome-ignore lint/style/noNonNullAssertion: defined once this is called
       dateToSwap: date!,
-      initialMessage: message,
+      initialMessage: message, // TODO this doesn't work when msg is provided
     });
   };
 
@@ -158,7 +158,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
                         }}
                       >
                         <PopoverTrigger asChild>
-                          <Button variant="outline" id="date-picker" className="justify-between font-mono text-foreground-950">
+                          <Button variant="outline" id="date-picker" className="justify-between border-secondary font-mono text-foreground-950">
                             {date ? date.toLocaleDateString() : "Select date"}
                             <ChevronDownIcon className="" />
                           </Button>
@@ -186,7 +186,15 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
                         id="time-picker"
                         step="60"
                         defaultValue="00:00"
-                        className="appearance-none bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                        className="appearance-none border-secondary bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                        onBlur={(e) => {
+                          e.preventDefault();
+                          const time = e.currentTarget.value;
+                          const [hours, minutes] = time.split(":").map(Number);
+                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                          setDate((prev) => new Date(prev!.setHours(hours!, minutes)));
+                        }}
+                        disabled={!date}
                       />
                     </div>
                   </div>

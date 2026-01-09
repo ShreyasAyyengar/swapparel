@@ -39,15 +39,6 @@ export default function SelectedTrade({
   );
 
   return (
-    <div>
-      <div className="mx-5 mt-5 flex items-start justify-between">
-        {/* Post Title */}
-        <div className="w-fit rounded-md border border-secondary/50 bg-accent p-2 text-center font-bold text-bold text-foreground">
-          {post.title}
-          <div className="mt-2 font-mono text-xs">{post.createdBy}</div>
-        </div>
-
-        {/* Date To Swap */}
         <div className="w-fit rounded-md border border-secondary/50 bg-accent p-2 text-center font-bold text-bold text-foreground">
           <Popover
             onOpenChange={(open) => {
@@ -67,11 +58,13 @@ export default function SelectedTrade({
                   <Button
                     variant="outline"
                     id="date-picker"
-                    className="justify-between font-mono text-foreground-950"
+                    className="justify-between border-secondary font-mono text-foreground-950"
                     disabled={updateTransactionMutation.isPending}
                   >
+                    {updateTransactionMutation.isPending ? <LoaderCircle className="animate-spin" /> : <CalendarIcon />}
+
                     {changeableDate.toLocaleDateString()}
-                    <ChevronDownIcon className="" />
+                    <ChevronDownIcon />
                   </Button>
                 </div>
               </PopoverTrigger>

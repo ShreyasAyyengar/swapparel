@@ -72,7 +72,7 @@ export default function Page() {
   }
 
   return (
-    <div className="align absolute inset-0 mt-[61.5px] flex items-center justify-center">
+    <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
       {/* Side bar */}
       <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
         <Tabs defaultValue="requested">
@@ -95,7 +95,18 @@ export default function Page() {
             </div>
           </TabsContent>
           <TabsContent value="received">
-            <div>Received Trades here</div>
+            <div className="flex flex-col gap-2">
+              {data?.receivedTransactions.map((t) => (
+                <TradeCard
+                  key={t._id}
+                  type="requested"
+                  transaction={{
+                    ...t,
+                    dateToSwap: new Date(t.dateToSwap),
+                  }}
+                />
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
