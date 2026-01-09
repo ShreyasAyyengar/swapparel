@@ -76,7 +76,7 @@ export default function Page() {
               <p className="text-center font-bold text-2xl md:text-end">{profileEmail}</p>
               <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
                 <div className="flex items-center justify-between">
-                  <p>12 Posts</p>
+                  <p>{posts?.length ?? "No"} posts</p>
                   <p>Rating: 3/5</p>
                 </div>
                 <div className="flex items-center justify-between">

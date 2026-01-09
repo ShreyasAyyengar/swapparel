@@ -22,10 +22,6 @@ export default function NoProfile() {
           </>
         )}
       </div>
-
-      <div className="relative mt-10 flex h-[50vh] w-3/4 flex-col items-center justify-center gap-5 rounded-md border-2 border-foreground bg-accent">
-        <p>No Posts</p>
-      </div>
     </div>
   );
 }
