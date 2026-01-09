@@ -16,7 +16,7 @@ export default function Page() {
   const [profileEmail] = useQueryState("profile");
   const { data: posts } = useQuery(
     webClientORPC.posts.getPosts.queryOptions({
-      input: { createdBy: profileEmail ?? "temmplate@ucsc.edu" },
+      input: { createdBy: profileEmail ?? "template@ucsc.edu" },
     })
   );
 
