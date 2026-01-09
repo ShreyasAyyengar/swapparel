@@ -1,5 +1,6 @@
 import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
+import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
 import { UserCollection } from "../users/user-schema";
@@ -144,4 +145,44 @@ export const transactionRouter = {
       receivedTransactions: receivedWithAvatars,
     };
   }),
+
+  updateTransaction: protectedProcedure.transaction.updateTransaction.handler(
+    async ({ input, context, errors: { NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR } }) => {
+      const userEmail = context.user.email;
+
+      // Find the transaction
+      const transaction = await TransactionCollection.findById(input._id);
+
+      if (!transaction) {
+        throw NOT_FOUND({
+          data: { message: `Transaction ${input._id} not found.` },
+        });
+      }
+
+      // Verify user is authorized (buyer or seller)
+      const sellerPost = await PostCollection.findById(transaction.sellerPostID);
+      const isAuthorized = transaction.buyerEmail === userEmail || sellerPost?.createdBy === userEmail;
+
+      if (!isAuthorized) {
+        throw UNAUTHORIZED({
+          data: { message: "User not authorized to update this transaction." },
+        });
+      }
+
+      const updateData: Partial<z.infer<typeof transactionSchema>> = {};
+      if (input.dateToSwap !== undefined) updateData.dateToSwap = input.dateToSwap;
+      if (input.locationToSwap !== undefined) updateData.locationToSwap = input.locationToSwap;
+
+      try {
+        await TransactionCollection.updateOne({ _id: input._id }, { $set: updateData });
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: {
+            message: `Failed to update transaction ${input._id}. ${error}`,
+          },
+        });
+      }
+    }
+  ),
 };
