@@ -114,16 +114,6 @@ export default function Page() {
                     transaction={{
                       ...t,
                       dateToSwap: new Date(t.dateToSwap),
-                      messages: [
-                        {
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          authorEmail: t.messages[0]!.authorEmail,
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          content: t.messages[0]!.content,
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          createdAt: new Date(t.messages[0]!.createdAt),
-                        },
-                      ],
                     }}
                   />
                 ))
@@ -132,26 +122,24 @@ export default function Page() {
           </TabsContent>
           <TabsContent value="received">
             <div className="flex flex-col gap-2">
-              {data?.receivedTransactions.map((t) => (
-                <TradeCard
-                  key={t._id}
-                  type="requested"
-                  transaction={{
-                    ...t,
-                    dateToSwap: new Date(t.dateToSwap),
-                    messages: [
-                      {
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        authorEmail: t.messages[0]!.authorEmail,
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        content: t.messages[0]!.content,
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        createdAt: new Date(t.messages[0]!.createdAt),
-                      },
-                    ],
-                  }}
-                />
-              ))}
+              {showSkeletons ? (
+                <>
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                </>
+              ) : (
+                data?.receivedTransactions.map((t) => (
+                  <TradeCard
+                    key={t._id}
+                    type="received"
+                    transaction={{
+                      ...t,
+                      dateToSwap: new Date(t.dateToSwap),
+                    }}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>

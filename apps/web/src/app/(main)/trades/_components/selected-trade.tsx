@@ -19,7 +19,7 @@ export default function SelectedTrade({
   transaction: z.infer<typeof transactionSchemaWithAvatar>;
   post: z.infer<typeof internalPostSchema>;
 }) {
-  const [changeableDate, setChangeableDate] = useState<Date>(new Date(transaction.dateToSwap));
+  const [changeableDate, setChangeableDate] = useState<Date>(new Date(transaction.dateToSwap ?? ""));
   const [changeableLocation, setChangeableLocation] = useState<string>(transaction.locationToSwap ?? "");
   const router = useRouter();
   const queryClient = useQueryClient();
