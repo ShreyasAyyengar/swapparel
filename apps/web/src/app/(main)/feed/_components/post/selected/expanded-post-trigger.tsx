@@ -18,7 +18,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [matchedUser, setMatchedUser] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"; // path to your placeholder
+  // TODO: copy instagram delete post
   const { data } = authClient.useSession();
 
   useEffect(() => {
