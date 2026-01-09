@@ -43,28 +43,28 @@ export default function Page() {
   }, []);
 
   // validate URL trans ID
-  const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
+  const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
   const [transactionSellerPostId, setTransactionSellerPostId] = useState<string | undefined>(undefined);
   const { activeTrade, setActiveTrade } = useActiveTradeStore();
 
   useEffect(() => {
-    if (!tab) {
+    if (!transactionIdURL) {
       setActiveTrade(undefined);
       return;
     }
 
     return () => setActiveTrade(undefined);
-  }, [tab, setActiveTrade]);
+  }, [transactionIdURL, setActiveTrade]);
 
   useEffect(() => {
-    if (!(data && tab)) return;
+    if (!(data && transactionIdURL)) return;
 
-    // TODO make this associatedTransactions
-    const find = data?.initiatedTransactions.find((t) => t._id === tab);
+    const find =
+      data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
 
     if (find) setTransactionSellerPostId(find.sellerPostID);
     else setTransactionIdURL(null);
-  }, [tab, data, setTransactionIdURL]);
+  }, [transactionIdURL, data, setTransactionIdURL]);
 
   // if URL state pointed to a valid trans ID, fetch seller post.
   const { data: postFromTransactionId } = useQuery(
@@ -77,15 +77,16 @@ export default function Page() {
 
   useEffect(() => {
     if (!postFromTransactionId) return;
-    if (!tab) return;
+    if (!transactionIdURL) return;
 
     setActiveTrade({
       post: postFromTransactionId,
 
-      // biome-ignore lint/style/noNonNullAssertion: only runs if checkedTransactionSellerPost is defined
-      transaction: data!.initiatedTransactions.find((t) => t._id === tab),
+      transaction:
+        data!.initiatedTransactions.find((t) => t._id === transactionIdURL) ??
+        data!.receivedTransactions.find((t) => t._id === transactionIdURL),
     });
-  }, [postFromTransactionId, tab, data, setActiveTrade]);
+  }, [postFromTransactionId, data, setActiveTrade, transactionIdURL]);
 
   const showSkeletons = !authData || isInitialLoading;
 
