@@ -8,7 +8,7 @@ import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
 import SelectedTrade from "./_components/selected-trade";
-import TradeCard from "./_components/trade-card";
+import TradeCard, { TradeCardSkeleton } from "./_components/trade-card";
 import { useActiveTradeStore } from "./_hooks/use-active-trade-store";
 
 export default function Page() {
@@ -64,12 +64,7 @@ export default function Page() {
     });
   }, [postFromTransactionId, transactionIdURL, data]);
 
-  const { activeTrade, setActiveTrade } = useActiveTradeStore();
-
-  // todo put loading skeletons here
-  if (!authData || isInitialLoading) {
-    return <div>Redirecting...</div>;
-  }
+  const showSkeletons = !authData || isInitialLoading;
 
   return (
     <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
@@ -82,16 +77,24 @@ export default function Page() {
           </TabsList>
           <TabsContent value="requested">
             <div className="flex flex-col gap-2">
-              {data?.initiatedTransactions.map((t) => (
-                <TradeCard
-                  key={t._id}
-                  type="requested"
-                  transaction={{
-                    ...t,
-                    dateToSwap: new Date(t.dateToSwap),
-                  }}
-                />
-              ))}
+              {showSkeletons ? (
+                <>
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                </>
+              ) : (
+                data?.initiatedTransactions.map((t) => (
+                  <TradeCard
+                    key={t._id}
+                    type="requested"
+                    transaction={{
+                      ...t,
+                      dateToSwap: new Date(t.dateToSwap),
+                    }}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
           <TabsContent value="received">
