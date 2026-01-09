@@ -1,7 +1,5 @@
 import Link from "next/link";
 import CreatePostHeaderButton from "./create-post-header-button";
-import MenuHeaderButton from "./menu-header-button";
-import MessagesHeaderButton from "./messages-header-button";
 import ProfileButton from "./profile-button";
 import SlimBanner from "./simple-banner-slim.svg";
 import SwapsHeaderButton from "./swaps-header-button";
@@ -18,7 +16,8 @@ export default function Header() {
         />
       </Link>
       <div className="mr-auto flex items-center gap-6">
-        <MenuHeaderButton />
+        {/*<MenuHeaderButton />*/}
+        {/*  TODO<future>: revamp */}
         <ProfileButton />
       </div>
 

@@ -17,7 +17,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [isTrading, setIsTrading] = useState<boolean>(false);
   const [seeTradeButton, setSeeTradeButton] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-
+// TODO: copy instagram delete post
   const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"; // path to your placeholder
   const { data, isPending } = authClient.useSession();
 
