@@ -36,10 +36,14 @@ export default function Page() {
   const [tab, setTab] = useQueryState("tab", parseAsString);
   useEffect(() => {
     if (!tab || (tab !== "requested" && tab !== "received")) setTab("requested");
-  }, [tab, setTab]);
+
+    return () => {
+      setTab(null);
+    };
+  }, []);
 
   // validate URL trans ID
-  const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
+  const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
   const [transactionSellerPostId, setTransactionSellerPostId] = useState<string | undefined>(undefined);
   const { activeTrade, setActiveTrade } = useActiveTradeStore();
 
@@ -110,6 +114,16 @@ export default function Page() {
                     transaction={{
                       ...t,
                       dateToSwap: new Date(t.dateToSwap),
+                      messages: [
+                        {
+                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                          authorEmail: t.messages[0]!.authorEmail,
+                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                          content: t.messages[0]!.content,
+                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                          createdAt: new Date(t.messages[0]!.createdAt),
+                        },
+                      ],
                     }}
                   />
                 ))
@@ -125,6 +139,16 @@ export default function Page() {
                   transaction={{
                     ...t,
                     dateToSwap: new Date(t.dateToSwap),
+                    messages: [
+                      {
+                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                        authorEmail: t.messages[0]!.authorEmail,
+                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                        content: t.messages[0]!.content,
+                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
+                        createdAt: new Date(t.messages[0]!.createdAt),
+                      },
+                    ],
                   }}
                 />
               ))}
