@@ -100,7 +100,7 @@ export const postRouter = {
     return { success: true };
   }),
 
-  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
+  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
     PostCollection.find({ createdBy: input.createdBy })
   ),
 
