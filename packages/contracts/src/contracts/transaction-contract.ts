@@ -97,4 +97,39 @@ export const transactionContract = {
         }),
       },
     }),
+
+  updateTransaction: oc
+    .route({
+      method: "PATCH",
+    })
+    .input(
+      z.object({
+        _id: z.uuidv7(),
+        dateToSwap: z.coerce.date().optional(),
+        locationToSwap: z.string().optional(),
+        // Add other fields you want to allow updating
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      UNAUTHORIZED: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
 };
