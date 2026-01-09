@@ -1,13 +1,13 @@
 "use client";
 
-import type { internalPostSchema } from "@swapparel/contracts";
-import { Button } from "@swapparel/shad-ui/components/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {Button} from "@swapparel/shad-ui/components/button";
+import {ChevronLeft, ChevronRight} from "lucide-react";
 import Image from "next/image";
-import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useRef, useState } from "react";
+import {parseAsString, useQueryState} from "nuqs";
+import {useEffect, useRef, useState} from "react";
 import type z from "zod";
-import { authClient } from "../../../../../../lib/auth-client";
+import {authClient} from "../../../../../../lib/auth-client";
 import TradingBox from "../trading/trade";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
@@ -78,7 +78,10 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
               ref={imageContainerRef}
             >
               {!imgLoaded && (
-                <Image src={PLACEHOLDER_IMAGE} width={1200} height={1200} alt="LOADING..." className="h-full w-full object-contain" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-full w-full animate-pulse bg-muted" />
+                  <p className={"absolute"}>Loading...</p>
+                </div>
               )}
 
               <Image
