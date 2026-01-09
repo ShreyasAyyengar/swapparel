@@ -10,7 +10,6 @@ export default function FilterButton() {
 
   const sliderRef = useRef<SVGSVGElement | null>(null);
 
-  // TODO: create proper hashtag filter to match create post
   return (
     <div className="fixed">
       <SlidersHorizontal ref={sliderRef} size={37.5} className="hover:cursor-pointer" onClick={toggleFilterOptions} />

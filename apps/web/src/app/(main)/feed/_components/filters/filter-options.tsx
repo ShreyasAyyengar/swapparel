@@ -96,7 +96,6 @@ function FilterOptions({
         <FilterSection title="Size" valueArray={SIZES} selectedValues={sizes} setSelectedArray={setSize} matchOnly={false} />
         <FilterPriceSection />
         <FilterHashtags hashtagList={hashtags} setHashtagList={setHashtag} setOnlyHashtag={setHashtagOnly} onlyHashtag={hashtagOnly} />
-        {/*TODO: Clear all filters button*/}
       </div>
     )
   );

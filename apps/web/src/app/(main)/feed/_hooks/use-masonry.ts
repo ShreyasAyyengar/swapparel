@@ -127,7 +127,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
-      // console.log("mutation observer fired");
       let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
