@@ -1,28 +1,51 @@
 "use client";
 
-import type {internalPostSchema} from "@swapparel/contracts";
-import {useQuery} from "@tanstack/react-query";
+import type { internalPostSchema } from "@swapparel/contracts";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import {useQueryState} from "nuqs";
-import {useEffect, useState} from "react";
-import type {z} from "zod";
-import {webClientORPC} from "../../../lib/orpc-web-client";
+import { useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
+import type { z } from "zod";
+import { env } from "../../../env";
+import { authClient } from "../../../lib/auth-client";
+import { webClientORPC } from "../../../lib/orpc-web-client";
 import FilterButton from "../feed/_components/filters/filter-button";
 import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 
 export default function Page() {
-  const [mounted, setMounted] = useState(false);
   const [profileEmail] = useQueryState("profile");
+  const { data: authData, isPending } = authClient.useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
+
   const { data: posts } = useQuery(
     webClientORPC.posts.getPosts.queryOptions({
       input: { createdBy: profileEmail ?? "template@ucsc.edu" },
     })
   );
 
-  useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
+  const { data: profileData } = useQuery(
+    webClientORPC.users.getUser.queryOptions({
+      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
+      input: { email: profileEmail! },
+      enabled: !!profileEmail,
+    })
+  );
+
+  if (!(profileEmail || isPending || authData)) {
+    authClient.signIn.social({
+      provider: "google",
+      callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/trades`,
+      errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error`,
+    });
+    return null; // TODO: show loading skeleton
+  }
+
+  if (!profileData) return <div> Profile not found </div>;
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
@@ -31,13 +54,7 @@ export default function Page() {
       >
         {mounted && (
           <>
-            <Image
-              src="https://picsum.photos/200"
-              alt="profile picture"
-              width="100"
-              height="100"
-              className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0"
-            />
+            <Image src={profileData.image} alt="profile picture" width="100" height="100" className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0" />
             <div className="flex flex-col items-center gap-2 md:items-end">
               <p className="text-center font-bold text-2xl md:text-end">{profileEmail}</p>
               <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
