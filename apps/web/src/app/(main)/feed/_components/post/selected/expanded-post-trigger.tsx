@@ -15,21 +15,19 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
   const [isTrading, setIsTrading] = useState<boolean>(false);
-  const [matchedUser, setMatchedUser] = useState(false);
+  const [seeTradeButton, setSeeTradeButton] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"; // path to your placeholder
-  const { data } = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
 
   useEffect(() => {
-    if (data?.user?.email === post.createdBy) {
-      setMatchedUser(true);
-    } else {
-      setMatchedUser(false);
-    }
-  }, [data, post.createdBy]);
+    if (isPending) return;
+    if (!data?.user.email) return;
+    if (!data?.session) return;
 
-  // if (data) && (data.user.email === whatever) {... render trade button here}
+    if (data.user.email !== post.createdBy) setSeeTradeButton(true);
+  }, [data, isPending, post.createdBy]);
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -122,7 +120,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         </div>
 
         <br />
-        {!matchedUser && (
+        {seeTradeButton && (
           <div className={"flex items-center"}>
             <Button
               className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
