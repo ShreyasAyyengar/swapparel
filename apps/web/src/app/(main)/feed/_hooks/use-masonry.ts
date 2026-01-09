@@ -72,7 +72,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
             first20.forEach((child) => {
               child.classList.remove("opacity-0");
               child.classList.add("opacity-100");
-              console.log("FORCE HELLO");
             });
 
             // Remove the first 20 from the Set
@@ -97,7 +96,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           newChildrenRef.current.forEach((child) => {
             child.classList.remove("opacity-0");
             child.classList.add("opacity-100");
-            console.log("HELLO");
           });
 
           // Clear the set after updating
