@@ -3,6 +3,7 @@
 import type {internalPostSchema} from "@swapparel/contracts";
 import {useQuery} from "@tanstack/react-query";
 import Image from "next/image";
+import {useQueryState} from "nuqs";
 import {useEffect, useState} from "react";
 import type {z} from "zod";
 import {webClientORPC} from "../../../lib/orpc-web-client";
@@ -12,11 +13,13 @@ import MasonryLayout from "../feed/_components/post/masonry-layout";
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);
+  const [profileEmail] = useQueryState("profile");
   const { data: posts } = useQuery(
     webClientORPC.posts.getPosts.queryOptions({
-      input: { createdBy: "althlin@ucsc.edu" },
+      input: { createdBy: profileEmail ?? "temmplate@ucsc.edu" },
     })
   );
+
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
@@ -36,7 +39,7 @@ export default function Page() {
               className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0"
             />
             <div className="flex flex-col items-center gap-2 md:items-end">
-              <p className="text-center font-bold text-2xl md:text-end">althlin@ucsc.edu</p>
+              <p className="text-center font-bold text-2xl md:text-end">{profileEmail}</p>
               <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
                 <div className="flex items-center justify-between">
                   <p>12 Posts</p>
