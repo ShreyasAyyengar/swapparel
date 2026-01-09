@@ -2,7 +2,7 @@
 
 import type {internalPostSchema} from "@swapparel/contracts";
 import {Button} from "@swapparel/shad-ui/components/button";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import {ChevronLeft, ChevronRight, Ellipsis} from "lucide-react";
 import Image from "next/image";
 import {parseAsString, useQueryState} from "nuqs";
 import {useEffect, useRef, useState} from "react";
@@ -69,6 +69,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       <div className="relative max-h-[83vh] w-1/2 items-center overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 pt-5 text-foreground">
+        <Ellipsis className={"absolute top-5 right-5"} />
         <p className="mx-5 mt-0 mb-3 text-center font-bold text-2xl">{post.title}</p>
 
         <div className={"mb-3 w-full border-secondary border-t"} />
