@@ -43,7 +43,7 @@ export const PUBLIC_LOCATIONS = {
 };
 
 export const messageSchema = z.object({
-  createdAt: z.coerce.date(),
+  createdAt: z.string(),
   authorEmail: z.string(), // TODO change to email
   content: z.string().max(MESSAGE_MAX_LENGTH),
 });
