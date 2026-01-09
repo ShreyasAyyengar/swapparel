@@ -9,7 +9,7 @@ export default function ProfileButton() {
 
   const handleClick = () => {
     const email = authData?.user?.email ?? "test@ucsc.edu";
-    router.push(`/profile?profile=${encodeURIComponent(email)}`);
+    router.push(`/profile?profile=${encodeURIComponent(email)}`); //TODO: encodeURI???
   };
   return (
     <User
