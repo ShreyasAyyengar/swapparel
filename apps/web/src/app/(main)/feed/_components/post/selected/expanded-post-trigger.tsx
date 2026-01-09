@@ -15,7 +15,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
   const [isTrading, setIsTrading] = useState<boolean>(false);
-  const [seeTradeButton, setSeeTradeButton] = useState(false);
+  const [canSeeButton, setCanSeeButton] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   // TODO: copy instagram delete post
   const { data, isPending } = authClient.useSession();
@@ -25,7 +25,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     if (!data?.user.email) return;
     if (!data?.session) return;
 
-    if (data.user.email !== post.createdBy) setSeeTradeButton(true);
+    if (data.user.email !== post.createdBy) setCanSeeButton(true);
   }, [data, isPending, post.createdBy]);
 
   const handleClose = async () => {
@@ -124,7 +124,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
         </div>
 
         <br />
-        {seeTradeButton && (
+        {canSeeButton && (
           <div className={"flex items-center"}>
             <Button
               className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
