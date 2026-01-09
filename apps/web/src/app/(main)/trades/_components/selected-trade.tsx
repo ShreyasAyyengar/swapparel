@@ -39,6 +39,7 @@ export default function SelectedTrade({
   );
 
   return (
+    <div className={"flex h-full flex-col"}>
         <div className="w-fit rounded-md border border-secondary/50 bg-accent p-2 text-center font-bold text-bold text-foreground">
           <Popover
             onOpenChange={(open) => {
@@ -88,6 +89,7 @@ export default function SelectedTrade({
           <div>{updateTransactionMutation.isPending ? "Updating..." : "Location To Swap: "}</div>
         </div>
       </div>
+      <Chat />
     </div>
   );
 }
