@@ -1,6 +1,6 @@
-import type { internalPostSchema } from "@swapparel/contracts";
-import { Badge } from "@swapparel/shad-ui/components/badge";
-import type { z } from "zod";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {Badge} from "@swapparel/shad-ui/components/badge";
+import type {z} from "zod";
 import CommentInput from "./comment-input";
 import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
@@ -60,7 +60,8 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       </p>
       <hr className="my-2 border-foreground border-t-2" />
       <p className="font-bold">Comments:</p>
-      {post.comments.length < 1 ? <CommentInput post={post} /> : <Comments post={post} />}
+      {post.comments.length > 0 && <CommentInput sentence={"Add a new comment!"} post={post} />}
+      {post.comments.length < 1 ? <CommentInput sentence={"Be the first to comment!"} post={post} /> : <Comments post={post} />}
     </ExpandedPostTrigger>
   );
 }
