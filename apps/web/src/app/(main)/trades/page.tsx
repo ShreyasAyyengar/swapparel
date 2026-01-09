@@ -32,37 +32,56 @@ export default function Page() {
     })
   );
 
+  // validate tab
+  const [tab, setTab] = useQueryState("tab", parseAsString);
+  useEffect(() => {
+    if (!tab || (tab !== "requested" && tab !== "received")) setTab("requested");
+  }, [tab, setTab]);
+
   // validate URL trans ID
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const [transactionSellorPostId, setTransactionSellorPostId] = useState<string | undefined>(undefined);
+  const [transactionSellerPostId, setTransactionSellerPostId] = useState<string | undefined>(undefined);
+  const { activeTrade, setActiveTrade } = useActiveTradeStore();
+
   useEffect(() => {
-    if (!(data && transactionIdURL)) return;
+    if (!tab) {
+      setActiveTrade(undefined);
+      return;
+    }
+
+    return () => setActiveTrade(undefined);
+  }, [tab, setActiveTrade]);
+
+  useEffect(() => {
+    if (!(data && tab)) return;
 
     // TODO make this associatedTransactions
-    const find = data?.initiatedTransactions.find((t) => t._id === transactionIdURL);
+    const find = data?.initiatedTransactions.find((t) => t._id === tab);
 
-    if (find) setTransactionSellorPostId(find.sellerPostID);
+    if (find) setTransactionSellerPostId(find.sellerPostID);
     else setTransactionIdURL(null);
-  }, [transactionIdURL, data?.initiatedTransactions.find]);
+  }, [tab, data, setTransactionIdURL]);
 
   // if URL state pointed to a valid trans ID, fetch seller post.
   const { data: postFromTransactionId } = useQuery(
     webClientORPC.posts.getPost.queryOptions({
       // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
-      input: { _id: transactionSellorPostId! },
-      enabled: !!transactionSellorPostId,
+      input: { _id: transactionSellerPostId! },
+      enabled: !!transactionSellerPostId,
     })
   );
 
   useEffect(() => {
     if (!postFromTransactionId) return;
-    useActiveTradeStore.getState().setActiveTrade({
+    if (!tab) return;
+
+    setActiveTrade({
       post: postFromTransactionId,
 
       // biome-ignore lint/style/noNonNullAssertion: only runs if checkedTransactionSellerPost is defined
-      transaction: data!.initiatedTransactions.find((t) => t._id === transactionIdURL),
+      transaction: data!.initiatedTransactions.find((t) => t._id === tab),
     });
-  }, [postFromTransactionId, transactionIdURL, data]);
+  }, [postFromTransactionId, tab, data, setActiveTrade]);
 
   const showSkeletons = !authData || isInitialLoading;
 

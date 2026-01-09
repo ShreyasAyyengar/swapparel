@@ -3,12 +3,16 @@
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { parseAsString, useQueryState } from "nuqs";
 import random from "random";
 import { useState } from "react";
 
 export default function SwapsHeaderButton() {
   const router = useRouter();
-  const openTrades = () => {
+  const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
+
+  const openTrades = async () => {
+    await setTransactionIdURL(null); // dumbahh nuqs doesn't wanna listen to router changes.
     router.push("/trades");
   };
 

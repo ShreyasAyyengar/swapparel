@@ -42,7 +42,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
   const createTradeMutation = useMutation(
     webClientORPC.transaction.createTransaction.mutationOptions({
       onSuccess: ({ _id }) => {
-        router.push(`/trades/${_id}`);
+        router.push(`/trades?trade=${_id}`);
       },
     })
   );
