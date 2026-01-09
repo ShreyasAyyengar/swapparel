@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import {useCallback, useEffect, useLayoutEffect, useRef} from "react";
 
 export function useMasonry({ gap = 16 }: { gap: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
+  const newChildrenRef = useRef<Set<HTMLElement>>(new Set());
 
   const COLUMN_MIN = 240;
 
@@ -56,10 +57,15 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         requestAnimationFrame(() => {
           const container = containerRef.current;
           if (!container) return;
-          Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).classList.remove("opacity-0");
-            (child as HTMLElement).classList.add("opacity-100");
+
+          // Only update opacity for new children
+          newChildrenRef.current.forEach((child) => {
+            child.classList.remove("opacity-0");
+            child.classList.add("opacity-100");
           });
+
+          // Clear the set after updating
+          newChildrenRef.current.clear();
         });
       }
     },
@@ -135,6 +141,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           changedChildren = true;
           // node.classList.remove("opacity-100");
           node.classList.add("transition-opacity", "duration-500", "ease-in", "opacity-0");
+          newChildrenRef.current.add(node);
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {
