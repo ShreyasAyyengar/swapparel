@@ -1,7 +1,8 @@
-import type { singleCommentSchema } from "@swapparel/contracts";
-import { Badge } from "@swapparel/shad-ui/components/badge";
-import { Reply } from "lucide-react";
-import type { z } from "zod";
+import type {singleCommentSchema} from "@swapparel/contracts";
+import {Badge} from "@swapparel/shad-ui/components/badge";
+import {Reply} from "lucide-react";
+import {useRouter} from "next/navigation";
+import type {z} from "zod";
 
 type SingleCommentProps = {
   comment: z.infer<typeof singleCommentSchema>;
@@ -10,9 +11,17 @@ type SingleCommentProps = {
 };
 
 export default function Comment({ comment, index, onClick }: SingleCommentProps) {
+  const router = useRouter();
+
+  const sendToProfile = () => {
+    const email = comment.author;
+    router.push(`/profile?profile=${encodeURIComponent(email)}`);
+  };
   return (
     <div className="rounded-md p-1">
-      <Badge className="mr-2 bg-black/60">{comment.author}</Badge>
+      <Badge className="mr-2 cursor-pointer bg-black/60 hover:underline" onClick={sendToProfile}>
+        {comment.author}
+      </Badge>
       <br />
       <div
         className={"cursor-pointer rounded-md p-1 hover:bg-accent-200 hover:backdrop-blur-md"}
