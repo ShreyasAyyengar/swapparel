@@ -9,7 +9,6 @@ import type {z} from "zod";
 import {env} from "../../../env";
 import {authClient} from "../../../lib/auth-client";
 import {webClientORPC} from "../../../lib/orpc-web-client";
-import FilterButton from "../feed/_components/filters/filter-button";
 import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 import ExpandedPostLayer from "../feed/_components/post/selected/expanded-post-layer";
@@ -90,7 +89,6 @@ export default function Page() {
 
       {posts && posts.length > 0 ? (
         <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 rounded-md border-2 border-foreground bg-accent">
-          <FilterButton className={"absolute top-5 left-10 z-1"} />
           <div>
             <p className={"mt-5 font-bold text-2xl"}>POSTS</p>
             <div className="w-full border border-foreground" />
