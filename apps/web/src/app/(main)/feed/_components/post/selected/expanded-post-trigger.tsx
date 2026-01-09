@@ -70,11 +70,13 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
       {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       <div className="relative max-h-[83vh] w-1/2 items-center overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 pt-5 text-foreground">
-        <p className="m-5 mt-0 text-center font-bold text-2xl">{post.title}</p>
+        <p className="mx-5 mt-0 mb-3 text-center font-bold text-2xl">{post.title}</p>
+
+        <div className={"mb-3 w-full border-secondary border-t"} />
         <div className={"grid grid-cols-1 items-center gap-5 xl:grid-cols-2"}>
           <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <div
-              className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-hidden rounded-md border-2 border-secondary"
+              className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
               ref={imageContainerRef}
             >
               {!imgLoaded && (
