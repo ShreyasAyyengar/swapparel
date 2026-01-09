@@ -10,8 +10,8 @@ export const transactionSchema = z.object({
   buyerEmail: z.email("Buyer's email is required."),
   buyerPostIDs: z.array(internalPostSchema.shape._id).optional(), // personal posts that viewing user wants to give away
   dateToSwap: z.coerce.date(),
-  locationToSwap: z.string().optional(),
-  messages: z.array(z.string().max(MESSAGE_MAX_LENGTH)),
+  locationToSwap: z.union([z.enum(Object.keys(PUBLIC_LOCATIONS)), z.string()]).optional(),
+  messages: z.array(messageSchema),
   completed: z.boolean().default(false),
 });
 
@@ -105,9 +105,8 @@ export const transactionContract = {
     .input(
       z.object({
         _id: z.uuidv7(),
-        dateToSwap: z.coerce.date().optional(),
-        locationToSwap: z.string().optional(),
-        // Add other fields you want to allow updating
+        dateToSwap: transactionSchema.shape.dateToSwap.optional(),
+        locationToSwap: transactionSchema.shape.locationToSwap.optional(),
       })
     )
     .output(
