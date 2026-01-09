@@ -25,51 +25,54 @@ export default function Page() {
     });
   }, [authData, isPending]);
 
-  // predefined trade ID in URL:
-  const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const { data, isFetching } = useQuery(
+  // fetch all transactions
+  const { data, isInitialLoading } = useQuery(
     webClientORPC.transaction.getTransactions.queryOptions({
       enabled: !!authData, // this request is a protectedProcedure, do not enable until auth is confirmed
     })
   );
 
-  // validate the URL id
-  const [checkedTransactionId, setCheckedTransactionId] = useState<string | undefined>(undefined);
+  // validate URL trans ID
+  const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
+  const [transactionSellorPostId, setTransactionSellorPostId] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (!(data && transactionIdURL)) return;
 
+    // TODO make this associatedTransactions
     const find = data?.initiatedTransactions.find((t) => t._id === transactionIdURL);
 
-    if (find) setCheckedTransactionId(find.sellerPostID);
+    if (find) setTransactionSellorPostId(find.sellerPostID);
     else setTransactionIdURL(null);
   }, [transactionIdURL, data?.initiatedTransactions.find]);
 
+  // if URL state pointed to a valid trans ID, fetch seller post.
   const { data: postFromTransactionId } = useQuery(
     webClientORPC.posts.getPost.queryOptions({
       // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
-      input: { _id: checkedTransactionId! },
-      enabled: !!checkedTransactionId,
+      input: { _id: transactionSellorPostId! },
+      enabled: !!transactionSellorPostId,
     })
   );
+
   useEffect(() => {
     if (!postFromTransactionId) return;
-    if (!checkedTransactionId) return;
     useActiveTradeStore.getState().setActiveTrade({
       post: postFromTransactionId,
-      // biome-ignore lint/style/noNonNullAssertion: only runs if checkedTransactionId is defined
-      transaction: data!.initiatedTransactions.find((t) => t._id === checkedTransactionId),
+
+      // biome-ignore lint/style/noNonNullAssertion: only runs if checkedTransactionSellerPost is defined
+      transaction: data!.initiatedTransactions.find((t) => t._id === transactionIdURL),
     });
-  }, [postFromTransactionId, checkedTransactionId, data]);
+  }, [postFromTransactionId, transactionIdURL, data]);
 
   const { activeTrade, setActiveTrade } = useActiveTradeStore();
 
   // todo put loading skeletons here
-  if (!authData || isFetching) {
+  if (!authData || isInitialLoading) {
     return <div>Redirecting...</div>;
   }
 
   return (
-    <div className="align absolute inset-0 mt-[61.5px] flex items-center justify-center border border-red-500">
+    <div className="align absolute inset-0 mt-[61.5px] flex items-center justify-center">
       {/* Side bar */}
       <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
         <Tabs defaultValue="requested">
@@ -98,7 +101,7 @@ export default function Page() {
       </div>
 
       {/* Main panel */}
-      <div className="mr-80 h-175 w-full border border-orange-500 bg-neutral-900">
+      <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
         {activeTrade ? (
           <SelectedTrade transaction={activeTrade.transaction} post={activeTrade.post} />
         ) : (
