@@ -2,6 +2,7 @@ import type {singleCommentSchema} from "@swapparel/contracts";
 import {Badge} from "@swapparel/shad-ui/components/badge";
 import {Reply} from "lucide-react";
 import {useRouter} from "next/navigation";
+import {parseAsString, useQueryState} from "nuqs";
 import type {z} from "zod";
 
 type SingleCommentProps = {
@@ -11,9 +12,11 @@ type SingleCommentProps = {
 };
 
 export default function Comment({ comment, index, onClick }: SingleCommentProps) {
+  const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const router = useRouter();
 
-  const sendToProfile = () => {
+  const sendToProfile = async () => {
+    await setSelectedPost(null);
     const email = comment.author;
     router.push(`/profile?profile=${encodeURIComponent(email)}`);
   };
