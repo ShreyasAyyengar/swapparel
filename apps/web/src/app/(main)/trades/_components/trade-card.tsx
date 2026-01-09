@@ -11,7 +11,7 @@ export default function TradeCard({
   type,
   transaction,
 }: {
-  type: "requested" | "received";
+  type: "sent" | "received";
   transaction: z.infer<typeof transactionSchemaWithAvatar>;
 }) {
   const { data: postData } = useQuery(
@@ -30,7 +30,9 @@ export default function TradeCard({
 
   return (
     <div
-      onClick={() => setTransactionIdURL(transaction._id)}
+      onClick={() => {
+        setTransactionIdURL(transaction._id);
+      }}
       onKeyDown={(e) => {
         if (e.key === "Enter") setTransactionIdURL(transaction._id);
       }}
@@ -43,7 +45,7 @@ export default function TradeCard({
         <Image src={transaction.avatarURL} alt="Avatar" className="mr-2 rounded-full" width={32} height={32} />
         <div className="flex flex-col">
           <div className="font-bold">{postData?.title}</div>
-          <div className="text-xs">{type === "requested" ? `sent to: ${postData?.createdBy}` : `received from ${transaction.buyerEmail}`}</div>
+          <div className="text-xs">{type === "sent" ? `sent to: ${postData?.createdBy}` : `received from ${transaction.buyerEmail}`}</div>
         </div>
       </div>
     </div>

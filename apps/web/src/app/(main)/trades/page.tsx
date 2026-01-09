@@ -35,7 +35,7 @@ export default function Page() {
   // validate tab
   const [tab, setTab] = useQueryState("tab", parseAsString);
   useEffect(() => {
-    if (!tab || (tab !== "requested" && tab !== "received")) setTab("requested");
+    if (!tab || (tab !== "sent" && tab !== "received")) setTab("sent");
 
     return () => {
       setTab(null);
@@ -93,12 +93,12 @@ export default function Page() {
     <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
       {/* Side bar */}
       <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
-        <Tabs defaultValue="requested">
+        <Tabs defaultValue={tab ?? "sent"} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="requested">Requested</TabsTrigger>
+            <TabsTrigger value="sent">Sent</TabsTrigger>
             <TabsTrigger value="received">Received</TabsTrigger>
           </TabsList>
-          <TabsContent value="requested">
+          <TabsContent value="sent">
             <div className="flex flex-col gap-2">
               {showSkeletons ? (
                 <>
@@ -110,7 +110,7 @@ export default function Page() {
                 data?.initiatedTransactions.map((t) => (
                   <TradeCard
                     key={t._id}
-                    type="requested"
+                    type="sent"
                     transaction={{
                       ...t,
                       dateToSwap: new Date(t.dateToSwap),
