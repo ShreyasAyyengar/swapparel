@@ -13,14 +13,18 @@ export const transactionRouter = {
 
       // Fetch all data upfront in parallel
       const [sellerPost, buyerUser, buyerPosts] = await Promise.all([
-        PostCollection.findById(input.sellerPost._id).lean(),
+        PostCollection.findById(input.sellerPost.id).select("_id title createdBy").lean(),
         UserCollection.findOne({ email: buyerEmail }).lean(),
-        input.buyerPosts ? PostCollection.find({ _id: { $in: input.buyerPosts.map((p) => p._id) } }).lean() : Promise.resolve([]),
+        input.buyerPosts
+          ? PostCollection.find({ _id: { $in: input.buyerPosts.map((p) => p.id) } })
+              .select("_id title createdBy")
+              .lean()
+          : Promise.resolve([]),
       ]);
 
       if (!sellerPost) {
         throw NOT_FOUND({
-          data: { message: `Seller post ${input.sellerPost._id} not found.` },
+          data: { message: `Seller post ${input.sellerPost.id} not found.` },
         });
       }
 
@@ -47,7 +51,7 @@ export const transactionRouter = {
 
       const _id = uuidv7();
 
-      const transactionData = {
+      const transactionData: z.infer<typeof transactionSchema> = {
         _id,
 
         // Embedded seller data
@@ -56,7 +60,7 @@ export const transactionRouter = {
           avatarURL: sellerUser.image,
         },
         sellerPost: {
-          _id: sellerPost._id,
+          id: sellerPost._id,
           title: sellerPost.title,
           createdBy: sellerPost.createdBy,
         },
@@ -67,7 +71,7 @@ export const transactionRouter = {
           avatarURL: buyerUser.image,
         },
         buyerPosts: buyerPosts.map((post) => ({
-          _id: post._id,
+          id: post._id,
           title: post.title,
           createdBy: post.createdBy,
         })),
@@ -182,8 +186,8 @@ export const transactionRouter = {
         });
       }
 
-      const sellerPost = await PostCollection.findById(transaction.sellerPostID);
-      const isAuthorized = transaction.buyerEmail === userEmail || sellerPost?.createdBy === userEmail;
+      const sellerPost = await PostCollection.findById(transaction.sellerPost.id);
+      const isAuthorized = transaction.buyer.email === userEmail || sellerPost?.createdBy === userEmail;
 
       if (!isAuthorized) {
         throw UNAUTHORIZED({
