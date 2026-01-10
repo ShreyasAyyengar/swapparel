@@ -4,11 +4,7 @@ import { publicProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
 
 export const feedRouter = {
-  getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    if (context?.user?.email === "althlin@ucsc.edu") {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-    }
-
+  getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
     const limit = input.amount;
 
     // start *at* nextAvailablePost because it was not returned previously
