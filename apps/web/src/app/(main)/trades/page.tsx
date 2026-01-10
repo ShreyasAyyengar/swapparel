@@ -3,12 +3,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
 import SelectedTrade from "./_components/selected-trade";
-import TradeCard, { TradeCardSkeleton } from "./_components/trade-card";
+import TradeCard from "./_components/trade-card";
 import { useActiveTradeStore } from "./_hooks/use-active-trade-store";
 
 export default function Page() {
@@ -25,13 +25,6 @@ export default function Page() {
     });
   }, [authData, isPending]);
 
-  // fetch all transactions
-  const { data, isInitialLoading } = useQuery(
-    webClientORPC.transaction.getTransactions.queryOptions({
-      enabled: !!authData, // this request is a protectedProcedure, do not enable until auth is confirmed
-    })
-  );
-
   // validate tab
   const [tab, setTab] = useQueryState("tab", parseAsString);
   useEffect(() => {
@@ -42,9 +35,15 @@ export default function Page() {
     };
   }, []);
 
+  // fetch all transactions
+  const { data, isInitialLoading } = useQuery(
+    webClientORPC.transaction.getTransactions.queryOptions({
+      enabled: !!authData, // this request is a protectedProcedure, do not enable until auth is confirmed
+    })
+  );
+
   // validate URL trans ID
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const [transactionSellerPostId, setTransactionSellerPostId] = useState<string | undefined>(undefined);
   const { activeTrade, setActiveTrade } = useActiveTradeStore();
 
   useEffect(() => {
@@ -62,32 +61,11 @@ export default function Page() {
     const find =
       data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
 
-    if (find) setTransactionSellerPostId(find.sellerPostID);
-    else setTransactionIdURL(null);
-  }, [transactionIdURL, data, setTransactionIdURL]);
-
-  // if URL state pointed to a valid trans ID, fetch seller post.
-  const { data: postFromTransactionId } = useQuery(
-    webClientORPC.posts.getPost.queryOptions({
-      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
-      input: { _id: transactionSellerPostId! },
-      enabled: !!transactionSellerPostId,
-    })
-  );
-
-  useEffect(() => {
-    if (!postFromTransactionId) return;
-    if (!transactionIdURL) return;
-
-    setActiveTrade({
-      post: postFromTransactionId,
-
-      transaction:
-        data!.initiatedTransactions.find((t) => t._id === transactionIdURL) ??
-        data!.receivedTransactions.find((t) => t._id === transactionIdURL),
-    });
-    console.log("just set an active trade to ", transactionIdURL);
-  }, [postFromTransactionId, data, setActiveTrade, transactionIdURL]);
+    // no mapping to actual trade
+    if (find) {
+      setActiveTrade(find);
+    } else setTransactionIdURL(null);
+  }, [transactionIdURL, data]);
 
   const showSkeletons = !authData || isInitialLoading;
 
@@ -150,7 +128,7 @@ export default function Page() {
       {/* Main panel */}
       <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
         {activeTrade ? (
-          <SelectedTrade key={activeTrade.transaction._id} transaction={activeTrade.transaction} post={activeTrade.post} />
+          <SelectedTrade key={activeTrade._id} transaction={activeTrade} />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-bold text-2xl">No trade selected</div>
         )}

@@ -2,7 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { internalPostSchema } from "./post-contract";
 
-const MESSAGE_MAX_LENGTH = 1000;
+const MESSAGE_MAX_LENGTH = 300;
 
 export const PUBLIC_LOCATIONS = {
   C9_JRL_DINING_HALL: {
@@ -48,18 +48,34 @@ export const messageSchema = z.object({
   content: z.string().max(MESSAGE_MAX_LENGTH),
 });
 
+export const embeddedPostSchema = z.object({
+  _id: internalPostSchema.shape._id,
+  title: internalPostSchema.shape.title,
+  createdBy: internalPostSchema.shape.createdBy,
+});
+
+export const embeddedUserSchema = z.object({
+  email: z.email(),
+  avatarURL: z.string(), // TODO change to z.url()
+});
+
 export const transactionSchema = z.object({
   _id: z.uuidv7(),
-  sellerPostID: internalPostSchema.shape._id, // post from the feed
-  buyerEmail: z.email("Buyer's email is required."),
-  buyerPostIDs: z.array(internalPostSchema.shape._id).optional(), // personal posts that viewing user wants to give away
+
+  // Seller info (embedded)
+  seller: embeddedUserSchema,
+  sellerPost: embeddedPostSchema,
+
+  // Buyer info (embedded)
+  buyer: embeddedUserSchema,
+  buyerPosts: z.array(embeddedPostSchema).optional(),
+
+  // Transaction details
   dateToSwap: z.coerce.date(),
   locationToSwap: z.union([z.enum(Object.keys(PUBLIC_LOCATIONS)), z.string()]).optional(),
   messages: z.array(messageSchema),
   completed: z.boolean().default(false),
 });
-
-export const transactionSchemaWithAvatar = transactionSchema.extend({ avatarURL: z.string() });
 
 export const transactionContract = {
   createTransaction: oc
@@ -129,8 +145,8 @@ export const transactionContract = {
     })
     .output(
       z.object({
-        initiatedTransactions: z.array(transactionSchemaWithAvatar),
-        receivedTransactions: z.array(transactionSchemaWithAvatar),
+        initiatedTransactions: z.array(transactionSchema),
+        receivedTransactions: z.array(transactionSchema),
       })
     )
     .errors({
