@@ -63,7 +63,11 @@ export default function Page() {
 
     // no mapping to actual trade
     if (find) {
-      setActiveTrade(find);
+      // TODO hotfix
+      setActiveTrade({
+        ...find,
+        dateToSwap: new Date(find.dateToSwap),
+      });
     } else setTransactionIdURL(null);
   }, [transactionIdURL, data]);
 

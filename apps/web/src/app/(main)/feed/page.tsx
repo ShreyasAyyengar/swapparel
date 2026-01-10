@@ -36,7 +36,7 @@ export default async function Page() {
       <ExpandedPostLayer loadedFeedPosts={data?.posts ?? []} />
       <CreatePostLayer />
       <div className="absolute z-1 m-3">
-        <FilterButton />
+        <FilterButton className="fixed" />
       </div>
       {data?.posts && data.posts.length > 0 && isSuccess ? (
         <FilterLayer nextAvailablePost={data.nextAvailablePost} /> // parse the nextAvailablePost to start the inf query

@@ -62,8 +62,9 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     if (filters.priceOnly) return isPriced;
 
     // range filtering (only applies to priced items usually)
-    if (typeof filters.minPrice === "number" && hasPrice && post.price < filters.minPrice) return false;
-    if (typeof filters.maxPrice === "number" && hasPrice && post.price > filters.maxPrice) return false;
+    // TODO hotfix
+    if (typeof filters.minPrice === "number" && hasPrice && post!.price! < filters.minPrice) return false;
+    if (typeof filters.maxPrice === "number" && hasPrice && post!.price! > filters.maxPrice) return false;
 
     return true;
   });
