@@ -49,7 +49,7 @@ export const messageSchema = z.object({
 });
 
 export const embeddedPostSchema = z.object({
-  _id: internalPostSchema.shape._id,
+  id: internalPostSchema.shape._id,
   title: internalPostSchema.shape.title,
   createdBy: internalPostSchema.shape.createdBy,
 });
