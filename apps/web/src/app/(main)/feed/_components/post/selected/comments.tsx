@@ -1,10 +1,10 @@
-import type { internalPostSchema } from "@swapparel/contracts";
-import { cn } from "@swapparel/shad-ui/lib/utils";
-import { useMutation } from "@tanstack/react-query";
-import { X } from "lucide-react";
-import { useState } from "react";
-import type { z } from "zod";
-import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {cn} from "@swapparel/shad-ui/lib/utils";
+import {useMutation} from "@tanstack/react-query";
+import {X} from "lucide-react";
+import {useState} from "react";
+import type {z} from "zod";
+import {webClientORPC} from "../../../../../../lib/orpc-web-client";
 import Comment from "./comment";
 
 export default function Comments({ post }: { post: z.infer<typeof internalPostSchema> }) {
@@ -65,6 +65,7 @@ export default function Comments({ post }: { post: z.infer<typeof internalPostSc
           >
             <input
               name="reply-input"
+              autoComplete="off"
               className="mt-2 w-full resize-none rounded-md border-2 border-accent px-3 py-2 align-top leading-relaxed transition-colors focus:border-secondary"
               placeholder="Type here..."
             />

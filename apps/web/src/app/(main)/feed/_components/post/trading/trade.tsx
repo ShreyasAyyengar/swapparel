@@ -192,6 +192,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
                       <Input
                         type="time"
                         id="time-picker"
+                        autoComplete="off"
                         step="60"
                         defaultValue="00:00"
                         className="appearance-none border-secondary bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
