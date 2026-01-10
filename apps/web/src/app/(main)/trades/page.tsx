@@ -150,7 +150,7 @@ export default function Page() {
       {/* Main panel */}
       <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
         {activeTrade ? (
-          <SelectedTrade transaction={activeTrade.transaction} post={activeTrade.post} />
+          <SelectedTrade key={activeTrade.transaction._id} transaction={activeTrade.transaction} post={activeTrade.post} />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-bold text-2xl">No trade selected</div>
         )}
