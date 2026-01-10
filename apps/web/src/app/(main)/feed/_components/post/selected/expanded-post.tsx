@@ -1,16 +1,26 @@
-import type { internalPostSchema } from "@swapparel/contracts";
-import { Badge } from "@swapparel/shad-ui/components/badge";
-import type { z } from "zod";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {Badge} from "@swapparel/shad-ui/components/badge";
+import {useRouter} from "next/navigation";
+import {parseAsString, useQueryState} from "nuqs";
+import type {z} from "zod";
 import CommentInput from "./comment-input";
 import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
 
 export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
   const MAX_DESCRIPTION = 1000;
+  const [_, setSelectedPost] = useQueryState("post", parseAsString);
+  const router = useRouter();
+
+  const sendToProfile = async () => {
+    await setSelectedPost(null);
+    const email = post.createdBy;
+    router.push(`/profile?profile=${encodeURIComponent(email)}`);
+  };
 
   return (
     <ExpandedPostTrigger post={post}>
-      <p title="username" className="font-bold">
+      <p title="username" className="cursor-pointer font-bold hover:underline" onClick={sendToProfile} onKeyDown={sendToProfile}>
         {post.createdBy}
       </p>
       <hr className="my-2 border-foreground border-t-2" />
@@ -60,7 +70,8 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof internalPo
       </p>
       <hr className="my-2 border-foreground border-t-2" />
       <p className="font-bold">Comments:</p>
-      {post.comments.length < 1 ? <CommentInput post={post} /> : <Comments post={post} />}
+      {post.comments.length > 0 && <CommentInput sentence={"Add a new comment!"} post={post} />}
+      {post.comments.length < 1 ? <CommentInput sentence={"Be the first to comment!"} post={post} /> : <Comments post={post} />}
     </ExpandedPostTrigger>
   );
 }

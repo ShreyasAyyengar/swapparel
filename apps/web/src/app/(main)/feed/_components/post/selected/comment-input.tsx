@@ -1,10 +1,10 @@
-import type { internalPostSchema } from "@swapparel/contracts";
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import type { z } from "zod";
-import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import type {internalPostSchema} from "@swapparel/contracts";
+import {useMutation} from "@tanstack/react-query";
+import {useState} from "react";
+import type {z} from "zod";
+import {webClientORPC} from "../../../../../../lib/orpc-web-client";
 
-export default function CommentInput({ post }: { post: z.infer<typeof internalPostSchema> }) {
+export default function CommentInput({ post, sentence }: { post: z.infer<typeof internalPostSchema>; sentence: string }) {
   const [writingComment, setWritingComment] = useState(false);
 
   const addCommentMutation = useMutation(
@@ -35,7 +35,7 @@ export default function CommentInput({ post }: { post: z.infer<typeof internalPo
         onClick={() => setWritingComment(true)}
         onKeyDown={(e) => e.key === "Enter" && setWritingComment(true)}
       >
-        Be the first to comment!
+        {sentence}
       </p>
       {writingComment && (
         <input

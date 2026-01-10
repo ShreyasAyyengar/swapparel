@@ -1,17 +1,17 @@
 "use client";
 
-import { userFormPostSchema } from "@swapparel/contracts";
-import { Button } from "@swapparel/shad-ui/components/button";
-import { FieldGroup } from "@swapparel/shad-ui/components/field";
-import { Separator } from "@swapparel/shad-ui/components/separator";
-import { cn } from "@swapparel/shad-ui/lib/utils";
-import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useQueryState } from "nuqs";
-import { useEffect } from "react";
-import type { z } from "zod";
-import { webClientORPC } from "../../../../lib/orpc-web-client";
+import {userFormPostSchema} from "@swapparel/contracts";
+import {Button} from "@swapparel/shad-ui/components/button";
+import {FieldGroup} from "@swapparel/shad-ui/components/field";
+import {Separator} from "@swapparel/shad-ui/components/separator";
+import {cn} from "@swapparel/shad-ui/lib/utils";
+import {createFormHook, createFormHookContexts} from "@tanstack/react-form";
+import {useMutation} from "@tanstack/react-query";
+import {useRouter} from "next/navigation";
+import {useQueryState} from "nuqs";
+import {useEffect} from "react";
+import type {z} from "zod";
+import {webClientORPC} from "../../../../lib/orpc-web-client";
 import ColorField from "./_fields/colour-field";
 import DescriptionField from "./_fields/description-field";
 import GarmentField from "./_fields/garment-field";
@@ -45,6 +45,7 @@ export const { useAppForm } = createFormHook({
 export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
   const router = useRouter();
   const [_, setPost] = useQueryState("post");
+  //TODO: add new post to feed
 
   const createPostMutation = useMutation(
     webClientORPC.posts.createPost.mutationOptions({

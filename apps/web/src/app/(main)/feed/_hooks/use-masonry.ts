@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 
 export function useMasonry({ gap = 16 }: { gap: number }) {
+  //TODO: store latest children's position in a column and then place every new children under old children. Once that specific child is placed, fade in the new child. This prevents group fade ins and prolonged opacity-0's
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
+  const newChildrenRef = useRef<Set<HTMLElement>>(new Set());
+  const [loadedImages, setLoadedImages] = useState(0);
 
   const COLUMN_MIN = 240;
 
@@ -50,16 +53,53 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
+      setLoadedImages((prev) => {
+        const newCount = prev + 1;
+
+        // When we hit 20 loaded images, show the first 20 children
+        if (newCount >= 20) {
+          scheduleLayout();
+
+          requestAnimationFrame(() => {
+            const container = containerRef.current;
+            if (!container) return;
+
+            // Convert Set to Array and get first 20
+            const newChildrenArray = Array.from(newChildrenRef.current);
+            const first20 = newChildrenArray.slice(0, 20);
+
+            // Update opacity for first 20 children
+            first20.forEach((child) => {
+              child.classList.remove("opacity-0");
+              child.classList.add("opacity-100");
+            });
+
+            // Remove the first 20 from the Set
+            first20.forEach((child) => {
+              newChildrenRef.current.delete(child);
+            });
+          });
+        }
+
+        return newCount;
+      });
+
+      // When ALL images are loaded, show any remaining children
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
 
         requestAnimationFrame(() => {
           const container = containerRef.current;
           if (!container) return;
-          Array.from(container.children).forEach((child) => {
-            (child as HTMLElement).classList.remove("opacity-0");
-            (child as HTMLElement).classList.add("opacity-100");
+
+          // Only update opacity for remaining new children
+          newChildrenRef.current.forEach((child) => {
+            child.classList.remove("opacity-0");
+            child.classList.add("opacity-100");
           });
+
+          // Clear the set after updating
+          newChildrenRef.current.clear();
         });
       }
     },
@@ -135,6 +175,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           changedChildren = true;
           // node.classList.remove("opacity-100");
           node.classList.add("transition-opacity", "duration-500", "ease-in", "opacity-0");
+          newChildrenRef.current.add(node);
           setupImageListeners(node);
         });
         mutation.removedNodes.forEach((node) => {

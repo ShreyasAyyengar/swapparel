@@ -84,23 +84,23 @@ export const postRouter = {
 
   // TODO convert to idempotent operation { deleted: true/false }
   deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const post = await PostCollection.findOne({ id: input.id });
+    const post = await PostCollection.findOne({ _id: input.id });
     if (!post) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
     if (post.createdBy !== context.user.email) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
     try {
-      await PostCollection.deleteOne({ id: input.id });
+      const t = await PostCollection.deleteOne({ _id: input.id });
+      if (t.deletedCount === 1) return { success: true };
+      return { success: false };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         message: `DB failed to delete post with id ${input.id}. ${error}`,
       });
     }
-
-    return { success: true };
   }),
 
-  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
+  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
     PostCollection.find({ createdBy: input.createdBy })
   ),
 
