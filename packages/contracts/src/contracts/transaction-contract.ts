@@ -59,6 +59,7 @@ export const embeddedUserSchema = z.object({
   avatarURL: z.string(), // TODO change to z.url()
 });
 
+// TODO check _id bullshit
 export const transactionSchema = z.object({
   _id: z.uuidv7(),
 

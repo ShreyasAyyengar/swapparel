@@ -3,7 +3,20 @@ import { z } from "zod";
 import { messageSchema, transactionSchema } from "./transaction-contract";
 
 export const webSocketContract = {
-  watchingTransaction: oc
+  publishChatMessage: oc
+    .input(
+      z.object({
+        transactionId: transactionSchema.shape._id,
+        message: messageSchema,
+      })
+    )
+    .output(
+      z.object({
+        outgoingMessage: messageSchema,
+      })
+    ),
+
+  subscribeToChatMessages: oc
     .input(
       z.object({
         transactionId: transactionSchema.shape._id,
@@ -17,16 +30,37 @@ export const webSocketContract = {
       )
     ),
 
-  sendMessage: oc
+  publishDataChange: oc
     .input(
       z.object({
         transactionId: transactionSchema.shape._id,
-        message: messageSchema,
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  subscribeToDataChange: oc
+    .input(
+      z.object({
+        transactionId: transactionSchema.shape._id,
       })
     )
     .output(
-      z.object({
-        outgoingMessage: messageSchema,
-      })
+      eventIterator(
+        z.object({
+          initiatedBy: z.string(),
+        })
+      )
     ),
 };
