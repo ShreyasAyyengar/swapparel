@@ -9,6 +9,7 @@ import {useEffect, useRef, useState} from "react";
 import type z from "zod";
 import {authClient} from "../../../../../../lib/auth-client";
 import TradingBox from "../trading/trade";
+import DeletePostButton from "./delete-post-button";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
@@ -16,6 +17,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [isHovered, setHovered] = useState<boolean>(false);
   const [isTrading, setIsTrading] = useState<boolean>(false);
   const [canSeeButton, setCanSeeButton] = useState(false);
+  const [seeDelete, setSeeDelete] = useState<boolean>(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   // TODO: copy instagram delete post
   const { data, isPending } = authClient.useSession();
@@ -64,12 +66,17 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     setImgLoaded(false);
   }, [currentImage]);
 
+  const handleEllipsisClick = () => {
+    setSeeDelete((prev) => !prev);
+  };
+
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
       {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
       <div className="relative max-h-[83vh] w-1/2 items-center overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 pt-5 text-foreground">
-        <Ellipsis className={"absolute top-5 right-5"} />
+        {!canSeeButton && <Ellipsis className={"absolute top-5 right-5 cursor-pointer"} onClick={handleEllipsisClick} />}
+        {seeDelete && <DeletePostButton onClick={handleEllipsisClick} postId={post._id} />}
         <p className="mx-5 mt-0 mb-3 text-center font-bold text-2xl">{post.title}</p>
 
         <div className={"mb-3 w-full border-secondary border-t"} />
