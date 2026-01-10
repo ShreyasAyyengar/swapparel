@@ -3,6 +3,7 @@
 import { isServer, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next";
+import { Suspense } from "react";
 
 const STALE_TIME = 60 * 1000;
 function makeQueryClient() {
@@ -29,9 +30,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
-        <ThemeProvider attribute="class" enableSystem={false}>
-          {children}
-        </ThemeProvider>
+        <Suspense fallback={null}>
+          <ThemeProvider attribute="class" enableSystem={false}>
+            {children}
+          </ThemeProvider>
+        </Suspense>
       </NuqsAdapter>
     </QueryClientProvider>
   );

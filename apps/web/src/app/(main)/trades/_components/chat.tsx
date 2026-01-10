@@ -11,13 +11,48 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   const [messageText, setMessageText] = useState("");
   const { data: authData } = authClient.useSession();
 
+  // useEffect(() => {
+  //   let cancelled = false;
+  //
+  //   const watchTransaction = async () => {
+  //     try {
+  //       for await (const msg of await socketClientORPC.subscribeToChatMessages({ transactionId: transaction._id })) {
+  //         setMessages((prevState) => [...prevState, msg.incomingMessage]);
+  //         if (cancelled) break;
+  //       }
+  //     } catch (error) {
+  //       if (!cancelled) {
+  //         console.error("Error watching transaction:", error);
+  //       }
+  //     }
+  //   };
+  //
+  //   watchTransaction();
+  //
+  //   return () => {
+  //     cancelled = true;
+  //     // If your socketClientORPC has a cleanup/unsubscribe method, call it here
+  //   };
+  // }, [transaction._id]);
+
+  // TODO hotfix for duplicate messages
   useEffect(() => {
     let cancelled = false;
 
     const watchTransaction = async () => {
       try {
         for await (const msg of await socketClientORPC.subscribeToChatMessages({ transactionId: transaction._id })) {
-          setMessages((prevState) => [...prevState, msg.incomingMessage]);
+          setMessages((prevState) => {
+            // Check if message already exists (deduplicate by content + author + timestamp)
+            const exists = prevState.some(
+              (m) =>
+                m.content === msg.incomingMessage.content &&
+                m.authorEmail === msg.incomingMessage.authorEmail &&
+                m.createdAt === msg.incomingMessage.createdAt
+            );
+            if (exists) return prevState;
+            return [...prevState, msg.incomingMessage];
+          });
           if (cancelled) break;
         }
       } catch (error) {
@@ -31,7 +66,6 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
 
     return () => {
       cancelled = true;
-      // If your socketClientORPC has a cleanup/unsubscribe method, call it here
     };
   }, [transaction._id]);
 
