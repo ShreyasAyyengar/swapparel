@@ -98,6 +98,7 @@ export const COLOURS = [
   "Ivory",
 ] as const;
 
+// TODO add One Size
 export const SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
 export const GARMENT_TYPES = [
