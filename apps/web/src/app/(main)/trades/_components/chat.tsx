@@ -52,7 +52,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
       <div className="flex flex-1 flex-col gap-5">
         {messages.length > 0 ? (
-          messages.map((message, i) => <Message key={i} message={message} />)
+          messages.map((message, i) => <Message key={i} message={message} transaction={transaction} />)
         ) : (
           <div className={"flex h-full w-full items-end justify-center"}>
             <p className="mb-10 font-semibold text-3xl">No messages sent yet...</p>

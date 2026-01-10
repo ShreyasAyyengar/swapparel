@@ -1,9 +1,16 @@
-import type {messageSchema} from "@swapparel/contracts";
-import {cn} from "@swapparel/shad-ui/lib/utils";
-import type {z} from "zod";
-import {authClient} from "../../../../lib/auth-client";
+import type { messageSchema, transactionSchema } from "@swapparel/contracts";
+import { cn } from "@swapparel/shad-ui/lib/utils";
+import Image from "next/image";
+import type { z } from "zod";
+import { authClient } from "../../../../lib/auth-client";
 
-export default function Message({ message, avatars }: { message: z.infer<typeof messageSchema>; avatars: Record<string, string> }) {
+export default function Message({
+  message,
+  transaction,
+}: {
+  message: z.infer<typeof messageSchema>;
+  transaction: z.infer<typeof transactionSchema>;
+}) {
   const { data, isPending } = authClient.useSession();
   // biome-ignore lint/style/noNonNullAssertion: useSession(); has been called before this component in the tree
   const authData = data!;
@@ -17,11 +24,26 @@ export default function Message({ message, avatars }: { message: z.infer<typeof 
     let current = "";
 
     for (const word of words) {
-      if ((current + word).length > max) {
-        lines.push(current.trim());
-        current = `${word} `;
+      // If the word itself is longer than max, we need to split it
+      if (word.length > max) {
+        // Flush current line first
+        if (current) {
+          lines.push(current.trim());
+          current = "";
+        }
+
+        // Split the long word into chunks
+        for (let i = 0; i < word.length; i += max) {
+          lines.push(word.slice(i, i + max));
+        }
       } else {
-        current += `${word} `;
+        // Normal word logic
+        if ((current + word).length > max) {
+          lines.push(current.trim());
+          current = `${word} `;
+        } else {
+          current += `${word} `;
+        }
       }
     }
 
@@ -29,12 +51,13 @@ export default function Message({ message, avatars }: { message: z.infer<typeof 
     return lines;
   }
 
+  // which ever one matches the auth data
+
+  const avatarURL =
+    message.authorEmail === transaction.seller.email ? transaction.seller.avatarURL : transaction.buyer.avatarURL || "/default-avatar.png";
   return (
-    <>
-      {/*<Badge variant={fromSelf ? "secondary" : "default"} className={cn("flex", fromSelf && "ml-auto")}>*/}
-      {/*  /!*<Image src={message} alt="Avatar" className="mr-2 rounded-full" width={32} height={32} />*!/*/}
-      {/*  {message.content}*/}
-      {/*</Badge>*/}
+    <div className={"flex items-center"}>
+      {!fromSelf && <Image src={avatarURL || "/default-avatar.png"} alt="Avatar" className="mr-2 h-8 w-8 rounded-full" width={10} height={10} />}
       <div
         className={cn(
           "flex flex-col rounded-md p-2 text-foreground",
@@ -47,6 +70,8 @@ export default function Message({ message, avatars }: { message: z.infer<typeof 
           </p>
         ))}
       </div>
-    </>
+
+      {fromSelf && <Image src={avatarURL || "/default-avatar.png"} alt="Avatar" className="ml-2 h-8 w-8 rounded-full" width={10} height={10} />}
+    </div>
   );
 }
