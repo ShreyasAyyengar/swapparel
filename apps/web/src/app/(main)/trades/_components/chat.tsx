@@ -1,4 +1,4 @@
-import type { messageSchema, transactionSchemaWithAvatar } from "@swapparel/contracts";
+import type { messageSchema, transactionSchema } from "@swapparel/contracts";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { z } from "zod";
@@ -6,8 +6,8 @@ import { authClient } from "../../../../lib/auth-client";
 import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import Message from "./message";
 
-export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchemaWithAvatar> }) {
-  const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]); //TODO: replace with [] when done
+export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchema> }) {
+  const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]);
   const [messageText, setMessageText] = useState("");
   const { data: authData } = authClient.useSession();
 
@@ -16,7 +16,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
 
     const watchTransaction = async () => {
       try {
-        for await (const msg of await socketClientORPC.watchingTransaction({ transactionId: transaction._id })) {
+        for await (const msg of await socketClientORPC.subscribeToChatMessages({ transactionId: transaction._id })) {
           setMessages((prevState) => [...prevState, msg.incomingMessage]);
           if (cancelled) break;
         }
@@ -50,9 +50,9 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   }, [messages]);
   return (
     <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
-      <div className="flex flex-1 flex-col gap-5">
+      <div className="flex flex-1 flex-col gap-1">
         {messages.length > 0 ? (
-          messages.map((message, i) => <Message key={i} message={message} transaction={transaction} />)
+          messages.map((message, i) => <Message key={i} message={message} prevMessage={messages[i - 1]} transaction={transaction} />)
         ) : (
           <div className={"flex h-full w-full items-end justify-center"}>
             <p className="mb-10 font-semibold text-3xl">No messages sent yet...</p>
@@ -67,7 +67,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           if (!messageText.trim()) return; // prevent empty submit
 
           // sending message to backend through websocket
-          socketClientORPC.sendMessage({
+          socketClientORPC.publishChatMessage({
             transactionId: transaction._id,
             message: {
               authorEmail: authData.user.email,

@@ -6,9 +6,11 @@ import { authClient } from "../../../../lib/auth-client";
 
 export default function Message({
   message,
+  prevMessage,
   transaction,
 }: {
   message: z.infer<typeof messageSchema>;
+  prevMessage?: z.infer<typeof messageSchema>;
   transaction: z.infer<typeof transactionSchema>;
 }) {
   const { data, isPending } = authClient.useSession();
@@ -16,6 +18,7 @@ export default function Message({
   const authData = data!;
   const MESSAGECHUNK = 25;
 
+  const sameAuthorAsPrev = prevMessage && prevMessage.authorEmail === message.authorEmail;
   const fromSelf = message.authorEmail === authData.user.email;
 
   function chunkWords(str: string, max = MESSAGECHUNK) {
@@ -56,12 +59,22 @@ export default function Message({
   const avatarURL =
     message.authorEmail === transaction.seller.email ? transaction.seller.avatarURL : transaction.buyer.avatarURL || "/default-avatar.png";
   return (
-    <div className={"flex items-center"}>
-      {!fromSelf && <Image src={avatarURL || "/default-avatar.png"} alt="Avatar" className="mr-2 h-8 w-8 rounded-full" width={10} height={10} />}
+    <div className={"flex"}>
+      {!fromSelf && (
+        <Image
+          src={avatarURL || "/default-avatar.png"}
+          alt="Avatar"
+          className={cn("mt-2 mr-2 h-8 w-8 rounded-full transition-opacity", sameAuthorAsPrev && "opacity-0")}
+          width={10}
+          height={10}
+        />
+      )}
       <div
         className={cn(
           "flex flex-col rounded-md p-2 text-foreground",
-          fromSelf ? "ml-auto bg-secondary text-background" : "mr-auto bg-primary text-foreground"
+          fromSelf ? "ml-auto bg-secondary text-background" : "mr-auto bg-primary text-foreground",
+          sameAuthorAsPrev && "mt-0",
+          !sameAuthorAsPrev && "mt-2"
         )}
       >
         {chunkWords(message.content, MESSAGECHUNK).map((chunk, i) => (
@@ -71,7 +84,15 @@ export default function Message({
         ))}
       </div>
 
-      {fromSelf && <Image src={avatarURL || "/default-avatar.png"} alt="Avatar" className="ml-2 h-8 w-8 rounded-full" width={10} height={10} />}
+      {fromSelf && (
+        <Image
+          src={avatarURL || "/default-avatar.png"}
+          alt="Avatar"
+          className={cn("mt-2 ml-2 h-8 w-8 rounded-full transition-opacity", sameAuthorAsPrev && "opacity-0")}
+          width={10}
+          height={10}
+        />
+      )}
     </div>
   );
 }
