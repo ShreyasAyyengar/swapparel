@@ -99,6 +99,17 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [setupImageListeners]);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // 🔥 Force layout when returning to route
+    requestAnimationFrame(() => {
+      setupImageListeners(container);
+      scheduleLayout();
+    });
+  }, [scheduleLayout, setupImageListeners]);
+
+  useEffect(() => {
     const handleResize = () => {
       //NOTE: this may lead to optimization issues
       scheduleLayout();
@@ -116,7 +127,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     if (!container) return;
 
     const observer = new MutationObserver((mutations) => {
-      // console.log("mutation observer fired");
       let changedChildren = false;
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {

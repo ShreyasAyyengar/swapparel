@@ -1,23 +1,28 @@
 "use client";
 
 import { cn } from "@swapparel/shad-ui/lib/utils";
-import { MessageCircleMore } from "lucide-react";
+import { Repeat } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { parseAsString, useQueryState } from "nuqs";
 import random from "random";
 import { useState } from "react";
 
-export default function MessagesHeaderButton() {
-  const openMsg = () => {
-    // biome-ignore lint/suspicious/noAlert: <testing>
-    alert("Open Messages");
+export default function SwapsHeaderButton() {
+  const router = useRouter();
+  const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
+
+  const openTrades = async () => {
+    await setTransactionIdURL(null); // dumbahh nuqs doesn't wanna listen to router changes.
+    router.push("/trades");
   };
 
   const [bool, setBool] = useState(false);
 
   return (
-    <MessageCircleMore
+    <Repeat
       width={37.5}
       height={37.5}
-      onClick={openMsg}
+      onClick={openTrades}
       onMouseEnter={() => setBool(random.boolean())}
       className={cn(
         "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",

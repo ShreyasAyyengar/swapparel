@@ -45,8 +45,6 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
 
   if (!filters) return posts;
 
-  console.log(JSON.stringify(filters, null, 2));
-
   return posts.filter((post) => {
     if (!matchesMulti(post.material, filters.material, filters.materialOnly)) return false;
     if (!matchesMulti(post.colour, filters.color, filters.colorOnly)) return false;

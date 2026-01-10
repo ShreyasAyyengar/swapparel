@@ -1,25 +1,15 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
+import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
-import { env } from "../../env";
-import { logger } from "../../libs/logger";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
-const S3 = new S3Client({
-  region: "auto",
-  endpoint: `https://${env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com/`,
-  credentials: {
-    accessKeyId: env.CLOUDFLARE_R2_ACCESS_KEY_ID,
-    secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
-  },
-});
-
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
   let finalMimeType = mimeType;
   const key = `${postId}/${index}`;
+  let fileExtension = file.name.split(".").pop();
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   let body = fileBuffer;
 
@@ -30,18 +20,20 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
       quality: 1,
     });
 
+    fileExtension = "jpg";
     finalMimeType = "image/jpeg";
   }
 
-  const packageCommand = new PutObjectCommand({
-    Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
-    Key: key,
-    Body: body,
-    ContentType: finalMimeType,
+  const s3 = new S3Client({
+    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+    bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
+    endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   });
-  await S3.send(packageCommand);
 
-  return `https://cdn.swapparel.app/${postId}/${index}`;
+  await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
+
+  return `https://cdn.swapparel.app/${key}.${fileExtension}`;
 };
 
 export const postRouter = {
@@ -90,6 +82,7 @@ export const postRouter = {
     }
   ),
 
+  // TODO convert to idempotent operation { deleted: true/false }
   deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ id: input.id });
     if (!post) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
@@ -107,10 +100,9 @@ export const postRouter = {
     return { success: true };
   }),
 
-  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    logger.info(`Test route called: ${input} | ${context}`);
-    return PostCollection.find({});
-  }),
+  getPosts: protectedProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
+    PostCollection.find({ createdBy: input.createdBy })
+  ),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostCollection.findOne({ _id: input._id }).lean();

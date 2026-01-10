@@ -1,16 +1,33 @@
 "use client";
 
-import type {internalPostSchema} from "@swapparel/contracts";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import type { internalPostSchema } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import {parseAsString, useQueryState} from "nuqs";
-import {useEffect, useRef, useState} from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
+import { authClient } from "../../../../../../lib/auth-client";
+import TradingBox from "../trading/trade";
 
 export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);
+  const [isTrading, setIsTrading] = useState<boolean>(false);
+  const [seeTradeButton, setSeeTradeButton] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const PLACEHOLDER_IMAGE = "https://placehold.co/600x400"; // path to your placeholder
+  const { data, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (isPending) return;
+    if (!data?.user.email) return;
+    if (!data?.session) return;
+
+    if (data.user.email !== post.createdBy) setSeeTradeButton(true);
+  }, [data, isPending, post.createdBy]);
 
   const handleClose = async () => {
     await setSelectedPost(null);
@@ -44,48 +61,76 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
     };
   }, []);
 
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [currentImage]);
+
   return (
     <div className="fixed inset-0 z-2 flex items-center justify-center">
+      {isTrading && <TradingBox post={post} onClick={() => setIsTrading(false)} />}
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onMouseDown={handleClose} />
-      <div className="relative grid max-h-[83vh] w-1/2 grid-cols-1 items-center gap-5 overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 text-foreground xl:grid-cols-2">
-        <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-          <div
-            className="flex max-h-[calc(83vh-80px)] items-center justify-center overflow-y-auto rounded-md border-2 border-secondary"
-            ref={imageContainerRef}
-          >
-            <Image
-              src={post.images[currentImage] ?? ""}
-              width={1200}
-              height={1200}
-              alt={"expanded-image"}
-              className="flex w-full items-center justify-center"
-            />
+      <div className="relative max-h-[83vh] w-1/2 items-center overflow-y-auto rounded-2xl border border-secondary bg-accent p-10 pt-5 text-foreground">
+        <p className="m-5 mt-0 text-center font-bold text-2xl">{post.title}</p>
+        <div className={"grid grid-cols-1 items-center gap-5 xl:grid-cols-2"}>
+          <div className={"relative"} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+            <div
+              className="flex max-h-[calc(80vh-80px)] items-center justify-center overflow-hidden rounded-md border-2 border-secondary"
+              ref={imageContainerRef}
+            >
+              {!imgLoaded && (
+                <Image src={PLACEHOLDER_IMAGE} width={1200} height={1200} alt="LOADING..." className="h-full w-full object-contain" />
+              )}
+
+              <Image
+                src={post.images[currentImage] ?? ""}
+                width={1200}
+                height={1200}
+                alt="expanded-image"
+                className={`h-full w-full object-contain transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoadingComplete={() => setImgLoaded(true)}
+                unoptimized
+              />
+            </div>
+
+            <p className={"absolute bottom-3 left-4 rounded-md bg-black/30 px-2 backdrop-blur-lg"}>
+              {currentImage + 1} / {post.images.length}
+            </p>
+            {isHovered && currentImage < post.images.length - 1 && (
+              <ChevronRight
+                className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
+                size={12}
+                onClick={() => setCurrentImage((prev) => prev + 1)}
+              />
+            )}
+            {isHovered && currentImage > 0 && (
+              <ChevronLeft
+                className="absolute top-1/2 left-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
+                size={12}
+                onClick={() => setCurrentImage((prev) => prev - 1)}
+              />
+            )}
           </div>
-          <p className={"absolute bottom-3 left-4 rounded-md bg-black/30 px-2 backdrop-blur-lg"}>
-            {currentImage + 1} / {post.images.length}
-          </p>
-          {isHovered && currentImage < post.images.length - 1 && (
-            <ChevronRight
-              className="absolute top-1/2 right-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
-              size={12}
-              onClick={() => setCurrentImage((prev) => prev + 1)}
-            />
-          )}
-          {isHovered && currentImage > 0 && (
-            <ChevronLeft
-              className="absolute top-1/2 left-4 z-10 h-10 w-10 translate-y-[-50%] cursor-pointer rounded-full bg-white/20 p-2 backdrop-blur-lg"
-              size={12}
-              onClick={() => setCurrentImage((prev) => prev - 1)}
-            />
-          )}
+
+          <div
+            className="relative flex max-h-[calc(80vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
+            ref={textContainerRef}
+          >
+            {children}
+          </div>
         </div>
 
-        <div
-          className="relative flex max-h-[calc(83vh-80px)] min-h-150 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
-          ref={textContainerRef}
-        >
-          {children}
-        </div>
+        <br />
+        {seeTradeButton && (
+          <div className={"flex items-center"}>
+            <Button
+              className={"w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"}
+              onClick={() => setIsTrading(true)}
+              disabled={isTrading}
+            >
+              {isTrading ? "Trading..." : "Trade"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

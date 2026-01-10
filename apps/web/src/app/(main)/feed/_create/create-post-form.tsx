@@ -152,7 +152,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
           </form>
           <div className="w-auto border" />
           <div className="flex justify-between">
-            <Button className="m-3 mr-5 w-1/8" onClick={closeAction}>
+            <Button className="m-3 mr-5 w-1/8 cursor-pointer" onClick={closeAction}>
               Cancel
             </Button>
 
@@ -161,7 +161,8 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
                 <Button
                   className={cn(
                     "m-3 mr-5 w-1/8 text-background",
-                    `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:cursor-not-allowed hover:bg-foreground/50"}`
+                    `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:bg-foreground/50"}`,
+                    `${isSubmitting ? "cursor-wait" : "cursor-default"}`
                   )}
                   onClick={form.handleSubmit}
                   disabled={!canSubmit || isSubmitting}

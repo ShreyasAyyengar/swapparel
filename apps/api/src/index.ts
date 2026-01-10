@@ -25,7 +25,7 @@ new Elysia()
   .use(
     cors({
       origin: allowedOrigins,
-      methods: ["POST", "PUT", "GET", "DELETE"],
+      methods: ["POST", "PUT", "GET", "DELETE", "PATCH"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
     })
