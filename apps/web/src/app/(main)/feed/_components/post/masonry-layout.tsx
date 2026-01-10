@@ -1,5 +1,5 @@
 import type React from "react";
-import { useMasonry } from "../../_hooks/use-masonry";
+import {useMasonry} from "../../_hooks/use-masonry";
 
 type MasonryLayoutProps = {
   children: React.ReactNode;
