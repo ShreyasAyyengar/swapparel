@@ -1,12 +1,12 @@
-import {Button} from "@swapparel/shad-ui/components/button";
-import {useMutation} from "@tanstack/react-query";
-import {webClientORPC} from "../../../../../../lib/orpc-web-client";
+import { Button } from "@swapparel/shad-ui/components/button";
+import { useMutation } from "@tanstack/react-query";
+import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 
 export default function DeletePostButton({ onClick, postId }: { onClick: () => void; postId: string }) {
   const deletePostMutation = useMutation(
     webClientORPC.posts.deletePost.mutationOptions({
       onSuccess: (data) => {
-        window.location.reload();
+        // window.location.reload();
       },
     })
   );
