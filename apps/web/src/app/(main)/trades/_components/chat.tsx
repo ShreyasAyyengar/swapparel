@@ -125,7 +125,6 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           onChange={(e) => setMessageText(e.target.value)}
           autoComplete="off"
         />
-        autoComplete="off"
         <button
           type="submit"
           className={`m-2 cursor-pointer rounded-md bg-primary p-2 transition-opacity ${messageText.trim() ? "opacity-100" : "pointer-events-none opacity-50"}`}
