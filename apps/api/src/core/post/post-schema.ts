@@ -1,13 +1,10 @@
 import { internalPostSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
-import { z } from "zod";
+import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
 // Mongoose Schema Definitions for MongoDB
-const PostSchemaMongooseZod = internalPostSchema
-  // certain 'Zod Types' (z.url(), z.email(), z.uuid()) must be redefined as more primitive types to serialise with Mongoose
-  .omit({ _id: true, createdBy: true, images: true })
-  .extend({ _id: z.string(), createdBy: z.string(), images: z.array(z.string()) });
+const PostSchemaMongooseZod = internalPostSchema;
 
 // Use toMongooseSchema to convert Zod schema to Mongoose schema
 const PostSchemaMongoose = toMongooseSchema(

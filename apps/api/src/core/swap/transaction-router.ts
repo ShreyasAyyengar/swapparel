@@ -9,54 +9,108 @@ import { TransactionCollection } from "./transaction-schema";
 export const transactionRouter = {
   createTransaction: protectedProcedure.transaction.createTransaction.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
-      const buyerEmailFromContex = context.user.email;
+      const buyerEmail = context.user.email;
 
-      // confirm seller post exists in the db
-      const sellerPost = await PostCollection.findById(input.sellerPostID);
+      // Fetch all data upfront in parallel
+      const [sellerPost, buyerUser, buyerPosts] = await Promise.all([
+        PostCollection.findById(input.sellerPost.id).select("_id title createdBy").lean(),
+        UserCollection.findOne({ email: buyerEmail }).lean(),
+        input.buyerPosts
+          ? PostCollection.find({ _id: { $in: input.buyerPosts.map((p) => p.id) } })
+              .select("_id title createdBy")
+              .lean()
+          : Promise.resolve([]),
+      ]);
+
       if (!sellerPost) {
         throw NOT_FOUND({
-          data: { message: `Seller with post ${input.sellerPostID} not found.` },
+          data: { message: `Seller post ${input.sellerPost.id} not found.` },
         });
       }
 
-      // prevent trading with themselves
-      if (sellerPost.createdBy === buyerEmailFromContex) {
+      if (!buyerUser) {
+        throw NOT_FOUND({
+          data: { message: "Buyer user not found." },
+        });
+      }
+
+      // Prevent trading with themselves
+      if (sellerPost.createdBy === buyerEmail) {
         throw BAD_REQUEST({
           data: { message: "User cannot trade with themselves." },
         });
       }
 
-      // creates buyerPost only if there is a post id given as input
-      const buyerPosts = input.buyerPostIDs ? await PostCollection.find({ _id: { $in: input.buyerPostIDs } }) : [];
+      // Get seller user info
+      const sellerUser = await UserCollection.findOne({ email: sellerPost.createdBy }).lean();
+      if (!sellerUser) {
+        throw NOT_FOUND({
+          data: { message: "Seller user not found." },
+        });
+      }
 
       const _id = uuidv7();
 
-      const tryParse = transactionSchema.safeParse({
+      const transactionData: z.infer<typeof transactionSchema> = {
         _id,
-        sellerPostID: sellerPost._id,
-        buyerPostIDs: buyerPosts.map((p) => p._id),
-        buyerEmail: buyerEmailFromContex,
-        messages: input.initialMessage ? [input.initialMessage] : [],
+
+        // Embedded seller data
+        seller: {
+          email: sellerUser.email,
+          avatarURL: sellerUser.image,
+        },
+        sellerPost: {
+          id: sellerPost._id,
+          title: sellerPost.title,
+          createdBy: sellerPost.createdBy,
+        },
+
+        // Embedded buyer data
+        buyer: {
+          email: buyerUser.email,
+          avatarURL: buyerUser.image,
+        },
+        buyerPosts: buyerPosts.map((post) => ({
+          id: post._id,
+          title: post.title,
+          createdBy: post.createdBy,
+        })),
+
+        // Transaction details
         dateToSwap: input.dateToSwap,
-      });
+        messages: input.initialMessage
+          ? [
+              {
+                createdAt: new Date().toISOString(),
+                authorEmail: buyerEmail,
+                content: input.initialMessage,
+              },
+            ]
+          : [],
+        completed: false,
+      };
+
+      const tryParse = transactionSchema.safeParse(transactionData);
 
       if (!tryParse.success) {
         throw BAD_REQUEST({
           data: {
             issues: tryParse.error.issues,
-            message: "Invalid Input",
+            message: "Invalid transaction data",
           },
         });
       }
+
       try {
         await TransactionCollection.insertOne(tryParse.data);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
-            message: `Failed to insert document by _id: ${_id}. ${error}`,
+            message: `Failed to insert transaction ${_id}. ${error}`,
           },
         });
       }
+
       return { _id };
     }
   ),
@@ -104,45 +158,18 @@ export const transactionRouter = {
   //   return { success: true, message: "Swap Successfully Deleted" };
   // }),
 
-  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
+  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
     const email = context.user.email;
 
-    const [initiatedTransactions, myPostIds] = await Promise.all([
-      TransactionCollection.find({ buyerEmail: email }).lean(),
-      PostCollection.distinct("_id", { createdBy: email }),
+    // Simple queries - no joins needed!
+    const [initiatedTransactions, receivedTransactions] = await Promise.all([
+      TransactionCollection.find({ "buyer.email": email }).lean(),
+      TransactionCollection.find({ "seller.email": email }).lean(),
     ]);
 
-    const initiatedWithAvatars = await Promise.all(
-      initiatedTransactions.map(async (transaction) => {
-        const sellerPost = await PostCollection.findById(transaction.sellerPostID).lean();
-        const sellerUser = sellerPost ? await UserCollection.findOne({ email: sellerPost.createdBy }).lean() : null;
-
-        return {
-          ...transaction,
-          avatarURL: sellerUser?.image ?? "",
-        };
-      })
-    );
-
-    const receivedTransactions = await TransactionCollection.find({
-      sellerPostID: { $in: myPostIds },
-    }).lean();
-
-    const receivedWithAvatars = await Promise.all(
-      receivedTransactions.map(async (transaction) => {
-        const buyerPost = await PostCollection.findById(transaction.sellerPostID).lean();
-        const buyerUser = buyerPost ? await UserCollection.findOne({ email: buyerPost.createdBy }).lean() : null;
-
-        return {
-          ...transaction,
-          avatarURL: buyerUser?.image ?? "",
-        };
-      })
-    );
-
     return {
-      initiatedTransactions: initiatedWithAvatars,
-      receivedTransactions: receivedWithAvatars,
+      initiatedTransactions,
+      receivedTransactions,
     };
   }),
 
@@ -159,9 +186,8 @@ export const transactionRouter = {
         });
       }
 
-      // Verify user is authorized (buyer or seller)
-      const sellerPost = await PostCollection.findById(transaction.sellerPostID);
-      const isAuthorized = transaction.buyerEmail === userEmail || sellerPost?.createdBy === userEmail;
+      const sellerPost = await PostCollection.findById(transaction.sellerPost.id);
+      const isAuthorized = transaction.buyer.email === userEmail || sellerPost?.createdBy === userEmail;
 
       if (!isAuthorized) {
         throw UNAUTHORIZED({

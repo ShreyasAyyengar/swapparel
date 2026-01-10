@@ -18,3 +18,16 @@ export const protectedProcedure = publicProcedure.use(({ context, next }) => {
 });
 
 export const webSocketProcedure = implement(webSocketContract).$context<AuthContext>();
+
+export const protectedWebSocketProcedure = webSocketProcedure.use(({ context, next }) => {
+  if (!context.session) {
+    throw new ORPCError("UNAUTHORIZED", {
+      message: "Authentication required",
+      cause: "No session",
+    });
+  }
+
+  return next({
+    context,
+  });
+});

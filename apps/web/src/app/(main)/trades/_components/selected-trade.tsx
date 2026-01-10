@@ -1,4 +1,4 @@
-import { type internalPostSchema, PUBLIC_LOCATIONS, type transactionSchemaWithAvatar } from "@swapparel/contracts";
+import { PUBLIC_LOCATIONS, type transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Calendar } from "@swapparel/shad-ui/components/calendar";
 import { Input } from "@swapparel/shad-ui/components/input";
@@ -6,22 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "@swapparel/shad-ui/components/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarIcon, ChevronDownIcon, Clock, LoaderCircle, MapPinPen } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import Chat from "./chat";
 
-export default function SelectedTrade({
-  transaction,
-  post,
-}: {
-  transaction: z.infer<typeof transactionSchemaWithAvatar>;
-  post: z.infer<typeof internalPostSchema>;
-}) {
-  const [changeableDate, setChangeableDate] = useState<Date>(new Date(transaction.dateToSwap));
+export default function SelectedTrade({ transaction }: { transaction: z.infer<typeof transactionSchema> }) {
+  const [changeableDate, setChangeableDate] = useState<Date>(new Date(transaction.dateToSwap ?? ""));
   const [changeableLocation, setChangeableLocation] = useState<string>(transaction.locationToSwap ?? "");
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   // Create mutation for updating transaction
@@ -171,7 +163,7 @@ export default function SelectedTrade({
           </Select>
         </div>
       </div>
-      <Chat />
+      <Chat transaction={transaction} />
     </div>
   );
 }

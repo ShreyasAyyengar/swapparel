@@ -3,12 +3,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
 import SelectedTrade from "./_components/selected-trade";
-import TradeCard, { TradeCardSkeleton } from "./_components/trade-card";
+import TradeCard from "./_components/trade-card";
 import { useActiveTradeStore } from "./_hooks/use-active-trade-store";
 
 export default function Page() {
@@ -25,6 +25,16 @@ export default function Page() {
     });
   }, [authData, isPending]);
 
+  // validate tab
+  const [tab, setTab] = useQueryState("tab", parseAsString);
+  useEffect(() => {
+    if (!tab || (tab !== "sent" && tab !== "received")) setTab("sent");
+
+    return () => {
+      setTab(null);
+    };
+  }, []);
+
   // fetch all transactions
   const { data, isInitialLoading } = useQuery(
     webClientORPC.transaction.getTransactions.queryOptions({
@@ -32,60 +42,30 @@ export default function Page() {
     })
   );
 
-  // validate tab
-  const [tab, setTab] = useQueryState("tab", parseAsString);
-  useEffect(() => {
-    if (!tab || (tab !== "requested" && tab !== "received")) setTab("requested");
-
-    return () => {
-      setTab(null);
-    };
-  }, []);
-
   // validate URL trans ID
-  const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const [transactionSellerPostId, setTransactionSellerPostId] = useState<string | undefined>(undefined);
+  const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
   const { activeTrade, setActiveTrade } = useActiveTradeStore();
 
   useEffect(() => {
-    if (!tab) {
+    if (!transactionIdURL) {
       setActiveTrade(undefined);
       return;
     }
 
     return () => setActiveTrade(undefined);
-  }, [tab, setActiveTrade]);
+  }, [transactionIdURL, setActiveTrade]);
 
   useEffect(() => {
-    if (!(data && tab)) return;
+    if (!(data && transactionIdURL)) return;
 
-    // TODO make this associatedTransactions
-    const find = data?.initiatedTransactions.find((t) => t._id === tab);
+    const find =
+      data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
 
-    if (find) setTransactionSellerPostId(find.sellerPostID);
-    else setTransactionIdURL(null);
-  }, [tab, data, setTransactionIdURL]);
-
-  // if URL state pointed to a valid trans ID, fetch seller post.
-  const { data: postFromTransactionId } = useQuery(
-    webClientORPC.posts.getPost.queryOptions({
-      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
-      input: { _id: transactionSellerPostId! },
-      enabled: !!transactionSellerPostId,
-    })
-  );
-
-  useEffect(() => {
-    if (!postFromTransactionId) return;
-    if (!tab) return;
-
-    setActiveTrade({
-      post: postFromTransactionId,
-
-      // biome-ignore lint/style/noNonNullAssertion: only runs if checkedTransactionSellerPost is defined
-      transaction: data!.initiatedTransactions.find((t) => t._id === tab),
-    });
-  }, [postFromTransactionId, tab, data, setActiveTrade]);
+    // no mapping to actual trade
+    if (find) {
+      setActiveTrade(find);
+    } else setTransactionIdURL(null);
+  }, [transactionIdURL, data]);
 
   const showSkeletons = !authData || isInitialLoading;
 
@@ -93,37 +73,27 @@ export default function Page() {
     <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
       {/* Side bar */}
       <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
-        <Tabs defaultValue="requested">
+        <Tabs defaultValue={tab ?? "sent"} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="requested">Requested</TabsTrigger>
+            <TabsTrigger value="sent">Sent</TabsTrigger>
             <TabsTrigger value="received">Received</TabsTrigger>
           </TabsList>
-          <TabsContent value="requested">
+          <TabsContent value="sent">
             <div className="flex flex-col gap-2">
               {showSkeletons ? (
                 <>
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
                 </>
               ) : (
                 data?.initiatedTransactions.map((t) => (
                   <TradeCard
                     key={t._id}
-                    type="requested"
+                    type="sent"
                     transaction={{
                       ...t,
                       dateToSwap: new Date(t.dateToSwap),
-                      messages: [
-                        {
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          authorEmail: t.messages[0]!.authorEmail,
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          content: t.messages[0]!.content,
-                          // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                          createdAt: new Date(t.messages[0]!.createdAt),
-                        },
-                      ],
                     }}
                   />
                 ))
@@ -132,26 +102,24 @@ export default function Page() {
           </TabsContent>
           <TabsContent value="received">
             <div className="flex flex-col gap-2">
-              {data?.receivedTransactions.map((t) => (
-                <TradeCard
-                  key={t._id}
-                  type="requested"
-                  transaction={{
-                    ...t,
-                    dateToSwap: new Date(t.dateToSwap),
-                    messages: [
-                      {
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        authorEmail: t.messages[0]!.authorEmail,
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        content: t.messages[0]!.content,
-                        // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-                        createdAt: new Date(t.messages[0]!.createdAt),
-                      },
-                    ],
-                  }}
-                />
-              ))}
+              {showSkeletons ? (
+                <>
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
+                </>
+              ) : (
+                data?.receivedTransactions.map((t) => (
+                  <TradeCard
+                    key={t._id}
+                    type="received"
+                    transaction={{
+                      ...t,
+                      dateToSwap: new Date(t.dateToSwap),
+                    }}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>
@@ -160,7 +128,7 @@ export default function Page() {
       {/* Main panel */}
       <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
         {activeTrade ? (
-          <SelectedTrade transaction={activeTrade.transaction} post={activeTrade.post} />
+          <SelectedTrade key={activeTrade._id} transaction={activeTrade} />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-bold text-2xl">No trade selected</div>
         )}

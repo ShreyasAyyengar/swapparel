@@ -51,11 +51,19 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
     setApiSubmitting(true);
 
     await createTradeMutation.mutateAsync({
-      sellerPostID: post._id,
-      buyerPostIDs: selectedPosts.map((p) => p._id),
+      sellerEmail: authData.user.email,
+      sellerPost: {
+        id: post._id,
+        title: post.title,
+        createdBy: authData.user.email,
+      },
       buyerEmail: authData.user.email,
-      // biome-ignore lint/style/noNonNullAssertion: defined once this is called
-      dateToSwap: date!,
+      buyerPosts: selectedPosts.map((p) => ({
+        id: p._id,
+        title: p.title,
+        createdBy: authData.user.email,
+      })),
+      dateToSwap: date,
       initialMessage: message, // TODO this doesn't work when msg is provided
     });
   };
