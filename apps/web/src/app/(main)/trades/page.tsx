@@ -101,7 +101,7 @@ export default function Page() {
             </div>
           </TabsContent>
           <TabsContent value="received">
-            <div className="flex flex-col gap-2">
+            <div className="flex w-full flex-col gap-2">
               {showSkeletons ? (
                 <>
                   {/*<TradeCardSkeleton />*/}
