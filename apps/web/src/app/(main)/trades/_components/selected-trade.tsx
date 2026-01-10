@@ -171,7 +171,7 @@ export default function SelectedTrade({
           </Select>
         </div>
       </div>
-      <Chat />
+      <Chat transaction={transaction} />
     </div>
   );
 }

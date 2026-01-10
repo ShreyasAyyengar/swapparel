@@ -1,19 +1,46 @@
-import { Badge } from "@swapparel/shad-ui/components/badge";
+import type { messageSchema, transactionSchemaWithAvatar } from "@swapparel/contracts";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { z } from "zod";
 import { authClient } from "../../../../lib/auth-client";
+import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
+import Message from "./message";
 
-export default function Chat() {
-  const [messages, setMessages] = useState<string[]>([]); //TODO: replace with [] when done
+export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchemaWithAvatar> }) {
+  const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]); //TODO: replace with [] when done
   const [messageText, setMessageText] = useState("");
   const { data: authData } = authClient.useSession();
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let cancelled = false;
 
-  function getText(formData: FormData) {
-    const text = formData.get("messageInput") as string;
-    setMessages((prevState) => [...prevState, text]);
-  }
+    const watchTransaction = async () => {
+      try {
+        for await (const msg of await socketClientORPC.watchingTransaction({ transactionId: transaction._id })) {
+          setMessages((prevState) => [...prevState, msg.incomingMessage]);
+          if (cancelled) break;
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error watching transaction:", error);
+        }
+      }
+    };
+
+    watchTransaction();
+
+    return () => {
+      cancelled = true;
+      // If your socketClientORPC has a cleanup/unsubscribe method, call it here
+    };
+  }, [transaction._id]);
+
+  useEffect(() => {
+    const sortedMessages = [...transaction.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    setMessages(sortedMessages);
+  }, [transaction.messages]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -25,22 +52,30 @@ export default function Chat() {
     <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
       <div className="flex flex-1 flex-col gap-5">
         {messages.length > 0 ? (
-          messages.map((message, i) => <Badge key={i}>{message}</Badge>)
+          messages.map((message, i) => <Message key={i} message={message} />)
         ) : (
-          <div className={"flex h-full w-full items-center justify-center"}>
-            <p>No Messages to be Found...</p>
+          <div className={"flex h-full w-full items-end justify-center"}>
+            <p className="mb-10 font-semibold text-3xl">No messages sent yet...</p>
           </div>
         )}
       </div>
 
       <form
         className="sticky bottom-0 flex w-full items-center rounded-md border border-secondary bg-background"
-        action={getText}
         onSubmit={(e) => {
           e.preventDefault();
           if (!messageText.trim()) return; // prevent empty submit
-          const formData = new FormData(e.currentTarget);
-          getText(formData);
+
+          // sending message to backend through websocket
+          socketClientORPC.sendMessage({
+            transactionId: transaction._id,
+            message: {
+              authorEmail: authData.user.email,
+              content: messageText,
+              createdAt: new Date().toISOString(),
+            },
+          });
+
           e.currentTarget.reset();
           setMessageText("");
         }}
@@ -53,6 +88,7 @@ export default function Chat() {
           required
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
+          autoComplete="off"
         />
 
         <button
