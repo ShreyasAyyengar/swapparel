@@ -24,7 +24,7 @@ export default function TradeCard({
 
   const { activeTrade } = useActiveTradeStore();
 
-  if (!postData) return <TradeCardSkeleton />;
+  if (!postData) return <TradeCardSkeleton />; // TODO add more to loading state since we have transactionSchemaWithAvatar
 
   // TODO do loading skeletons here?
 
@@ -37,15 +37,17 @@ export default function TradeCard({
         if (e.key === "Enter") setTransactionIdURL(transaction._id);
       }}
       className={cn(
-        "rounded-md border bg-primary/60 p-2 shadow-glass ring ring-black/0 backdrop-blur-2xl transition-all hover:border-secondary/50 hover:bg-primary/90",
-        activeTrade?.transaction && activeTrade.transaction._id === transaction._id && "border-secondary/50 bg-primary/90"
+        "cursor-pointer rounded-md border bg-background-50 p-2 shadow-glass ring ring-black/0 backdrop-blur-2xl transition-all",
+        activeTrade?.transaction && activeTrade.transaction._id === transaction._id
+          ? "border-secondary/50 bg-primary/90"
+          : "hover:border-secondary/50 hover:bg-neutral-700/20"
       )}
     >
       <div className="flex items-center">
         <Image src={transaction.avatarURL} alt="Avatar" className="mr-2 rounded-full" width={32} height={32} />
-        <div className="flex flex-col">
-          <div className="font-bold">{postData?.title}</div>
-          <div className="text-xs">{type === "sent" ? `sent to: ${postData?.createdBy}` : `received from ${transaction.buyerEmail}`}</div>
+        <div className="flex min-w-0 flex-col">
+          <div className="truncate font-bold">{postData?.title}</div>
+          <div className="text truncate">{type === "sent" ? `sent to: ${postData?.createdBy}` : `received from ${transaction.buyerEmail}`}</div>
         </div>
       </div>
     </div>

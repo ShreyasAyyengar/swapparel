@@ -86,6 +86,7 @@ export default function Page() {
         data!.initiatedTransactions.find((t) => t._id === transactionIdURL) ??
         data!.receivedTransactions.find((t) => t._id === transactionIdURL),
     });
+    console.log("just set an active trade to ", transactionIdURL);
   }, [postFromTransactionId, data, setActiveTrade, transactionIdURL]);
 
   const showSkeletons = !authData || isInitialLoading;
