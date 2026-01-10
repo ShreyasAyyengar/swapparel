@@ -31,11 +31,13 @@ export default function TradeCard({
           : "hover:border-secondary/50 hover:bg-neutral-700/20"
       )}
     >
-      <div className="flex items-center">
+      <div className="flex w-[95%] items-center">
         <Image src={displayUser.avatarURL || "/default-avatar.png"} alt="Avatar" className="mr-2 rounded-full" width={32} height={32} />
-        <div className="flex min-w-0 flex-col">
+        <div className="relative flex min-w-0 flex-col">
           <div className="truncate font-bold">{displayPost.title}</div>
-          <div className="truncate">{type === "sent" ? `sent to: ${transaction.seller.email}` : `received from ${transaction.buyer.email}`}</div>
+          <div className="truncate">
+            {type === "sent" ? `sent to: ${transaction.seller.email}` : `received from: ${transaction.buyer.email}`}
+          </div>
         </div>
       </div>
     </div>
