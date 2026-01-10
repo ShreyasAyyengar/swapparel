@@ -6,8 +6,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/comp
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "@swapparel/shad-ui/components/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarIcon, ChevronDownIcon, Clock, LoaderCircle, MapPinPen } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { z } from "zod";
+import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import Chat from "./chat";
 
@@ -15,6 +16,37 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
   const [changeableDate, setChangeableDate] = useState<Date>(new Date(transaction.dateToSwap ?? ""));
   const [changeableLocation, setChangeableLocation] = useState<string>(transaction.locationToSwap ?? "");
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setChangeableDate(new Date(transaction.dateToSwap ?? ""));
+    setChangeableLocation(transaction.locationToSwap ?? "");
+  }, [transaction.dateToSwap, transaction.locationToSwap]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const watchUpdates = async () => {
+      try {
+        for await (const _ of await socketClientORPC.subscribeToDataChange({ transactionId: transaction._id })) {
+          await queryClient.invalidateQueries({
+            queryKey: webClientORPC.transaction.getTransactions.queryOptions().queryKey,
+          });
+
+          if (cancelled) break;
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error watching transaction:", error);
+        }
+      }
+    };
+
+    watchUpdates();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [transaction._id]);
 
   // Create mutation for updating transaction
   const updateTransactionMutation = useMutation(
@@ -24,6 +56,8 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
         queryClient.invalidateQueries({
           queryKey: webClientORPC.transaction.getTransactions.queryOptions().queryKey,
         });
+
+        socketClientORPC.publishDataChange({ transactionId: transaction._id });
       },
       onError: (error) => {
         console.error("Failed to update transaction:", error);
