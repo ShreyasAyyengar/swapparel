@@ -75,27 +75,20 @@ export default function Page() {
             />
             <div className="flex flex-col items-center gap-2 md:items-end">
               <p className="text-center font-bold text-2xl md:text-end">{profileEmail}</p>
-              <div className="flex w-3/4 flex-col rounded-md border-2 border-secondary px-2 py-1 font-light">
-                <div className="flex items-center justify-between">
-                  <p>{posts?.length ?? "No"} posts</p>
-                  <p>Rating: 3/5</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p>14 Items Traded</p>
-                </div>
-              </div>
+              <p>{posts?.length ?? "No"} posts</p>
             </div>
           </>
         )}
       </div>
 
       {posts && posts.length > 0 ? (
-        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 rounded-md border-2 border-foreground bg-accent">
+        //TODO: correct overflow-y-auto hotfix
+        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground bg-accent">
           <div>
             <p className={"mt-5 font-bold text-2xl"}>POSTS</p>
             <div className="w-full border border-foreground" />
           </div>
-          <div className={"flex w-full items-center justify-center px-10"}>
+          <div className={"flex w-full px-10"}>
             <MasonryLayout>
               {posts
                 ?.slice()
