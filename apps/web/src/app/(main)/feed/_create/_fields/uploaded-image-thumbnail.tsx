@@ -26,7 +26,7 @@ export default function UploadedImageThumbnail({
       onKeyDown={onClick}
     >
       {file ? (
-        file.name.endsWith(".png") || file.name.endsWith(".jpeg") || file.name.endsWith(".jpg") ? (
+        file.name.toLowerCase().endsWith(".png") || file.name.toLowerCase().endsWith(".jpeg") || file.name.toLowerCase().endsWith(".jpg") ? (
           <div className="group relative h-full w-full rounded-2xl border border-foreground">
             <Image src={URL.createObjectURL(file)} alt={file.name} width={65} height={65} className="h-full w-full rounded-2xl object-cover" />
             <X size={20} className="-top-1 -right-1 absolute rounded-full bg-zinc-700 opacity-100 transition-opacity group-hover:opacity-0" />
