@@ -25,7 +25,7 @@ export default function TradeCard({
         if (e.key === "Enter") setTransactionIdURL(transaction._id);
       }}
       className={cn(
-        "rounded-md border bg-background-50 p-2 shadow-glass ring ring-black/0 backdrop-blur-2xl transition-all",
+        "cursor-pointer rounded-md border bg-background-50 p-2 shadow-glass ring ring-black/0 backdrop-blur-2xl transition-all",
         activeTrade && activeTrade._id === transaction._id
           ? "border-secondary/50 bg-primary/90"
           : "hover:border-secondary/50 hover:bg-neutral-700/20"
@@ -33,8 +33,8 @@ export default function TradeCard({
     >
       <div className="flex items-center">
         <Image src={displayUser.avatarURL || "/default-avatar.png"} alt="Avatar" className="mr-2 rounded-full" width={32} height={32} />
-        <div className="flex flex-col">
-          <div className="font-bold">{displayPost.title}</div>
+        <div className="flex min-w-0 flex-col">
+          <div className="truncate font-bold">{displayPost.title}</div>
           <div className="truncate">{type === "sent" ? `sent to: ${transaction.seller.email}` : `received from ${transaction.buyer.email}`}</div>
         </div>
       </div>
