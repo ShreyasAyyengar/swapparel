@@ -6,7 +6,7 @@ export default function DeletePostButton({ onClick, postId }: { onClick: () => v
   const deletePostMutation = useMutation(
     webClientORPC.posts.deletePost.mutationOptions({
       onSuccess: (data) => {
-        // window.location.reload();
+        window.location.reload();
       },
     })
   );
