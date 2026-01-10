@@ -81,6 +81,7 @@ export default function FilterHashtags({
 
       <input
         type="text"
+        autoComplete="off"
         placeholder="e.g. #spooky"
         aria-label="Search Hashtags"
         name="hashtag"

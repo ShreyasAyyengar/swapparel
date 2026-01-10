@@ -1,9 +1,9 @@
-import type { messageSchema, transactionSchema } from "@swapparel/contracts";
-import { Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import type { z } from "zod";
-import { authClient } from "../../../../lib/auth-client";
-import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
+import type {messageSchema, transactionSchema} from "@swapparel/contracts";
+import {Send} from "lucide-react";
+import {useEffect, useRef, useState} from "react";
+import type {z} from "zod";
+import {authClient} from "../../../../lib/auth-client";
+import {socketClientORPC} from "../../../../lib/orpc-socket-web-client";
 import Message from "./message";
 
 export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchema> }) {
@@ -90,6 +90,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           onChange={(e) => setMessageText(e.target.value)}
           autoComplete="off"
         />
+                    autoComplete="off"
 
         <button
           type="submit"
