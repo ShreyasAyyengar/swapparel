@@ -84,7 +84,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           type="text"
           name="messageInput"
           placeholder="Enter a message"
-          className="ml-1 w-full p-1 focus:outline-0"
+          className="ml-1 h-full w-full p-2 focus:outline-0"
           required
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}

@@ -82,9 +82,9 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               {showSkeletons ? (
                 <>
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
                 </>
               ) : (
                 data?.initiatedTransactions.map((t) => (
@@ -104,9 +104,9 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               {showSkeletons ? (
                 <>
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
+                  {/*<TradeCardSkeleton />*/}
                 </>
               ) : (
                 data?.receivedTransactions.map((t) => (
