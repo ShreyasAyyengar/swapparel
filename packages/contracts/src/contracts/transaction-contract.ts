@@ -83,9 +83,14 @@ export const transactionContract = {
       method: "POST",
     })
     .input(
-      transactionSchema
-        .omit({ messages: true, locationToSwap: true, _id: true, completed: true })
-        .extend({ initialMessage: z.string().optional() })
+      z.object({
+        sellerEmail: z.email(),
+        sellerPost: embeddedPostSchema,
+        buyerEmail: z.email(),
+        buyerPosts: z.array(embeddedPostSchema),
+        dateToSwap: z.coerce.date(),
+        initialMessage: z.string().optional(),
+      })
     )
     .output(
       z.object({
