@@ -94,7 +94,6 @@ new Elysia()
     },
     (server) => {
       const protocol = isDevelopment ? "http" : "https";
-      logger.info(`API server startedd | ${protocol}://${server.hostname}:${server.port}`);
-      // TODO fix
+      logger.info(`API server started | ${protocol}://${server.hostname}:${server.port}`);
     }
   );
