@@ -32,7 +32,7 @@ const linkVariants = {
 
 const navLinks = [
   // TODO<landing> populate more
-  { name: "About", href: "/legal/terms" },
+  { name: "About", href: "about" },
   { name: "Feed", href: "feed" },
   { name: "Features", href: "features" },
 ];
