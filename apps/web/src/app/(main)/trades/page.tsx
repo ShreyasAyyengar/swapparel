@@ -8,7 +8,7 @@ import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
 import SelectedTrade from "./_components/selected-trade";
-import TradeCard from "./_components/trade-card";
+import TradeCard, { TradeCardSkeleton } from "./_components/trade-card";
 import { useActiveTradeStore } from "./_hooks/use-active-trade-store";
 
 export default function Page() {
@@ -25,11 +25,12 @@ export default function Page() {
     });
   }, [authData, isPending]);
 
-  // validate tab
+  // validate tab on first render
   const [tab, setTab] = useQueryState("tab", parseAsString);
   useEffect(() => {
     if (!tab || (tab !== "sent" && tab !== "received")) setTab("sent");
 
+    // remove URL query on unmount
     return () => {
       setTab(null);
     };
@@ -61,14 +62,13 @@ export default function Page() {
     const find =
       data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
 
-    // no mapping to actual trade
     if (find) {
-      // TODO hotfix
+      // TODO ts-compile hotfix
       setActiveTrade({
         ...find,
         dateToSwap: new Date(find.dateToSwap),
       });
-    } else setTransactionIdURL(null);
+    } else setTransactionIdURL(null); // no mapping to actual trade
   }, [transactionIdURL, data]);
 
   const showSkeletons = !authData || isInitialLoading;
@@ -86,9 +86,9 @@ export default function Page() {
             <div className="flex flex-col gap-2">
               {showSkeletons ? (
                 <>
-                  {/*<TradeCardSkeleton />*/}
-                  {/*<TradeCardSkeleton />*/}
-                  {/*<TradeCardSkeleton />*/}
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
                 </>
               ) : (
                 data?.initiatedTransactions.map((t) => (
@@ -108,9 +108,9 @@ export default function Page() {
             <div className="flex w-full flex-col gap-2">
               {showSkeletons ? (
                 <>
-                  {/*<TradeCardSkeleton />*/}
-                  {/*<TradeCardSkeleton />*/}
-                  {/*<TradeCardSkeleton />*/}
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
+                  <TradeCardSkeleton />
                 </>
               ) : (
                 data?.receivedTransactions.map((t) => (
