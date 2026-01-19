@@ -117,7 +117,11 @@ export default function Navbar() {
             <ul className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="block text-white/90 transition-colors hover:text-white" onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href={`#${link.href}`}
+                    className="block text-white/90 transition-colors hover:text-white"
+                    onClick={() => setMobileOpen(false)}
+                  >
                     {link.name}
                   </Link>
                 </li>
