@@ -43,9 +43,9 @@ export const PUBLIC_LOCATIONS = {
 };
 
 export const messageSchema = z.object({
-  createdAt: z.string(),
-  authorEmail: z.string(), // TODO change to email
-  content: z.string().max(MESSAGE_MAX_LENGTH),
+  createdAt: z.string("createdAt timestamp is required."),
+  authorEmail: z.email("Author's email is required."),
+  content: z.string("Message content is required.").max(MESSAGE_MAX_LENGTH),
 });
 
 export const embeddedPostSchema = z.object({
@@ -56,7 +56,7 @@ export const embeddedPostSchema = z.object({
 
 export const embeddedUserSchema = z.object({
   email: z.email(),
-  avatarURL: z.string(), // TODO change to z.url()
+  avatarURL: z.url(),
 });
 
 // TODO check _id bullshit

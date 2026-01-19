@@ -6,10 +6,9 @@ const DESCRIPTION_MAX_LENGTH = 1000;
 const TITLE_MAX_LENGTH = 40;
 export const PRICE_MAX = 500;
 
-// TODO change back to z.email()
 export const singleCommentSchema = z.object({
   comment: z.string().min(1, "Reply must be at least 1 character."),
-  author: z.string("Author's email is required."),
+  author: z.email("Author's email is required."),
 });
 
 export const commentsSchema = z.object({
