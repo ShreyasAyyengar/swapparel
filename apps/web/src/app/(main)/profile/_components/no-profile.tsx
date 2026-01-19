@@ -18,7 +18,7 @@ export default function NoProfile() {
             <div className="mb-5 flex h-25 w-25 items-center justify-center overflow-hidden rounded-full border border-secondary bg-accent md:mr-10 md:mb-0">
               <User className={"h-15 w-15"} />
             </div>
-            <p className="text-center font-bold text-2xl md:text-end">No Profile</p>
+            <p className="text-center font-bold text-2xl text-primary-foreground md:text-end">We couldn't find that profile...</p>
           </>
         )}
       </div>

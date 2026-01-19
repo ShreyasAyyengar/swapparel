@@ -21,13 +21,12 @@ export default function ProfileButton() {
     if (!authData) {
       authClient.signIn.social({
         provider: "google",
-        callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/feed?create`,
+        callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/profile`,
         errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error`,
       });
       return null;
     }
-    const email = authData.user.email;
-    router.push(`/profile?profile=${encodeURIComponent(email)}`); //TODO: encodeURI???
+    router.push("/profile");
   };
   return (
     <User

@@ -1,14 +1,12 @@
 "use client";
 
-import type {internalPostSchema} from "@swapparel/contracts";
-import {useQuery} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import {useQueryState} from "nuqs";
-import {useEffect, useState} from "react";
-import type {z} from "zod";
-import {env} from "../../../env";
-import {authClient} from "../../../lib/auth-client";
-import {webClientORPC} from "../../../lib/orpc-web-client";
+import { useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
+import { env } from "../../../env";
+import { authClient } from "../../../lib/auth-client";
+import { webClientORPC } from "../../../lib/orpc-web-client";
 import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 import ExpandedPostLayer from "../feed/_components/post/selected/expanded-post-layer";
@@ -17,45 +15,46 @@ import LoadingProfile from "./_components/loading-profile";
 import NoProfile from "./_components/no-profile";
 
 export default function Page() {
-  const [profileEmail] = useQueryState("profile");
-  const { data: authData, isPending } = authClient.useSession();
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
-  const { data: posts } = useQuery(
-    webClientORPC.posts.getPosts.queryOptions({
-      input: { createdBy: profileEmail ?? "template@ucsc.edu" },
-    })
-  );
+  const { data: authData, isPending } = authClient.useSession();
+  const [profileQuery] = useQueryState("email");
+
+  useEffect(() => {
+    if (!profileQuery) {
+      // user wants to see their own profile, but must be authed
+      if (isPending) return;
+      if (!authData) {
+        authClient.signIn.social({
+          provider: "google",
+          callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/profile`,
+          errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error`,
+        });
+        return;
+      }
+    }
+  }, [profileQuery, isPending, authData]);
 
   const { data: profileData, isPending: isProfilePending } = useQuery(
     webClientORPC.users.getUser.queryOptions({
-      // biome-ignore lint/style/noNonNullAssertion: this will always be a defined string, see next line.
-      input: { email: profileEmail! },
-      enabled: !!profileEmail,
+      input: { email: profileQuery ?? authData?.user.email ?? undefined },
+      enabled: profileQuery !== null || (!isPending && authData !== null),
       retry: false,
     })
   );
 
-  if (isPending || isProfilePending) {
-    return <LoadingProfile />;
-  }
+  const { data: posts } = useQuery(
+    webClientORPC.posts.getPosts.queryOptions({
+      enabled: !isPending,
+      input: { createdBy: profileQuery ? profileQuery : authData?.user.email },
+    })
+  );
 
-  if (!(profileEmail || isPending || authData)) {
-    authClient.signIn.social({
-      provider: "google",
-      callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/trades`,
-      errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error`,
-    });
-    return null; // TODO: show loading skeleton
-  }
-
-  if (!profileData) {
-    return <NoProfile />;
-  }
+  if (isPending || isProfilePending) return <LoadingProfile />;
+  if (!profileData) return <NoProfile />;
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
@@ -74,7 +73,7 @@ export default function Page() {
               className="mr-0 mb-5 rounded-full md:mr-10 md:mb-0"
             />
             <div className="flex flex-col items-center gap-2 md:items-end">
-              <p className="text-center font-bold text-2xl md:text-end">{profileEmail}</p>
+              <p className="text-center font-bold text-2xl md:text-end">{profileData?.email ?? profileQuery}</p>
               <p>{posts?.length ?? "No"} posts</p>
             </div>
           </>

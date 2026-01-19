@@ -1,13 +1,13 @@
 "use client";
 
-import type {internalPostSchema} from "@swapparel/contracts";
-import {Button} from "@swapparel/shad-ui/components/button";
-import {ChevronLeft, ChevronRight, Ellipsis} from "lucide-react";
+import type { internalPostSchema } from "@swapparel/contracts";
+import { Button } from "@swapparel/shad-ui/components/button";
+import { ChevronLeft, ChevronRight, Ellipsis } from "lucide-react";
 import Image from "next/image";
-import {parseAsString, useQueryState} from "nuqs";
-import {useEffect, useRef, useState} from "react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
-import {authClient} from "../../../../../../lib/auth-client";
+import { authClient } from "../../../../../../lib/auth-client";
 import TradingBox from "../trading/trade";
 import DeletePostButton from "./delete-post-button";
 
@@ -24,10 +24,7 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
 
   useEffect(() => {
     if (isPending) return;
-    if (!data?.user.email) return;
-    if (!data?.session) return;
-
-    if (data.user.email !== post.createdBy) setCanSeeButton(true);
+    if (data?.user.email !== post.createdBy) setCanSeeButton(true);
   }, [data, isPending, post.createdBy]);
 
   const handleClose = async () => {
