@@ -69,7 +69,6 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     return true;
   });
 };
-// TODO flatten this
 export const feedFilterSchema = z.object({
   color: z.array(z.enum(COLOURS)).optional(),
   colorOnly: booleanStringSchema.default(false),

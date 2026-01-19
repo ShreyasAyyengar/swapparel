@@ -1,8 +1,8 @@
 "use client";
-import {LoaderCircle, User} from "lucide-react";
-import {useRouter} from "next/navigation";
-import {env} from "../../../../env";
-import {authClient} from "../../../../lib/auth-client";
+import { LoaderCircle, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { env } from "../../../../env";
+import { authClient } from "../../../../lib/auth-client";
 
 export default function ProfileButton() {
   const router = useRouter();

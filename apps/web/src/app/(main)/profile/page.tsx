@@ -93,7 +93,7 @@ export default function Page() {
               {posts
                 ?.slice()
                 .reverse()
-                .map((post: z.infer<typeof internalPostSchema>) => (
+                .map((post) => (
                   <MasonryElement key={post._id} className="bg-primary" postData={post} />
                 ))}
             </MasonryLayout>
