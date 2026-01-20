@@ -129,6 +129,13 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
                   step="60"
                   value={changeableDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   className="border-0 bg-transparent font-mono font-normal shadow-none outline-none ring-0 focus:border-transparent focus:shadow-none focus:outline-none focus:ring-0 focus-visible:border-transparent focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                  onChange={(e) => {
+                    const time = e.currentTarget.value;
+                    const [hours, minutes] = time.split(":").map(Number);
+                    const newDate = new Date(changeableDate);
+                    newDate.setHours(hours, minutes);
+                    setChangeableDate(newDate);
+                  }}
                   onBlur={(e) => {
                     e.preventDefault();
                     const time = e.currentTarget.value;
@@ -147,7 +154,6 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
                   }}
                   disabled={updateTransactionMutation.isPending}
                 />
-                <span>{changeableDate.toLocaleTimeString()}</span>
               </div>
             </div>
           </Popover>
