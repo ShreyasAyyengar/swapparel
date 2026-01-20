@@ -62,13 +62,8 @@ export default function Page() {
     const find =
       data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
 
-    if (find) {
-      // TODO ts-compile hotfix
-      setActiveTrade({
-        ...find,
-        dateToSwap: new Date(find.dateToSwap),
-      });
-    } else setTransactionIdURL(null); // no mapping to actual trade
+    if (find) setActiveTrade(find);
+    else setTransactionIdURL(null); // no mapping to actual trade
   }, [transactionIdURL, data]);
 
   const showSkeletons = !authData || isInitialLoading;
@@ -91,16 +86,7 @@ export default function Page() {
                   <TradeCardSkeleton />
                 </>
               ) : (
-                data?.initiatedTransactions.map((t) => (
-                  <TradeCard
-                    key={t._id}
-                    type="sent"
-                    transaction={{
-                      ...t,
-                      dateToSwap: new Date(t.dateToSwap),
-                    }}
-                  />
-                ))
+                data?.initiatedTransactions.map((t) => <TradeCard key={t._id} type="sent" transaction={t} />)
               )}
             </div>
           </TabsContent>
@@ -113,16 +99,7 @@ export default function Page() {
                   <TradeCardSkeleton />
                 </>
               ) : (
-                data?.receivedTransactions.map((t) => (
-                  <TradeCard
-                    key={t._id}
-                    type="received"
-                    transaction={{
-                      ...t,
-                      dateToSwap: new Date(t.dateToSwap),
-                    }}
-                  />
-                ))
+                data?.receivedTransactions.map((t) => <TradeCard key={t._id} type="received" transaction={t} />)
               )}
             </div>
           </TabsContent>
