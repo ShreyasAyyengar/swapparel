@@ -114,50 +114,6 @@ export const transactionRouter = {
       return { _id };
     }
   ),
-
-  // TODO
-  // deleteTransaction: protectedProcedure.transaction.deleteTransaction.handler(async ({ input, errors }) => {
-  //   const swapToDelete = await TransactionCollection.findById(input._id);
-  //
-  //   if (!swapToDelete) {
-  //     throw errors.NOT_FOUND({
-  //       data: {
-  //         message: "Swap Not Found",
-  //       },
-  //     });
-  //   }
-  //
-  //   let swapDeleteSuccess = false;
-  //
-  //   if (swapToDelete.swapItemCompleted === true) {
-  //     try {
-  //       const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
-  //       swapDeleteSuccess = result.deletedCount === 1;
-  //     } catch (error) {
-  //       throw errors.INTERNAL_SERVER_ERROR({
-  //         data: {
-  //           message: `Failed to delete ${swapToDelete._id}. ${error}`,
-  //         },
-  //       });
-  //     }
-  //   } else if (swapToDelete.returnItemCompleted === true) {
-  //     try {
-  //       const result = await TransactionCollection.deleteOne({ _id: swapToDelete._id });
-  //       swapDeleteSuccess = result.deletedCount === 1;
-  //     } catch (error) {
-  //       throw errors.INTERNAL_SERVER_ERROR({
-  //         data: {
-  //           message: `Failed to delete ${swapToDelete._id}. ${error}`,
-  //         },
-  //       });
-  //     }
-  //   }
-  //   if (!swapDeleteSuccess) {
-  //     return { success: false, message: "Swap Still In Progress!!" };
-  //   }
-  //   return { success: true, message: "Swap Successfully Deleted" };
-  // }),
-
   getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
     const email = context.user.email;
 
