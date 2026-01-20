@@ -61,8 +61,7 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
       },
       onError: (error) => {
         console.error("Failed to update transaction:", error);
-        // Optionally: show error toast/notification
-        // Revert to original date on error
+        // todo: show error toast/notification
         setChangeableDate(new Date(transaction.dateToSwap));
       },
     })
