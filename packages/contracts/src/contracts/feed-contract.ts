@@ -61,10 +61,11 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     if (filters.freeOnly) return isFree;
     if (filters.priceOnly) return isPriced;
 
-    // range filtering (only applies to priced items usually)
-    // TODO hotfix
-    if (typeof filters.minPrice === "number" && hasPrice && post!.price! < filters.minPrice) return false;
-    if (typeof filters.maxPrice === "number" && hasPrice && post!.price! > filters.maxPrice) return false;
+    // range filtering (only applies to priced items)
+    // biome-ignore lint/style/noNonNullAssertion: hasPrice checks non-undefined
+    if (typeof filters.minPrice === "number" && hasPrice && post.price! < filters.minPrice) return false;
+    // biome-ignore lint/style/noNonNullAssertion: hasPrice checks non-undefined
+    if (typeof filters.maxPrice === "number" && hasPrice && post.price! > filters.maxPrice) return false;
 
     return true;
   });
@@ -91,7 +92,7 @@ export const feedContract = {
     })
     .input(
       z.object({
-        amount: z.coerce.number().default(FEED_AMOUNT), // TODO check functionality of coerce
+        amount: z.coerce.number().default(FEED_AMOUNT),
         filters: feedFilterSchema.optional(),
         nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from the previous request
       })
