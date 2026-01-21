@@ -36,16 +36,4 @@ export const authServer = betterAuth({
   //   errorURL: "http://localhost:3000/error",
   //   throw: true,
   // },
-
-  user: {
-    additionalFields: {
-      displayName: {
-        type: "string",
-      },
-      restricted: {
-        type: "boolean",
-        defaultValue: true,
-      },
-    },
-  },
 });

@@ -1,21 +1,19 @@
-import { type Document, Schema } from "mongoose";
+import { userSchema } from "@swapparel/contracts";
+import { toMongooseSchema } from "mongoose-zod";
+import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
-// TODO : look into consolidating this
-export interface User extends Document {
-  // Better-Auth schema
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  image: string;
-  createdAt: Date;
-  updatedAt: Date;
+const UserSchemaMongooseZod = userSchema;
 
-  // swapparel fields
-  displayName: string;
-  restricted: boolean;
-}
+const UserSchemaMongoose = toMongooseSchema(
+  UserSchemaMongooseZod.mongoose({
+    schemaOptions: {
+      collection: "user",
+      versionKey: false,
+    },
+  })
+);
 
-const UserSchema = new Schema<User>({}, { collection: "user" });
+export interface IUserSchemaMongoose extends z.infer<typeof UserSchemaMongooseZod> {}
 
-export const UserCollection = databaseConnection.model("user", UserSchema, "user");
+export const UserCollection = databaseConnection.model<IUserSchemaMongoose>("user", UserSchemaMongoose, "user");

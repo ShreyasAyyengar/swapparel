@@ -1,4 +1,4 @@
-import { zodUserSchema } from "@swapparel/contracts";
+import { userSchema } from "@swapparel/contracts";
 import { publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "./user-schema";
 
@@ -13,7 +13,7 @@ export const userRouter = {
         },
       });
 
-    const tryParse = zodUserSchema.safeParse(user.toJSON());
+    const tryParse = userSchema.safeParse(user.toJSON());
     if (!tryParse.success) {
       throw INTERNAL_SERVER_ERROR({
         data: {
