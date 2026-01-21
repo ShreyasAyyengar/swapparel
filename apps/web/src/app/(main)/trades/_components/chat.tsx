@@ -69,7 +69,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           socketClientORPC.publishChatMessage({
             transactionId: transaction._id,
             message: {
-              // TODO hotfix
+              // biome-ignore lint/style/noNonNullAssertion: due to component rendering, authData will never be undefined.
               authorEmail: authData!.user.email,
               content: messageText,
               createdAt: new Date().toISOString(),
