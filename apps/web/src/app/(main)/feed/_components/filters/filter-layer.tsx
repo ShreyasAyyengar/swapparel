@@ -139,7 +139,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       <div className="mt-20 mr-25 ml-25 flex items-center justify-center">
         <MasonryLayout>
           {filteredPosts.map((post) => (
-            // TODO hotfix
+            // TODO<Alex>: hotfix
             <MasonryElement key={post._id} postData={post} className={"border border-secondary bg-accent"} />
           ))}
         </MasonryLayout>

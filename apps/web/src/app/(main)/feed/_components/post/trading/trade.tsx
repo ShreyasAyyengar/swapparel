@@ -19,7 +19,7 @@ import TradingImage from "./trade-image";
 
 export default function TradingBox({ post, onClick }: { post: z.infer<typeof internalPostSchema>; onClick: () => void }) {
   const { data } = authClient.useSession();
-  // biome-ignore lint/style/noNonNullAssertion: TODO the user must be logged in to see this page
+  // biome-ignore lint/style/noNonNullAssertion: the user must be logged in to see this page
   const authData = data!;
 
   const [selectedPosts, setSelectedPosts] = useState<z.infer<typeof internalPostSchema>[]>([]);
@@ -64,7 +64,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
         createdBy: authData.user.email,
       })),
       dateToSwap: date,
-      initialMessage: message, // TODO this doesn't work when msg is provided
+      initialMessage: message,
     });
   };
 

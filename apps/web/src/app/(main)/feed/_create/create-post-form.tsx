@@ -45,7 +45,7 @@ export const { useAppForm } = createFormHook({
 export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
   const router = useRouter();
   const [_, setPost] = useQueryState("post");
-  //TODO: add new post to feed
+  // TODO<Alex>: add new post to feed
 
   const createPostMutation = useMutation(
     webClientORPC.posts.createPost.mutationOptions({

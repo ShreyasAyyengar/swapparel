@@ -16,7 +16,7 @@ export default function ChoosePostGrid({
   const hasPosts = postsByUser && (postsByUser?.length ?? 0) > 0;
   const [_, setIsCreating] = useQueryState("create");
 
-  // TODO fix resizing:
+  // TODO<Alex>: fix resizing:
   return (
     <div
       className={cn(

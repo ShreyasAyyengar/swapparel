@@ -81,7 +81,7 @@ export default function Page() {
       </div>
 
       {posts && posts.length > 0 ? (
-        //TODO: correct overflow-y-auto hotfix
+        //TODO<Alex>: correct overflow-y-auto hotfix
         <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground bg-accent">
           <div>
             <p className={"mt-5 font-bold text-2xl"}>POSTS</p>
