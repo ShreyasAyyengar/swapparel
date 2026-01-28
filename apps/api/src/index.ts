@@ -72,7 +72,7 @@ new Elysia()
         if (typeof message === "string") msg = message;
         else msg = new Uint8Array(message);
 
-        // Get session from WebSocket upgrade request headers
+        // get session from WebSocket upgrade request headers
         const session = await authServer.api.getSession({
           headers: ws.data.headers,
         });
