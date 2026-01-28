@@ -19,7 +19,6 @@ export default function ExpandedPostTrigger({ post, children }: { post: z.infer<
   const [canSeeButton, setCanSeeButton] = useState(false);
   const [seeDelete, setSeeDelete] = useState<boolean>(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  // TODO<Alex>: copy instagram delete post
   const { data, isPending } = authClient.useSession();
 
   useEffect(() => {

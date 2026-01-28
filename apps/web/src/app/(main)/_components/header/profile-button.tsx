@@ -1,5 +1,5 @@
 "use client";
-import { LoaderCircle, User } from "lucide-react";
+import { LoaderCircle, LogIn, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { env } from "../../../../env";
 import { authClient } from "../../../../lib/auth-client";
@@ -28,7 +28,14 @@ export default function ProfileButton() {
     }
     router.push("/profile");
   };
-  return (
+  return !(authData || isPending) ? (
+    <LogIn
+      width={37.5}
+      height={37.5}
+      className="text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+      onClick={handleClick}
+    />
+  ) : (
     <User
       width={37.5}
       height={37.5}

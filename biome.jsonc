@@ -37,7 +37,8 @@
       "style": {
         "useBlockStatements": "off",
         "noMagicNumbers": "warn",
-        "noUselessElse": "warn"
+        "noUselessElse": "warn",
+        "noNegationElse": "off"
       },
       "suspicious": {
         "useAwait": "warn",
