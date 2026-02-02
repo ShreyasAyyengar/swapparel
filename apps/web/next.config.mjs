@@ -1,10 +1,12 @@
+import { env } from "./src/env.ts";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "cdn.swapparel.app" },
+      { protocol: "https", hostname: env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL.toString().replace("https://", "") },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],

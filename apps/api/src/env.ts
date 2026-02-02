@@ -13,7 +13,7 @@ export const env = createEnv({
     // Cloudflare R2 credentials
     CLOUDFLARE_R2_ACCOUNT_ID: z.string(),
     CLOUDFLARE_R2_BUCKET_NAME: z.string(),
-    CLOUDFLARE_R2_PUBLIC_DEVELOPMENT_URL: z.string(),
+    CLOUDFLARE_R2_PUBLIC_URL: z.string(),
     CLOUDFLARE_R2_ACCESS_KEY_ID: z.string(),
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string(),
     CLOUDFLARE_R2_TOKEN_VALUE: z.string(),

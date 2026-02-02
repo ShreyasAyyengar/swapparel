@@ -34,7 +34,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 
   await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
 
-  return `https://cdn.swapparel.app/${key}.${fileExtension}`;
+  return `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}.${fileExtension}`;
 };
 
 export const postRouter = {
