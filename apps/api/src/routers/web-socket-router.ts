@@ -1,3 +1,4 @@
+import { feedPublisher } from "../core/feed/feed-publisher";
 import { transactionDataPublisher, transactionPublisher } from "../core/messaging/chat-subscription-manager";
 import { TransactionCollection } from "../core/swap/transaction-schema";
 import { protectedWebSocketProcedure } from "../libs/orpc-procedures";
@@ -62,5 +63,14 @@ export const webSocketRouter = {
 
       yield payload;
     }
+  }),
+
+  subscribeToPostChanges: protectedWebSocketProcedure.subscribeToPostChanges.handler(async function* ({ signal, lastEventId }) {
+    const iterator = feedPublisher.subscribe("feed", {
+      signal,
+      lastEventId,
+    });
+
+    for await (const payload of iterator) yield payload;
   }),
 };

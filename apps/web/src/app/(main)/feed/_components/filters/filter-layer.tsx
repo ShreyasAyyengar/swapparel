@@ -5,6 +5,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
+import { socketClientORPC } from "../../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import { useStickyTrue } from "../../_hooks/use-sticky-state";
@@ -25,7 +26,40 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedPriceOnly] = useQueryState("pricedOnly", parseAsBoolean);
   const [selectedFreeOnly] = useQueryState("freeOnly", parseAsBoolean);
 
-  const { fetchedPosts, addPosts } = useFetchedPostsStore();
+  const { fetchedPosts, addPosts, setPosts } = useFetchedPostsStore();
+
+  // listen to websocket post publish here, and add it to fetchedPosts
+  // listen to websocket delete post here, and remove it from feteched posts IF it exists
+
+  useEffect(() => {
+    let aborted = false;
+
+    const watchPostChanges = async () => {
+      try {
+        for await (const payload of await socketClientORPC.subscribeToPostChanges()) {
+          if (aborted) break;
+
+          if (payload.action === "CREATE") {
+            console.log("caught CREATE", payload.updatedPost);
+            console.log("adding o");
+            addPosts([payload.updatedPost]);
+          }
+          if (payload.action === "DELETE") {
+            const newPosts = fetchedPosts.filter((p) => p._id !== payload.updatedPost._id);
+            setPosts(newPosts);
+          }
+        }
+      } catch (error) {
+        if (!aborted) console.error("Error watching post changes:", error);
+      }
+    };
+
+    watchPostChanges();
+
+    return () => {
+      aborted = true;
+    };
+  }, []);
 
   const filters = useMemo(
     () =>

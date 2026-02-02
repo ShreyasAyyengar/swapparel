@@ -1,6 +1,12 @@
 import { eventIterator, oc } from "@orpc/contract";
 import { z } from "zod";
+import { internalPostSchema } from "./post-contract";
 import { messageSchema, transactionSchema } from "./transaction-contract";
+
+export const feedSubscriptionPayload = z.object({
+  updatedPost: internalPostSchema,
+  action: z.enum(["CREATE", "UPDATE", "DELETE"]),
+});
 
 export const webSocketContract = {
   publishChatMessage: oc
@@ -63,4 +69,6 @@ export const webSocketContract = {
         })
       )
     ),
+
+  subscribeToPostChanges: oc.output(eventIterator(feedSubscriptionPayload)),
 };

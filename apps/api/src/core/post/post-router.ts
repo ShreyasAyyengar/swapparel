@@ -3,6 +3,7 @@ import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
+import { feedPublisher } from "../feed/feed-publisher";
 import { UserCollection } from "../users/user-schema";
 import { PostCollection } from "./post-schema";
 
@@ -55,6 +56,7 @@ export const postRouter = {
         createdBy: context.user.email,
         images: imageURLs,
         ...input.postData,
+        comments: [],
       };
 
       const tryParse = internalPostSchema.safeParse(postData);
@@ -70,6 +72,11 @@ export const postRouter = {
 
       try {
         await PostCollection.insertOne(postData);
+
+        await feedPublisher.publish("feed", {
+          action: "CREATE",
+          updatedPost: postData,
+        });
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
