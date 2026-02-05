@@ -1,9 +1,9 @@
-import { APIError, betterAuth } from "better-auth";
+import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { databaseConnection } from "../database/database";
 import { env } from "../env";
 
-const database = databaseConnection.getClient().db("swapparel");
+const database = databaseConnection.getClient().db("swapparel-dev");
 
 const basePath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api/auth" : "/auth";
 
@@ -20,12 +20,12 @@ export const authServer = betterAuth({
       accessType: "offline",
       mapProfileToUser: (profile) => {
         const email = profile.email;
-        if (!email?.endsWith("@ucsc.edu")) {
-          const headers = new Headers();
-          headers.set("location", `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error?message=invalid_email_domain`);
-          throw new APIError("FOUND", undefined, headers);
-          // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
-        }
+        // if (!email?.endsWith("@ucsc.edu")) {
+        //   const headers = new Headers();
+        //   headers.set("location", `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error?message=invalid_email_domain`);
+        //   throw new APIError("FOUND", undefined, headers);
+        // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
+        // }
 
         return profile;
       },
