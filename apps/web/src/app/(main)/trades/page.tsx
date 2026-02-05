@@ -71,11 +71,13 @@ export default function Page() {
   return (
     <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
       {/* Side bar */}
-      <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
+      <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2 px-5 pt-5">
         <Tabs defaultValue={tab ?? "sent"} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="sent">Sent</TabsTrigger>
-            <TabsTrigger value="received">Received</TabsTrigger>
+            <TabsTrigger value="sent">Sent {data?.initiatedTransactions.length ? `(${data.initiatedTransactions.length})` : null}</TabsTrigger>
+            <TabsTrigger value="received">
+              Received {data?.receivedTransactions.length ? `(${data.receivedTransactions.length})` : null}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="sent">
             <div className="flex flex-col gap-2">
