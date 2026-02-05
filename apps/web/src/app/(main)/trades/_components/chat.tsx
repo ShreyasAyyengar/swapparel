@@ -10,6 +10,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]);
   const [messageText, setMessageText] = useState("");
   const { data: authData } = authClient.useSession();
+  const otherParty = transaction.seller.email === authData?.user.email ? transaction.buyer : transaction.seller;
 
   // initialise messages with history
   useEffect(() => {
@@ -48,7 +49,10 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     }
   }, [messages]);
   return (
-    <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
+    <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
+      <p className="text-center font-semibold text-ring text-xs">
+        You're planning a swap with {otherParty.email}. Use this chat to coordinate details or ask questions before meeting.
+      </p>
       <div className="flex flex-1 flex-col gap-1">
         {messages.length > 0 ? (
           messages.map((message, i) => <Message key={i} message={message} prevMessage={messages[i - 1]} transaction={transaction} />)
@@ -58,7 +62,6 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
           </div>
         )}
       </div>
-
       <form
         className="sticky bottom-0 flex w-full items-center rounded-md border border-secondary bg-background"
         onSubmit={(e) => {
