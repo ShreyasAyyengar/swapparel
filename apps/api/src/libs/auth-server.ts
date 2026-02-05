@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { databaseConnection } from "../database/database";
 import { env } from "../env";
 
-const database = databaseConnection.getClient().db("swapparel-dev");
+const database = databaseConnection.getClient().db(env.NEXT_PUBLIC_NODE_ENV === "development" ? "swapparel-dev" : "swapparel");
 
 const basePath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api/auth" : "/auth";
 
