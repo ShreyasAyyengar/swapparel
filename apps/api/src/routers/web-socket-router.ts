@@ -9,7 +9,7 @@ export const webSocketRouter = {
 
     const outgoingMessage = {
       createdAt: new Date().toISOString(),
-      authorEmail: context.user.email,
+      createdBy: context.user.email,
       content: message.content,
     };
 
@@ -44,6 +44,8 @@ export const webSocketRouter = {
     const transaction = await TransactionCollection.findById(transactionId);
 
     if (!transaction) throw NOT_FOUND({ data: { message: "Transaction not found." } });
+
+    // find what changed
 
     await transactionDataPublisher.publish(transactionId, {
       initiatedBy: context.user.email,

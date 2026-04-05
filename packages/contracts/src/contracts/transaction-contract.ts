@@ -42,11 +42,19 @@ export const PUBLIC_LOCATIONS = {
   },
 };
 
-export const messageSchema = z.object({
-  createdAt: z.string("createdAt timestamp is required."),
-  authorEmail: z.email("Author's email is required."),
-  content: z.string("Message content is required.").max(MESSAGE_MAX_LENGTH),
-});
+export const messageSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("MESSAGE"),
+    createdAt: z.string("createdAt timestamp is required."),
+    createdBy: z.union([z.email("Author's email is required."), z.literal("SYSTEM")]),
+    content: z.string("Message content is required.").max(MESSAGE_MAX_LENGTH),
+  }),
+  z.object({
+    type: z.literal("MUTATION"),
+    mutatedDetail: z.union([z.literal("DATE_CHANGE"), z.literal("LOCATION_CHANGE")]),
+    mutatedBy: z.union([z.email("Author's email is required.")]),
+  }),
+]);
 
 export const embeddedPostSchema = z.object({
   id: internalPostSchema.shape._id,

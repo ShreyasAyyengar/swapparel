@@ -49,11 +49,12 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     }
   }, [messages]);
   return (
-    <div className={"relative m-5 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-md border border-secondary p-5"} ref={containerRef}>
+    <div className={"relative mb-5 flex min-h-0 w-9/10 flex-1 flex-col gap-2 rounded-md border border-secondary p-5"}>
       <p className="text-center font-semibold text-ring text-xs">
         You're planning a swap with {otherParty.email}. Use this chat to coordinate details or ask questions before meeting.
       </p>
-      <div className="flex flex-1 flex-col gap-1">
+
+      <div className="flex flex-1 flex-col gap-1 overflow-y-auto" ref={containerRef}>
         {messages.length > 0 ? (
           messages.map((message, i) => <Message key={i} message={message} prevMessage={messages[i - 1]} transaction={transaction} />)
         ) : (
@@ -63,7 +64,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
         )}
       </div>
       <form
-        className="sticky bottom-0 flex w-full items-center rounded-md border border-secondary bg-background"
+        className="sticky bottom-0 flex w-full items-center rounded-md border border-ring bg-background"
         onSubmit={(e) => {
           e.preventDefault();
           if (!messageText.trim()) return; // prevent empty submit
@@ -73,7 +74,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
             transactionId: transaction._id,
             message: {
               // biome-ignore lint/style/noNonNullAssertion: due to component rendering, authData will never be undefined.
-              authorEmail: authData!.user.email,
+              createdBy: authData!.user.email,
               content: messageText,
               createdAt: new Date().toISOString(),
             },

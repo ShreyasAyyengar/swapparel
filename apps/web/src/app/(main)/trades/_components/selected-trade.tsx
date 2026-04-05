@@ -63,11 +63,9 @@ export default function SelectedTrade({ transaction }: { transaction: z.infer<ty
   );
 
   return (
-    <div className={"flex h-full border border-red-500"}>
+    <div className="flex h-full flex-col items-center">
+      <MutationBar transaction={transaction} />
       <Chat transaction={transaction} />
-      <div className="w-1/5">
-        <MutationBar transaction={transaction} />
-      </div>
     </div>
   );
 }

@@ -82,7 +82,7 @@ export const transactionRouter = {
           ? [
               {
                 createdAt: new Date().toISOString(),
-                authorEmail: buyerEmail,
+                createdBy: buyerEmail,
                 content: input.initialMessage,
               },
             ]
@@ -114,7 +114,7 @@ export const transactionRouter = {
       return { _id };
     }
   ),
-  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
+  /* IMPL */ getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
     const email = context.user.email;
 
     // Simple queries - no joins needed!

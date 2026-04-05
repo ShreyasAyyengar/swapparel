@@ -69,9 +69,9 @@ export default function Page() {
   const showSkeletons = !authData || isInitialLoading;
 
   return (
-    <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
+    <div className="align = fixed inset-0 mt-[61.5px] flex w-full items-center justify-center">
       {/* Side bar */}
-      <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2 px-5 pt-5">
+      <div className="ml-30 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2 px-5 pt-5">
         <Tabs defaultValue={tab ?? "sent"} onValueChange={setTab}>
           <TabsList>
             <TabsTrigger value="sent">Sent {data?.initiatedTransactions.length ? `(${data.initiatedTransactions.length})` : null}</TabsTrigger>
@@ -109,7 +109,7 @@ export default function Page() {
       </div>
 
       {/* Main panel */}
-      <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
+      <div className="mr-30 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
         {activeTrade ? (
           <SelectedTrade key={activeTrade._id} transaction={activeTrade} />
         ) : (

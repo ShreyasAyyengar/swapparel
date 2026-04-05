@@ -18,8 +18,8 @@ export default function Message({
   const authData = data!;
   const MESSAGECHUNK = 25;
 
-  const sameAuthorAsPrev = prevMessage && prevMessage.authorEmail === message.authorEmail;
-  const fromSelf = message.authorEmail === authData.user.email;
+  const sameAuthorAsPrev = prevMessage && prevMessage.createdBy === message.createdBy;
+  const fromSelf = message.createdBy === authData.user.email;
 
   function chunkWords(str: string, max = MESSAGECHUNK) {
     const words = str.split(" ");
@@ -57,7 +57,7 @@ export default function Message({
   // which ever one matches the auth data
 
   const avatarURL =
-    message.authorEmail === transaction.seller.email ? transaction.seller.avatarURL : transaction.buyer.avatarURL || "/default-avatar.png";
+    message.createdBy === transaction.seller.email ? transaction.seller.avatarURL : transaction.buyer.avatarURL || "/default-avatar.png";
   return (
     <div className={"flex"}>
       {!fromSelf && (
