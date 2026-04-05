@@ -78,6 +78,7 @@ export const postRouter = {
         });
       }
 
+      Bun.gc(true);
       return { id };
     }
   ),
