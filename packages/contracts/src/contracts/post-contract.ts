@@ -114,7 +114,7 @@ export const GARMENT_TYPES = [
   "Accessories",
 ] as const;
 
-export const internalPostSchema = z.object({
+export const postSchema = z.object({
   _id: z.uuidv7(),
   // biome-ignore format: readability
   createdBy: z.email("Creator's email is required."),
@@ -155,7 +155,7 @@ export const internalPostSchema = z.object({
 });
 
 export const userFormPostSchema = z.object({
-  postData: internalPostSchema.pick({
+  postData: postSchema.pick({
     title: true,
     description: true,
     garmentType: true,
@@ -218,8 +218,8 @@ export const postContract = {
     .route({
       method: "GET",
     })
-    .input(internalPostSchema.pick({ createdBy: true }))
-    .output(z.array(internalPostSchema))
+    .input(postSchema.pick({ createdBy: true }))
+    .output(z.array(postSchema))
     .errors({
       NOT_FOUND: {},
       INTERNAL_SERVER_ERROR: {},
@@ -229,8 +229,8 @@ export const postContract = {
     .route({
       method: "GET",
     })
-    .input(internalPostSchema.pick({ _id: true }))
-    .output(internalPostSchema)
+    .input(postSchema.pick({ _id: true }))
+    .output(postSchema)
     .errors({
       NOT_FOUND: {},
       INTERNAL_SERVER_ERROR: {},
@@ -242,7 +242,7 @@ export const postContract = {
     })
     .input(
       z.object({
-        postId: internalPostSchema.shape._id,
+        postId: postSchema.shape._id,
         commentIndex: z.coerce.number().min(0),
         reply: z.string().min(1, "Reply must be at least 1 character."),
       })
@@ -268,7 +268,7 @@ export const postContract = {
     })
     .input(
       z.object({
-        postId: internalPostSchema.shape._id,
+        postId: postSchema.shape._id,
         comment: singleCommentSchema.shape.comment,
       })
     )

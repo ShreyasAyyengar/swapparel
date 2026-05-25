@@ -1,4 +1,4 @@
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { useQueryState } from "nuqs";
 import type { z } from "zod";
@@ -9,9 +9,9 @@ export default function ChoosePostGrid({
   onBackgroundClick,
   handleTradeSelection,
 }: {
-  postsByUser: z.infer<typeof internalPostSchema>[] | undefined;
+  postsByUser: z.infer<typeof postSchema>[] | undefined;
   onBackgroundClick?: () => void;
-  handleTradeSelection: (post: z.infer<typeof internalPostSchema>) => void;
+  handleTradeSelection: (post: z.infer<typeof postSchema>) => void;
 }) {
   const hasPosts = postsByUser && (postsByUser?.length ?? 0) > 0;
   const [_, setIsCreating] = useQueryState("create");

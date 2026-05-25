@@ -1,13 +1,13 @@
-import type {internalPostSchema} from "@swapparel/contracts";
-import {cn} from "@swapparel/shad-ui/lib/utils";
-import {useMutation} from "@tanstack/react-query";
-import {X} from "lucide-react";
-import {useState} from "react";
-import type {z} from "zod";
-import {webClientORPC} from "../../../../../../lib/orpc-web-client";
+import type { postSchema } from "@swapparel/contracts";
+import { cn } from "@swapparel/shad-ui/lib/utils";
+import { useMutation } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { useState } from "react";
+import type { z } from "zod";
+import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import Comment from "./comment";
 
-export default function Comments({ post }: { post: z.infer<typeof internalPostSchema> }) {
+export default function Comments({ post }: { post: z.infer<typeof postSchema> }) {
   const comments = post.comments;
 
   const [replying, setReplying] = useState<boolean>(false);

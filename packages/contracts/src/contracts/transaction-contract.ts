@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { internalPostSchema } from "./post-contract";
+import { postSchema } from "./post-contract";
 
 const MESSAGE_MAX_LENGTH = 300;
 
@@ -49,9 +49,9 @@ export const messageSchema = z.object({
 });
 
 export const embeddedPostSchema = z.object({
-  id: internalPostSchema.shape._id,
-  title: internalPostSchema.shape.title,
-  createdBy: internalPostSchema.shape.createdBy,
+  id: postSchema.shape._id,
+  title: postSchema.shape.title,
+  createdBy: postSchema.shape.createdBy,
 });
 
 export const embeddedUserSchema = z.object({

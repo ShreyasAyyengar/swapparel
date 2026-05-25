@@ -1,4 +1,4 @@
-import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
 import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
@@ -57,7 +57,7 @@ export const postRouter = {
         ...input.postData,
       };
 
-      const tryParse = internalPostSchema.safeParse(postData);
+      const tryParse = postSchema.safeParse(postData);
 
       if (!tryParse.success) {
         throw BAD_REQUEST({

@@ -1,13 +1,13 @@
-import type {internalPostSchema} from "@swapparel/contracts";
-import {Badge} from "@swapparel/shad-ui/components/badge";
-import {useRouter} from "next/navigation";
-import {parseAsString, useQueryState} from "nuqs";
-import type {z} from "zod";
+import type { postSchema } from "@swapparel/contracts";
+import { Badge } from "@swapparel/shad-ui/components/badge";
+import { useRouter } from "next/navigation";
+import { parseAsString, useQueryState } from "nuqs";
+import type { z } from "zod";
 import CommentInput from "./comment-input";
 import Comments from "./comments";
 import ExpandedPostTrigger from "./expanded-post-trigger";
 
-export default function ExpandedPost({ post }: { post: z.infer<typeof internalPostSchema> }) {
+export default function ExpandedPost({ post }: { post: z.infer<typeof postSchema> }) {
   const MAX_DESCRIPTION = 1000;
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const router = useRouter();

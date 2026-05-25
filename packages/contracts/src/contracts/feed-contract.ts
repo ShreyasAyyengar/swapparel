@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "./post-contract";
+import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "./post-contract";
 
 const FEED_AMOUNT = 20;
 
@@ -17,7 +17,7 @@ const booleanStringSchema = z.preprocess((value) => {
   throw new Error(`The string must be 'true' or 'false', got: ${value}`);
 }, z.boolean());
 
-export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
+export const filterPosts = (posts: z.infer<typeof postSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
   // single-valued post fields (e.g., size is a single string on the post)
   const matchesSingle = (postValue: string | undefined, selected?: string[], only?: boolean) => {
     if (!selected?.length) return true;
@@ -99,7 +99,7 @@ export const feedContract = {
     )
     .output(
       z.object({
-        posts: z.array(internalPostSchema),
+        posts: z.array(postSchema),
         nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from this request
       })
     )

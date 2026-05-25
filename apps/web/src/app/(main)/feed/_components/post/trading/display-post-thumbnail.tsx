@@ -1,4 +1,4 @@
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { Check } from "lucide-react";
 import Image from "next/image";
@@ -9,8 +9,8 @@ export default function DisplayPostThumbnail({
   post,
   handleTradeSelection,
 }: {
-  post: z.infer<typeof internalPostSchema>;
-  handleTradeSelection: (post: z.infer<typeof internalPostSchema>) => void;
+  post: z.infer<typeof postSchema>;
+  handleTradeSelection: (post: z.infer<typeof postSchema>) => void;
 }) {
   const [selected, setSelected] = useState(false);
 

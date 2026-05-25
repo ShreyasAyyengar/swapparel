@@ -1,6 +1,6 @@
 "use client";
 
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { ChevronLeft, ChevronRight, Ellipsis } from "lucide-react";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import { authClient } from "../../../../../../lib/auth-client";
 import TradingBox from "../trading/trade";
 import DeletePostButton from "./delete-post-button";
 
-export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof internalPostSchema>; children: React.ReactNode }) {
+export default function ExpandedPostTrigger({ post, children }: { post: z.infer<typeof postSchema>; children: React.ReactNode }) {
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [isHovered, setHovered] = useState<boolean>(false);

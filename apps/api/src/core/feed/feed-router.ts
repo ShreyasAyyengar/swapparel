@@ -1,4 +1,4 @@
-import { filterPosts, internalPostSchema } from "@swapparel/contracts";
+import { filterPosts, postSchema } from "@swapparel/contracts";
 import { z } from "zod";
 import { publicProcedure } from "../../libs/orpc-procedures";
 import { PostCollection } from "../post/post-schema";
@@ -17,7 +17,7 @@ export const feedRouter = {
     const nextDoc = postDocuments.length > limit ? postDocuments[limit] : undefined;
     const slicedDocs = postDocuments.slice(0, limit);
 
-    const tryPosts = z.array(internalPostSchema).safeParse(slicedDocs);
+    const tryPosts = z.array(postSchema).safeParse(slicedDocs);
     if (!tryPosts.success) {
       throw INTERNAL_SERVER_ERROR({
         data: {

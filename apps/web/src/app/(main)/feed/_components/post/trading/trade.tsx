@@ -1,4 +1,4 @@
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Calendar } from "@swapparel/shad-ui/components/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
@@ -17,12 +17,12 @@ import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import ChoosePostGrid from "./choose-post-grid";
 import TradingImage from "./trade-image";
 
-export default function TradingBox({ post, onClick }: { post: z.infer<typeof internalPostSchema>; onClick: () => void }) {
+export default function TradingBox({ post, onClick }: { post: z.infer<typeof postSchema>; onClick: () => void }) {
   const { data } = authClient.useSession();
   // biome-ignore lint/style/noNonNullAssertion: the user must be logged in to see this page
   const authData = data!;
 
-  const [selectedPosts, setSelectedPosts] = useState<z.infer<typeof internalPostSchema>[]>([]);
+  const [selectedPosts, setSelectedPosts] = useState<z.infer<typeof postSchema>[]>([]);
   const [showEmptyWarning, setShowEmptyWarning] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +31,7 @@ export default function TradingBox({ post, onClick }: { post: z.infer<typeof int
   const [message, setMessage] = useState<string | undefined>(undefined);
   const [apiSubmitting, setApiSubmitting] = useState(false);
 
-  const handleTradeSelection = (newPost: z.infer<typeof internalPostSchema>) => {
+  const handleTradeSelection = (newPost: z.infer<typeof postSchema>) => {
     setSelectedPosts((prev) => {
       if (prev.some((p) => p._id === newPost._id)) return prev.filter((p) => p._id !== newPost._id);
       return [...prev, newPost];

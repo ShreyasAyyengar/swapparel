@@ -1,6 +1,6 @@
 "use client";
 
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
@@ -10,7 +10,7 @@ import { useFetchedPostsStore } from "../../../_hooks/use-posts-store";
 import ExpandedPost from "./expanded-post";
 
 // Note: fetchedPosts store is being injected here, instead of FilterLayer.
-export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof internalPostSchema>[] }) {
+export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts: z.infer<typeof postSchema>[] }) {
   const [selectedPost, setSelectedPost] = useQueryState("post", parseAsString);
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
 
