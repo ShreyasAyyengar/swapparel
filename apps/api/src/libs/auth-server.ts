@@ -5,13 +5,13 @@ import { env } from "../env";
 
 const database = databaseConnection.getClient().db("swapparel");
 
-const basePath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api/auth" : "/auth";
+const basePath = env.ENV === "development" ? "/api/auth" : "/auth";
 
 export const authServer = betterAuth({
   database: mongodbAdapter(database),
-  baseURL: env.NEXT_PUBLIC_API_URL,
+  baseURL: env.API_URL,
   basePath,
-  trustedOrigins: [env.NEXT_PUBLIC_WEBSITE_URL],
+  trustedOrigins: [env.WEBSITE_URL],
   socialProviders: {
     google: {
       prompt: "select_account consent",
@@ -22,7 +22,7 @@ export const authServer = betterAuth({
         const email = profile.email;
         if (!email?.endsWith("@ucsc.edu")) {
           const headers = new Headers();
-          headers.set("location", `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error?message=invalid_email_domain`);
+          headers.set("location", `${env.WEBSITE_URL}/auth/error?message=invalid_email_domain`);
           throw new APIError("FOUND", undefined, headers);
           // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
         }
