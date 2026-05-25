@@ -19,7 +19,7 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "bun@1.3.4",
+  "packageManager": "bun@1.3.14",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -30,6 +30,7 @@
     "@orpc/openapi-client": "^1.14.3",
     "@orpc/server": "^1.14.3",
     "@t3-oss/env-core": "^0.13.11",
+    "@types/bun": "^1.3.14",
     "@typescript/native-preview": "^7.0.0-dev.20260525.1",
     "heic2any": "^0.0.4",
     "pino": "^10.3.1",
