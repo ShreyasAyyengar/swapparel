@@ -18,7 +18,7 @@ export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts
 
   useEffect(() => {
     addPosts(loadedFeedPosts);
-  }, [loadedFeedPosts]);
+  }, [addPosts, loadedFeedPosts]);
 
   const {
     data: fetchedPost,
@@ -41,5 +41,13 @@ export default function ExpandedPostLayer({ loadedFeedPosts }: { loadedFeedPosts
   if (!(selectedPost && currentSelectedPost)) return null;
 
   if (isLoading) return <div className="flex items-center justify-center">Loading...</div>;
-  return <ExpandedPost post={currentSelectedPost} />;
+  return (
+    <ExpandedPost
+      post={currentSelectedPost}
+      open={Boolean(selectedPost)}
+      onOpenChange={(open) => {
+        if (!open) setSelectedPost(null);
+      }}
+    />
+  );
 }

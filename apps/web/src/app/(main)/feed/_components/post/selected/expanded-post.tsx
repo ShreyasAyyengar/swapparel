@@ -12,66 +12,20 @@ export default function ExpandedPost({ post }: { post: z.infer<typeof postSchema
   const [_, setSelectedPost] = useQueryState("post", parseAsString);
   const router = useRouter();
 
-  const sendToProfile = async () => {
-    await setSelectedPost(null);
+  const sendToProfile = () => {
+    onOpenChange(false);
     const email = post.createdBy;
     router.push(`/profile?profile=${encodeURIComponent(email)}`);
   };
 
   return (
-    <ExpandedPostTrigger post={post}>
-      <p title="username" className="cursor-pointer font-bold hover:underline" onClick={sendToProfile} onKeyDown={sendToProfile}>
-        {post.createdBy}
-      </p>
-      <hr className="my-2 border-foreground border-t-2" />
-
-      <p className="font-bold">Description:</p>
-      <p className="wrap-break-word max-w-[45ch]">
-        {`${post.description.slice(0, MAX_DESCRIPTION)}${post.description.length > MAX_DESCRIPTION ? "..." : ""}`}
-      </p>
-      <hr className="my-2 border-foreground border-t-2" />
-
-      {post.price && (
-        <p>
-          Price: <Badge className="mr-1 bg-foreground font-bold text-background">{post.price}</Badge>
-        </p>
-      )}
-
-      <p>
-        Garment Type: <Badge className="mr-1 bg-foreground font-bold text-background">{post.garmentType}</Badge>
-      </p>
-      <p>
-        Color:{" "}
-        {post.colour.map((color) => (
-          <Badge className="mr-1 bg-foreground font-bold text-background" key={color}>
-            {color}
-          </Badge>
-        ))}
-      </p>
-      <p>
-        Size: <Badge className="bg-foreground font-bold text-background">{post.size}</Badge>
-      </p>
-      <p>
-        Material:{" "}
-        {post.material.map((mats) => (
-          <Badge className="mr-1 bg-foreground font-bold text-background" key={mats}>
-            {mats}
-          </Badge>
-        ))}
-      </p>
-      <p>
-        {/*Hashtags: <span className="font-normal">{post.hashtags.join(", ")}</span>*/}
-        Hashtags:{" "}
-        {post.hashtags.map((hashtag) => (
-          <Badge className="mr-1 bg-foreground font-bold text-background" key={hashtag}>
-            {hashtag}
-          </Badge>
-        ))}
-      </p>
-      <hr className="my-2 border-foreground border-t-2" />
-      <p className="font-bold">Comments:</p>
-      {post.comments.length > 0 && <CommentInput sentence={"Add a new comment!"} post={post} />}
-      {post.comments.length < 1 ? <CommentInput sentence={"Be the first to comment!"} post={post} /> : <Comments post={post} />}
-    </ExpandedPostTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+        <DialogHeader>
+          <DialogTitle className="text-center text-2xl">{post.title}</DialogTitle>
+        </DialogHeader>
+        <ExpandedPostTrigger post={post} onProfileClick={sendToProfile} />
+      </DialogContent>
+    </Dialog>
   );
 }
