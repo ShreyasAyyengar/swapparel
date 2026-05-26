@@ -8,8 +8,11 @@ import { useInView } from "react-intersection-observer";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import { useStickyTrue } from "../../_hooks/use-sticky-state";
-import MasonryElement from "../post/masonry-element";
 import MasonryLayout from "../post/masonry-layout";
+import PostDialog from "../shadcn-post/post-dialog";
+
+const FETCHING_STICKY_DELAY_MS = 200;
+const LOADING_BOUNCE_DELAY_MS = 0.1;
 
 export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: string | undefined }) {
   const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
@@ -47,9 +50,11 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       selectedColor,
       selectedColourOnly,
       selectedMaterial,
+      selectedMaterialOnly,
       selectedSize,
       selectedGarmentType,
       selectedHashtag,
+      selectedHashtagOnly,
       selectedMinPrice,
       selectedMaxPrice,
       selectedPriceOnly,
@@ -90,7 +95,21 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       if (!!selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
       if (!!selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
     }
-  }, []);
+  }, [
+    filters?.error,
+    selectedColor,
+    selectedMaterial,
+    selectedSize,
+    selectedGarmentType,
+    selectedMaxPrice,
+    selectedMinPrice,
+    setSelectedColor,
+    setSelectedMaterial,
+    setSelectedSize,
+    setSelectedGarmentType,
+    setMaxPrice,
+    setMinPrice,
+  ]);
 
   const { ref: optimisticRef, inView: optimisticInView } = useInView();
   const { ref: bottomRef, inView: bottomInView } = useInView();
@@ -110,7 +129,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       enabled: false,
     })
   );
-  const fetchingSticky = useStickyTrue(isFetching, 200);
+  const fetchingSticky = useStickyTrue(isFetching, FETCHING_STICKY_DELAY_MS);
 
   useEffect(() => {
     if (!data) return;
@@ -126,13 +145,13 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
     }
 
     addPosts(lastPage?.posts ?? []);
-  }, [data, hasNextPage]);
+  }, [addPosts, data, fetchNextPage, hasNextPage]);
 
   const filteredPosts = useMemo(() => filterPosts(fetchedPosts, filters?.data), [fetchedPosts, filters?.data]);
 
   useEffect(() => {
     if (optimisticInView || bottomInView) fetchNextPage();
-  }, [optimisticInView, bottomInView]);
+  }, [bottomInView, fetchNextPage, optimisticInView]);
 
   return (
     <div>
@@ -140,7 +159,7 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         <MasonryLayout>
           {filteredPosts.map((post) => (
             // TODO<Alex>: hotfix
-            <MasonryElement key={post._id} postData={post} className={"border border-secondary bg-accent"} />
+            <PostDialog key={post._id} postData={post} className="border border-secondary bg-accent" />
           ))}
         </MasonryLayout>
         {!isFetching && <div ref={optimisticRef} />}
@@ -148,8 +167,12 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
       {!isFetching && <div ref={bottomRef} />}
       {fetchingSticky && (
         <div className="mb-20 gap-4 text-center">
-          {"Fetching Swag...".split("").map((letter, i) => (
-            <span key={i} className="inline-block animate-bounce font-bold text-3xl" style={{ animationDelay: `${i * 0.1}s` }}>
+          {"Fetching Swag...".split("").map((letter, index) => (
+            <span
+              key={`${letter}-${index}-${letter.charCodeAt(0)}`}
+              className="inline-block animate-bounce font-bold text-3xl"
+              style={{ animationDelay: `${index * LOADING_BOUNCE_DELAY_MS}s` }}
+            >
               {letter === " " ? "\u00A0" : letter}
             </span>
           ))}
