@@ -69,7 +69,7 @@ export default function Navbar() {
           initial="hidden"
           animate="visible"
         >
-          <Image src="/simple-banner-slim.png" alt={""} width={10_000_000} height={10} />
+          <Image src="/simple-banner-slim.png" alt="Swapparel banner" width={10_000_000} height={10} priority loading="eager" />
         </motion.div>
 
         {/* CENTRE: Desktop Navigation */}
