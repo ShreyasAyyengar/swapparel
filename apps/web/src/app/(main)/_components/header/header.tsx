@@ -7,10 +7,10 @@ import ThemeChanger from "./theme-changer";
 
 export default function Header() {
   return (
-    <header className="sticky inset-0 top-0 z-1 flex items-center bg-primary-800 p-3 dark:bg-foreground">
+    <header className="sticky inset-0 top-0 z-1 flex items-center bg-foreground-300 p-3">
       <Link href={"/feed"}>
         <SlimBanner // TODO figure out stroke widths
-          className="-translate-x-1/2 -translate-y-1/2 stroke absolute top-1/2 left-1/2 fill-background p-2 transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"
+          className="stroke absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fill-background p-2 transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"
           height={175}
           width={175}
         />
