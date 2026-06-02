@@ -21,7 +21,6 @@
     "@swapparel/contracts": "workspace:*",
     "better-auth": "^1.4.7",
     "elysia": "^1.4.28",
-    "heic-convert": "^2.1.0",
     "mongoose": "^8.20.2",
     "mongoose-zod": "https://github.com/ShreyasAyyengar/mongoose-zod",
     "pino": "^10.1.0",
@@ -33,6 +32,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "bun-types": "^1.3.14",
     "tsc-alias": "^1.8.17"
   }
 }

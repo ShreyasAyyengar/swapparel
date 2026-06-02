@@ -1,6 +1,5 @@
 import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
 import { S3Client, write } from "bun";
-import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserCollection } from "../users/user-schema";
@@ -11,15 +10,10 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
   const key = `${postId}/${index}`;
   let fileExtension = file.name.split(".").pop();
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-  let body = fileBuffer;
+  let body: Buffer<ArrayBufferLike> = fileBuffer;
 
   if (mimeType === "image/heic" || mimeType === "image/heif") {
-    body = await heicConvert({
-      buffer: fileBuffer,
-      format: "JPEG",
-      quality: 1,
-    });
-
+    body = await new Bun.Image(fileBuffer).jpeg({ quality: 80 }).buffer();
     fileExtension = "jpg";
     finalMimeType = "image/jpeg";
   }
