@@ -1,0 +1,14 @@
+import { commentContract } from "./http/comments/comment-contract";
+import { feedContract } from "./http/feed/feed-contract";
+import { postContract } from "./http/post/post-contract";
+import { transactionContract } from "./http/transaction/transaction-contract";
+import { userContract } from "./http/user/user-contract";
+
+export const httpContract = {
+  // route URL: contract handler
+  posts: postContract,
+  comments: commentContract,
+  feed: feedContract,
+  transaction: transactionContract,
+  users: userContract,
+};
