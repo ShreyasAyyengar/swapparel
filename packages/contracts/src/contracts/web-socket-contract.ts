@@ -1,6 +1,6 @@
 import { eventIterator, oc } from "@orpc/contract";
 import { z } from "zod";
-import { messageSchema, transactionSchema } from "./transaction-contract";
+import { messageSchema, transactionSchema } from "./http/transaction/transaction-schemas";
 
 export const webSocketContract = {
   publishChatMessage: oc
