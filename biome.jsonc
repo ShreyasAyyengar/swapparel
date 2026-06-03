@@ -1,6 +1,10 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/react",
+    "ultracite/biome/next"
+  ],
   "files": {
     "includes": ["!packages/ui"]
   },
@@ -23,6 +27,9 @@
   },
   "linter": {
     "rules": {
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
+      },
       "a11y": {
         "noNoninteractiveElementInteractions": "off",
         "noStaticElementInteractions": "off"
@@ -37,14 +44,24 @@
       "style": {
         "useBlockStatements": "off",
         "noMagicNumbers": "warn",
-        "noUselessElse": "warn"
+        "noUselessElse": "warn",
+        "noNegationElse": "off",
+        "useConsistentTypeDefinitions": {
+          "options": {
+            "style": "type"
+          },
+          "level": "warn"
+        },
+        "noNestedTernary": "off",
+        "useConsistentArrowReturn": "warn",
+        "useImportType": "warn"
       },
       "suspicious": {
         "useAwait": "warn",
         "noConsole": "warn"
       },
       "complexity": {
-        "useSimplifiedLogicExpression": "warn",
+        "useSimplifiedLogicExpression": "off",
         "useOptionalChain": "warn",
         "noExcessiveCognitiveComplexity": {
           "options": {
@@ -54,8 +71,11 @@
         },
         "noForEach": "off"
       },
+      "performance": {
+        "noBarrelFile": "warn"
+      },
       "nursery": {
-        "useConsistentArrowReturn": "warn"
+        "useSortedClasses": "warn"
       }
     }
   }
