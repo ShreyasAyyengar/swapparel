@@ -2,9 +2,9 @@ import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
-import { PostCollection } from "../post/post-schema";
-import { UserCollection } from "../users/user-schema";
-import { TransactionCollection } from "./transaction-schema";
+import { PostService } from "../post/post-service";
+import { UserService } from "../users/user-service";
+import { TransactionService } from "./transaction-service";
 
 export const transactionRouter = {
   createTransaction: protectedProcedure.transaction.createTransaction.handler(
@@ -13,10 +13,10 @@ export const transactionRouter = {
 
       // Fetch all data upfront in parallel
       const [sellerPost, buyerUser, buyerPosts] = await Promise.all([
-        PostCollection.findById(input.sellerPost.id).select("_id title createdBy").lean(),
-        UserCollection.findOne({ email: buyerEmail }).lean(),
+        PostService.findById(input.sellerPost.id).select("_id title createdBy").lean(),
+        UserService.findOne({ email: buyerEmail }).lean(),
         input.buyerPosts
-          ? PostCollection.find({ _id: { $in: input.buyerPosts.map((p) => p.id) } })
+          ? PostService.find({ _id: { $in: input.buyerPosts.map((p) => p.id) } })
               .select("_id title createdBy")
               .lean()
           : Promise.resolve([]),
@@ -42,7 +42,7 @@ export const transactionRouter = {
       }
 
       // Get seller user info
-      const sellerUser = await UserCollection.findOne({ email: sellerPost.createdBy }).lean();
+      const sellerUser = await UserService.findOne({ email: sellerPost.createdBy }).lean();
       if (!sellerUser) {
         throw NOT_FOUND({
           data: { message: "Seller user not found." },
@@ -102,7 +102,7 @@ export const transactionRouter = {
       }
 
       try {
-        await TransactionCollection.insertOne(tryParse.data);
+        await TransactionService.insertOne(tryParse.data);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
@@ -119,8 +119,8 @@ export const transactionRouter = {
 
     // Simple queries - no joins needed!
     const [initiatedTransactions, receivedTransactions] = await Promise.all([
-      TransactionCollection.find({ "buyer.email": email }).lean(),
-      TransactionCollection.find({ "seller.email": email }).lean(),
+      TransactionService.find({ "buyer.email": email }).lean(),
+      TransactionService.find({ "seller.email": email }).lean(),
     ]);
 
     return {
@@ -134,7 +134,7 @@ export const transactionRouter = {
       const userEmail = context.user.email;
 
       // Find the transaction
-      const transaction = await TransactionCollection.findById(input._id);
+      const transaction = await TransactionService.findById(input._id);
 
       if (!transaction) {
         throw NOT_FOUND({
@@ -142,7 +142,7 @@ export const transactionRouter = {
         });
       }
 
-      const sellerPost = await PostCollection.findById(transaction.sellerPost.id);
+      const sellerPost = await PostService.findById(transaction.sellerPost.id);
       const isAuthorized = transaction.buyer.email === userEmail || sellerPost?.createdBy === userEmail;
 
       if (!isAuthorized) {
@@ -156,7 +156,7 @@ export const transactionRouter = {
       if (input.locationToSwap !== undefined) updateData.locationToSwap = input.locationToSwap;
 
       try {
-        await TransactionCollection.updateOne({ _id: input._id }, { $set: updateData });
+        await TransactionService.updateOne({ _id: input._id }, { $set: updateData });
         return { success: true };
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({

@@ -1,14 +1,14 @@
 import { filterPosts, postSchema } from "@swapparel/contracts";
 import { z } from "zod";
 import { publicProcedure } from "../../libs/orpc-procedures";
-import { PostCollection } from "../post/post-schema";
+import { PostService } from "../post/post-service";
 
 export const feedRouter = {
   getFeed: publicProcedure.feed.getFeed.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
     const limit = input.amount;
 
     // start *at* nextAvailablePost because it was not returned previously
-    const documentQuery = PostCollection.find(input.nextAvailablePost ? { _id: { $lte: input.nextAvailablePost } } : {})
+    const documentQuery = PostService.find(input.nextAvailablePost ? { _id: { $lte: input.nextAvailablePost } } : {})
       .sort({ _id: -1 })
       .limit(limit + 1); // +1 to compute nextAvailablePost (next page start)
 
@@ -34,6 +34,4 @@ export const feedRouter = {
       nextAvailablePost: nextDoc?._id, // undefined if no more docs exist
     };
   }),
-
-  testRoute: publicProcedure.feed.testRoute.handler(async ({ errors: { NOT_FOUND } }) => "Test route called"),
 };

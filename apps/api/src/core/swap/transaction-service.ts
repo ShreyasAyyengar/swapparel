@@ -1,12 +1,12 @@
 import { transactionSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
-import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
+import { z } from "zod";
 
-const TransactionSchemaMongooseZod = transactionSchema;
+const TransactionSchema = transactionSchema;
 
 const TransactionSchemaMongoose = toMongooseSchema(
-  TransactionSchemaMongooseZod.mongoose({
+  TransactionSchema.mongoose({
     schemaOptions: {
       collection: "transactions",
       versionKey: false,
@@ -14,9 +14,9 @@ const TransactionSchemaMongoose = toMongooseSchema(
   })
 );
 
-export interface ITransactionSchemaMongoose extends z.infer<typeof TransactionSchemaMongooseZod> {}
+export interface ITransactionSchemaMongoose extends z.infer<typeof TransactionSchema> {}
 
-export const TransactionCollection = databaseConnection.model<ITransactionSchemaMongoose>(
+export const TransactionService = databaseConnection.model<ITransactionSchemaMongoose>(
   "transactions",
   TransactionSchemaMongoose,
   "transactions"
