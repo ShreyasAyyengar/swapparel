@@ -1,25 +1,16 @@
 import type { postSchema } from "@swapparel/contracts";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import type { z } from "zod";
-import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 
 export default function CommentInput({ post, sentence }: { post: z.infer<typeof postSchema>; sentence: string }) {
   const [writingComment, setWritingComment] = useState(false);
 
-  const addCommentMutation = useMutation(
-    webClientORPC.posts.createNewComment.mutationOptions({
-      onSuccess: (data) => {
-        window.location.reload();
-      },
-    })
-  );
+  const addCommentMutation = () => {
+    console.log("addCommentMutation"); // TODO
+  };
 
   const submitComment = (comment: string) => {
-    addCommentMutation.mutateAsync({
-      postId: post._id,
-      comment,
-    });
+    console.log("submitComment", comment); // TODO
   };
 
   return (
