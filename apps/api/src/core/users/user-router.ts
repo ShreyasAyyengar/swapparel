@@ -1,11 +1,11 @@
 import { userSchema } from "@swapparel/contracts";
 import { publicProcedure } from "../../libs/orpc-procedures";
-import { UserCollection } from "./user-schema";
+import { UserService } from "./user-service";
 
 export const userRouter = {
   getUser: publicProcedure.users.getUser.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
     const { email } = input;
-    const user = await UserCollection.findOne({ email });
+    const user = await UserService.findOne({ email });
     if (!user)
       throw NOT_FOUND({
         data: {

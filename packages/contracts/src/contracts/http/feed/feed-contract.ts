@@ -1,23 +1,11 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "./post-contract";
+import { postSchema } from "../post/post-schemas";
+import { feedFilterSchema } from "./feed-schemas";
 
 const FEED_AMOUNT = 20;
 
-// JS is stupid: Boolean("false") === true.
-// https://github.com/colinhacks/zod/issues/2985#issuecomment-2085239542
-const booleanStringSchema = z.preprocess((value) => {
-  if (typeof value === "boolean") return value;
-  if (value === "true") {
-    return true;
-  }
-  if (value === "false") {
-    return false;
-  }
-  throw new Error(`The string must be 'true' or 'false', got: ${value}`);
-}, z.boolean());
-
-export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
+export const filterPosts = (posts: z.infer<typeof postSchema>[], filters: z.infer<typeof feedFilterSchema> | undefined) => {
   // single-valued post fields (e.g., size is a single string on the post)
   const matchesSingle = (postValue: string | undefined, selected?: string[], only?: boolean) => {
     if (!selected?.length) return true;
@@ -70,20 +58,6 @@ export const filterPosts = (posts: z.infer<typeof internalPostSchema>[], filters
     return true;
   });
 };
-export const feedFilterSchema = z.object({
-  color: z.array(z.enum(COLOURS)).optional(),
-  colorOnly: booleanStringSchema.default(false),
-  material: z.array(z.enum(MATERIALS)).optional(),
-  materialOnly: booleanStringSchema.default(false),
-  size: z.array(z.enum(SIZES)).optional(),
-  garmentType: z.array(z.enum(GARMENT_TYPES)).optional(),
-  hashtag: z.array(z.string()).optional(),
-  hashtagOnly: booleanStringSchema.default(false),
-  minPrice: z.coerce.number().optional(),
-  maxPrice: z.coerce.number().optional(),
-  priceOnly: booleanStringSchema.default(false),
-  freeOnly: booleanStringSchema.default(false),
-});
 
 export const feedContract = {
   getFeed: oc
@@ -99,7 +73,7 @@ export const feedContract = {
     )
     .output(
       z.object({
-        posts: z.array(internalPostSchema),
+        posts: z.array(postSchema),
         nextAvailablePost: z.uuidv7().optional(), // the last post retrieved from this request
       })
     )
@@ -110,14 +84,5 @@ export const feedContract = {
           message: z.string(),
         }),
       },
-    }),
-
-  testRoute: oc
-    .route({
-      method: "GET",
-    })
-    .output(z.string())
-    .errors({
-      NOT_FOUND: {},
     }),
 };

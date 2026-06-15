@@ -1,11 +1,11 @@
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import type { z } from "zod";
 import { create } from "zustand/react";
 
 type FetchedPostsStore = {
-  fetchedPosts: z.infer<typeof internalPostSchema>[];
-  addPosts: (posts: z.infer<typeof internalPostSchema>[]) => void;
-  setPosts: (posts: z.infer<typeof internalPostSchema>[]) => void;
+  fetchedPosts: z.infer<typeof postSchema>[];
+  addPosts: (posts: z.infer<typeof postSchema>[]) => void;
+  setPosts: (posts: z.infer<typeof postSchema>[]) => void;
 };
 
 export const useFetchedPostsStore = create<FetchedPostsStore>((set) => ({

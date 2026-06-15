@@ -1,10 +1,10 @@
-import { COLOURS, GARMENT_TYPES, internalPostSchema, MATERIALS, SIZES } from "@swapparel/contracts";
+import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
 import { S3Client, write } from "bun";
 import heicConvert from "heic-convert";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
-import { UserCollection } from "../users/user-schema";
-import { PostCollection } from "./post-schema";
+import { UserService } from "../users/user-service";
+import { PostService } from "./post-service";
 
 export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
   let finalMimeType = mimeType;
@@ -39,7 +39,7 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
-      const userDocument = await UserCollection.findOne({ email: context.user.email });
+      const userDocument = await UserService.findOne({ email: context.user.email });
 
       if (!userDocument) {
         throw NOT_FOUND({
@@ -57,7 +57,7 @@ export const postRouter = {
         ...input.postData,
       };
 
-      const tryParse = internalPostSchema.safeParse(postData);
+      const tryParse = postSchema.safeParse(postData);
 
       if (!tryParse.success) {
         throw BAD_REQUEST({
@@ -69,7 +69,7 @@ export const postRouter = {
       }
 
       try {
-        await PostCollection.insertOne(postData);
+        await PostService.insertOne(postData);
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: {
@@ -84,13 +84,13 @@ export const postRouter = {
   ),
 
   deletePost: protectedProcedure.posts.deletePost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const post = await PostCollection.findOne({ _id: input.id });
+    const post = await PostService.findOne({ _id: input.id });
     if (!post) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
     if (post.createdBy !== context.user.email) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
     try {
-      const t = await PostCollection.deleteOne({ _id: input.id });
+      const t = await PostService.deleteOne({ _id: input.id });
       if (t.deletedCount === 1) return { success: true };
       return { success: false };
     } catch (error) {
@@ -101,11 +101,11 @@ export const postRouter = {
   }),
 
   getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
-    PostCollection.find({ createdBy: input.createdBy })
+    PostService.find({ createdBy: input.createdBy })
   ),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const post = await PostCollection.findOne({ _id: input._id }).lean();
+    const post = await PostService.findOne({ _id: input._id }).lean();
     if (!post) throw NOT_FOUND({ message: `Post not found with id ${input._id}` });
 
     return post;
@@ -213,67 +213,8 @@ export const postRouter = {
       documents.push(randomPostData);
     }
 
-    await PostCollection.insertMany(documents);
+    await PostService.insertMany(documents);
 
     return true;
   }),
-
-  replyToComment: protectedProcedure.posts.replyToComment.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    try {
-      const result = await PostCollection.updateOne(
-        { _id: input.postId },
-        {
-          $push: {
-            [`comments.${input.commentIndex}.childReplies`]: {
-              comment: input.reply,
-              author: context.user.email,
-            },
-          },
-        }
-      );
-
-      if (result.modifiedCount === 1) {
-        return { success: true };
-      }
-      return { success: false };
-    } catch (error) {
-      throw INTERNAL_SERVER_ERROR({
-        data: {
-          message: `Failed to serialize reply for post with id ${input.postId}. ${error}`,
-        },
-      });
-    }
-  }),
-
-  createNewComment: protectedProcedure.posts.createNewComment.handler(
-    async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-      if (!(input.postId && input.comment)) {
-        throw NOT_FOUND({
-          data: { message: "No Post Found" },
-        });
-      }
-
-      try {
-        const result = await PostCollection.updateOne(
-          { _id: input.postId },
-          {
-            $push: {
-              comments: {
-                rootComment: { comment: input.comment, author: context.user.email },
-                childReplies: [],
-              },
-            },
-          }
-        );
-        if (result.modifiedCount === 1) return { success: true };
-        return { success: false };
-      } catch (error) {
-        throw INTERNAL_SERVER_ERROR({
-          data: {
-            message: `Failed to add reply to ${input.postId}. ${error}`,
-          },
-        });
-      }
-    }
-  ),
 };

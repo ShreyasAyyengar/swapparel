@@ -1,14 +1,11 @@
-import type {internalPostSchema} from "@swapparel/contracts";
-import {cn} from "@swapparel/shad-ui/lib/utils";
-import {useMutation} from "@tanstack/react-query";
-import {X} from "lucide-react";
-import {useState} from "react";
-import type {z} from "zod";
-import {webClientORPC} from "../../../../../../lib/orpc-web-client";
-import Comment from "./comment";
+import type { postSchema } from "@swapparel/contracts";
+import { X } from "lucide-react";
+import { useState } from "react";
+import type { z } from "zod";
 
-export default function Comments({ post }: { post: z.infer<typeof internalPostSchema> }) {
-  const comments = post.comments;
+export default function Comments({ post }: { post: z.infer<typeof postSchema> }) {
+  // const comments = post.comments; // TODO
+  const comments: string[] = [];
 
   const [replying, setReplying] = useState<boolean>(false);
   const [replyAuthor, setReplyAuthor] = useState<string>("");
@@ -20,38 +17,30 @@ export default function Comments({ post }: { post: z.infer<typeof internalPostSc
     setReplyAuthor(author);
   };
 
-  const addReplyMutation = useMutation(
-    webClientORPC.posts.replyToComment.mutationOptions({
-      onSuccess: (data) => {
-        window.location.reload();
-      },
-    })
-  );
+  const addReplyMutation = () => {
+    console.log("addReplyMutation"); // TODO
+  };
 
   const submitReply = (reply: string, commentIndex: number) => {
-    addReplyMutation.mutateAsync({
-      postId: post._id,
-      commentIndex,
-      reply,
-    });
+    console.log("submitReply", reply, commentIndex); // TODO
   };
 
   return (
     <>
-      {comments?.map((entry, index) => (
-        <div
-          key={index}
-          className={cn("m-1 mt-2 mb-2 rounded-md border-2 border-black/0 bg-black/40", replyIndex === index && "border-2 border-neutral-300")}
-        >
-          <Comment comment={entry.rootComment} index={index} onClick={(author) => doReply(author, index)} />
+      {/*{comments?.map((entry, index) => (*/}
+      {/*  <div*/}
+      {/*    key={index}*/}
+      {/*    className={cn("m-1 mt-2 mb-2 rounded-md border-2 border-black/0 bg-black/40", replyIndex === index && "border-2 border-neutral-300")}*/}
+      {/*  >*/}
+      {/*    <Comment comment={entry.rootComment} index={index} onClick={(author) => doReply(author, index)} />*/}
 
-          <div className="pl-7">
-            {entry.childReplies?.map((reply, indexReply) => (
-              <Comment key={indexReply} comment={reply} index={index} onClick={(author) => doReply(author, index)} />
-            ))}
-          </div>
-        </div>
-      ))}
+      {/*    <div className="pl-7">*/}
+      {/*      {entry.childReplies?.map((reply, indexReply) => (*/}
+      {/*        <Comment key={indexReply} comment={reply} index={index} onClick={(author) => doReply(author, index)} />*/}
+      {/*      ))}*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*))}*/}
 
       {replying && (
         <div className={"sticky bottom-0 w-full rounded-md bg-accent-200 px-2 py-1"}>

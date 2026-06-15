@@ -1,5 +1,5 @@
 import { transactionDataPublisher, transactionPublisher } from "../core/messaging/chat-subscription-manager";
-import { TransactionCollection } from "../core/swap/transaction-schema";
+import { TransactionService } from "../core/swap/transaction-service";
 import { protectedWebSocketProcedure } from "../libs/orpc-procedures";
 
 export const webSocketRouter = {
@@ -12,7 +12,7 @@ export const webSocketRouter = {
       content: message.content,
     };
 
-    const result = await TransactionCollection.updateOne({ _id: transactionId }, { $push: { messages: outgoingMessage } });
+    const result = await TransactionService.updateOne({ _id: transactionId }, { $push: { messages: outgoingMessage } });
 
     if (result.modifiedCount === 1) {
       await transactionPublisher.publish(transactionId, { incomingMessage: outgoingMessage });
@@ -24,7 +24,7 @@ export const webSocketRouter = {
   }),
 
   subscribeToChatMessages: protectedWebSocketProcedure.subscribeToChatMessages.handler(async function* ({ input, signal, lastEventId }) {
-    const transaction = await TransactionCollection.findById(input.transactionId);
+    const transaction = await TransactionService.findById(input.transactionId);
 
     if (!transaction) throw new Error("Transaction not found");
 
@@ -40,7 +40,7 @@ export const webSocketRouter = {
 
   publishDataChange: protectedWebSocketProcedure.publishDataChange.handler(async ({ input, context, errors: { NOT_FOUND } }) => {
     const { transactionId } = input;
-    const transaction = await TransactionCollection.findById(transactionId);
+    const transaction = await TransactionService.findById(transactionId);
 
     if (!transaction) throw NOT_FOUND({ data: { message: "Transaction not found." } });
 
