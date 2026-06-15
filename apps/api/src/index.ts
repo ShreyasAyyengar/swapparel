@@ -14,8 +14,8 @@ const port = 3001;
 const httpHandler = new OpenAPIHandler(httpRouter);
 const wsHandler = new RPCHandler(webSocketRouter);
 
-const isDevelopment = env.NEXT_PUBLIC_NODE_ENV === "development";
-const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.NEXT_PUBLIC_WEBSITE_URL] : [env.NEXT_PUBLIC_WEBSITE_URL];
+const isDevelopment = env.ENV === "development";
+const allowedOrigins = isDevelopment ? ["http://127.0.0.1:3000", env.WEBSITE_URL] : [env.WEBSITE_URL];
 
 const apiPrefix = isDevelopment ? "/api" : undefined;
 const authRoute = isDevelopment ? "/api/auth*" : "/auth*";
@@ -90,7 +90,7 @@ new Elysia()
   .listen(
     {
       port,
-      hostname: env.NEXT_PUBLIC_HOSTNAME,
+      hostname: env.HOSTNAME,
     },
     (server) => {
       const protocol = isDevelopment ? "http" : "https";
