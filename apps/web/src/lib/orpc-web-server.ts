@@ -2,13 +2,13 @@ import { createORPCClient } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
 import { OpenAPILink } from "@orpc/openapi-client/fetch";
-import { contract } from "@swapparel/contracts";
+import { httpContract } from "@swapparel/contracts";
 import { headers } from "next/headers";
 import { env } from "../env";
 
 const apiPath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api" : "";
 
-const link = new OpenAPILink(contract, {
+const link = new OpenAPILink(httpContract, {
   url: `${env.NEXT_PUBLIC_API_URL}${apiPath}`,
   fetch: async (request, init?: RequestInit) => {
     const headersList = await headers();
@@ -24,4 +24,4 @@ const link = new OpenAPILink(contract, {
   },
 });
 
-export const webServerORPC: JsonifiedClient<ContractRouterClient<typeof contract>> = createORPCClient(link);
+export const webServerORPC: JsonifiedClient<ContractRouterClient<typeof httpContract>> = createORPCClient(link);
