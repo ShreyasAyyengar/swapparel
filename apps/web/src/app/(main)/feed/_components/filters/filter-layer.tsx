@@ -1,6 +1,7 @@
 "use client";
 
-import { COLOURS, feedFilterSchema, filterPosts, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES } from "@swapparel/contracts";
+import { COLOURS, feedFilterSchema, filterPosts, GARMENT_TYPES, MATERIALS, PRICE_MAX, SIZES, type postSchema } from "@swapparel/contracts";
+import type z from "zod";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseAsBoolean, parseAsInteger, parseAsNativeArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useMemo } from "react";
@@ -14,7 +15,7 @@ import PostDialog from "../shadcn-post/post-dialog";
 const FETCHING_STICKY_DELAY_MS = 200;
 const LOADING_BOUNCE_DELAY_MS = 0.1;
 
-export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: string | undefined }) {
+export default function FilterLayer({ nextAvailablePost, initialPosts = [] }: { nextAvailablePost: string | undefined; initialPosts: z.infer<typeof postSchema>[] }) {
   const [selectedColor, setSelectedColor] = useQueryState("colour", parseAsNativeArrayOf(parseAsString));
   const [selectedColourOnly] = useQueryState("colourOnly", parseAsBoolean);
   const [selectedSize, setSelectedSize] = useQueryState("size", parseAsNativeArrayOf(parseAsString));
@@ -29,6 +30,10 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
   const [selectedFreeOnly] = useQueryState("freeOnly", parseAsBoolean);
 
   const { fetchedPosts, addPosts } = useFetchedPostsStore();
+
+  useEffect(() => {
+    addPosts(initialPosts);
+  }, [addPosts, initialPosts]);
 
   const filters = useMemo(
     () =>

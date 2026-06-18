@@ -1,6 +1,6 @@
 "use client";
 
-import type { internalPostSchema } from "@swapparel/contracts";
+import type { postSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import {
@@ -12,6 +12,7 @@ import {
   CarouselPrevious,
 } from "@swapparel/shad-ui/components/carousel";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "src/lib/auth-client";
@@ -19,11 +20,12 @@ import type z from "zod";
 import TradingBox from "../post/trading/trade";
 
 type PostDialogProps = {
-  postData: z.infer<typeof internalPostSchema>;
+  postData: z.infer<typeof postSchema>;
+  className?: string;
   onProfileClick?: () => void;
 };
 
-export default function PostDialog({ postData, onProfileClick = () => {} }: PostDialogProps) {
+export default function PostDialog({ postData, className, onProfileClick = () => {} }: PostDialogProps) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
@@ -76,7 +78,7 @@ export default function PostDialog({ postData, onProfileClick = () => {} }: Post
 
   return (
     <Dialog>
-      <DialogTrigger className="rounded-sm bg-foreground-300 p-5 text-background-800">
+      <DialogTrigger className={cn("rounded-sm bg-foreground-300 p-5 text-background-800", className)}>
         <p className="font-bold">{postData.title}</p>
         <span title={postData.createdBy} className="w-full truncate">
           {postData.createdBy}
