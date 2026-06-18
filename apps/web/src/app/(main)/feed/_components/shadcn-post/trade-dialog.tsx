@@ -3,6 +3,14 @@
 import type { postSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Calendar } from "@swapparel/shad-ui/components/calendar";
+import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@swapparel/shad-ui/components/carousel";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
 import { Input } from "@swapparel/shad-ui/components/input";
 import { Label } from "@swapparel/shad-ui/components/label";
@@ -10,14 +18,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/comp
 import { Textarea } from "@swapparel/shad-ui/components/textarea";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ChevronDownIcon } from "lucide-react";
+import { Check, ChevronDownIcon } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import { webClientORPC } from "src/lib/orpc-web-client";
 import type z from "zod";
-import ChoosePostGrid from "../post/trading/choose-post-grid";
-import TradingImage from "../post/trading/trade-image";
 
 type TradeDialogProps = {
   postData: z.infer<typeof postSchema>;
@@ -25,21 +32,50 @@ type TradeDialogProps = {
 };
 
 export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps) {
-  const { data } = authClient.useSession();
-  const authData = data!;
   const router = useRouter();
+  const { data } = authClient.useSession();
   const [isTrading, setIsTrading] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(1);
+  const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
   const [selectedPosts, setSelectedPosts] = useState<z.infer<typeof postSchema>[]>([]);
-  const [showEmptyWarning, setShowEmptyWarning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [calenderOpen, setCalenderOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
-  const [apiSubmitting, setApiSubmitting] = useState(false);
+
+  const authData = data;
+  const email = authData?.user.email;
+
+  const { data: postsByUser } = useQuery(
+    webClientORPC.posts.getPosts.queryOptions({
+      input: { createdBy: email ?? "" },
+      enabled: !!email,
+    })
+  );
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const updateIndex = () => {
+      setCurrentImageIndex(carouselApi.selectedScrollSnap() + 1);
+    };
+
+    updateIndex();
+    carouselApi.on("select", updateIndex);
+    carouselApi.on("reInit", updateIndex);
+
+    return () => {
+      carouselApi.off("select", updateIndex);
+      carouselApi.off("reInit", updateIndex);
+    };
+  }, [carouselApi]);
 
   const handleTradeSelection = (newPost: z.infer<typeof postSchema>) => {
     setSelectedPosts((prev) => {
-      if (prev.some((p) => p._id === newPost._id)) return prev.filter((p) => p._id !== newPost._id);
+      if (prev.some((p) => p._id === newPost._id)) {
+        return prev.filter((p) => p._id !== newPost._id);
+      }
       return [...prev, newPost];
     });
   };
@@ -53,189 +89,241 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
   );
 
   const handleSubmit = async () => {
-    setApiSubmitting(true);
+    if (!email) return;
+
     await createTradeMutation.mutateAsync({
-      sellerEmail: authData.user.email,
-      sellerPost: { id: postData._id, title: postData.title, createdBy: authData.user.email },
-      buyerEmail: authData.user.email,
-      buyerPosts: selectedPosts.map((p) => ({ id: p._id, title: p.title, createdBy: authData.user.email })),
-      dateToSwap: date,
+      sellerEmail: postData.createdBy,
+      sellerPost: {
+        id: postData._id,
+        title: postData.title,
+        createdBy: postData.createdBy,
+      },
+      buyerEmail: email,
+      buyerPosts: selectedPosts.map((p) => ({
+        id: p._id,
+        title: p.title,
+        createdBy: p.createdBy,
+      })),
+      dateToSwap: date ?? new Date(),
       initialMessage: message,
     });
   };
 
-  const { data: postsByUser } = useQuery(
-    webClientORPC.posts.getPosts.queryOptions({
-      input: { createdBy: authData.user.email },
-    })
-  );
-
   if (!canSeeButton) return null;
 
   return (
-    <Dialog open={isTrading} onOpenChange={setIsTrading}>
-      <DialogTrigger asChild>
-        <Button className="w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500">Trade</Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle className="text-center font-light text-2xl">TRADING POST</DialogTitle>
-        </DialogHeader>
-        <div className="grid w-full grid-cols-1 items-center gap-5 md:grid-cols-2">
-          <TradingImage images={postData.images} />
-          <div className="flex min-h-0 flex-col rounded-md border-2 border-secondary">
-            <p className="my-3 flex justify-center font-bold">Choose your post</p>
-            <div className="min-h-0 flex-1">
-              <ChoosePostGrid postsByUser={postsByUser ?? undefined} onBackgroundClick={() => {}} handleTradeSelection={handleTradeSelection} />
+    <>
+      <Dialog open={isTrading} onOpenChange={setIsTrading}>
+        <DialogTrigger asChild>
+          <Button className="w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500">Trade</Button>
+        </DialogTrigger>
+        <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
+          <DialogHeader>
+            <DialogTitle>
+              Trade: {postData.title} <span className="font-normal text-muted-foreground text-sm">- {postData.createdBy}</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-foreground">
+            <div className="mb-5 grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
+              <div>
+                <p className="mb-2 font-semibold">Item to Trade For</p>
+                <Carousel className="group relative" setApi={setCarouselApi}>
+                  <CarouselContent>
+                    {postData.images.map((image, index) => {
+                      const postURL = image ?? "";
+                      const isLoaded = loadedImages.has(index);
+
+                      return (
+                        <CarouselItem key={`${postURL}-${index}`} className="basis-full">
+                          <div className="relative aspect-square w-full overflow-hidden rounded-md border border-background-700">
+                            {!isLoaded && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="h-full w-full animate-pulse bg-muted" />
+                                <p className="absolute">Loading...</p>
+                              </div>
+                            )}
+                            <Image
+                              src={postURL}
+                              alt={postData.title}
+                              fill
+                              className={`h-full w-full object-contain transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+                              onLoadingComplete={() => {
+                                setLoadedImages((prev) => {
+                                  const next = new Set(prev);
+                                  next.add(index);
+                                  return next;
+                                });
+                              }}
+                              unoptimized
+                            />
+                          </div>
+                        </CarouselItem>
+                      );
+                    })}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2 cursor-pointer opacity-0 transition-opacity disabled:opacity-0 group-hover:opacity-100" />
+                  <CarouselNext className="right-2 cursor-pointer opacity-0 transition-opacity disabled:opacity-0 group-hover:opacity-100" />
+                  <div className="absolute right-2 bottom-2 rounded-md bg-black/50 px-2 py-0.5 text-white text-xs">
+                    {currentImageIndex}/{postData.images.length}
+                  </div>
+                </Carousel>
+              </div>
+              <div>
+                <p className="mb-2 font-semibold">Your Posts to Offer (optional)</p>
+                <div className="flex max-h-[calc(90vh-250px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-4">
+                  {postsByUser && postsByUser.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4">
+                      {postsByUser.map((post) => {
+                        const isSelected = selectedPosts.some((p) => p._id === post._id);
+                        return (
+                          <div
+                            key={post._id}
+                            className={cn(
+                              "relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 transition-all",
+                              isSelected ? "border-success" : "border-transparent hover:border-foreground-400"
+                            )}
+                            onClick={() => handleTradeSelection(post)}
+                            onKeyDown={() => handleTradeSelection(post)}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <Image src={post.images[0] ?? ""} alt={post.title} fill className="object-cover" unoptimized />
+                            {isSelected && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <Check size={40} className="text-success" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-1 items-center justify-center">
+                      <p className="text-muted-foreground text-sm">You don't have any posts to offer yet.</p>
+                    </div>
+                  )}
+                  <p className="mt-2 text-right text-muted-foreground text-sm">{selectedPosts.length} selected</p>
+                </div>
+              </div>
             </div>
-            <p className="mt-2 mr-2 flex justify-end">{selectedPosts.length} selected</p>
+            <Button
+              className="flex w-full cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500"
+              onClick={() => setSubmitting(true)}
+            >
+              Submit Trade Request
+            </Button>
           </div>
-        </div>
-        <Button
-          className={cn("mt-5 flex w-full cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500")}
-          onClick={() => {
-            if (selectedPosts.length === 0) setShowEmptyWarning(true);
-            else setSubmitting(true);
-          }}
-        >
-          SUBMIT
-        </Button>
-        <Dialog
-          open={showEmptyWarning}
-          onOpenChange={(open) => {
-            if (!open) setShowEmptyWarning(false);
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Submit Empty Trade Request?</DialogTitle>
-              <DialogDescription>
-                <span>You have not selected any posts to trade with. Are you sure you want to submit an empty trade request?</span>
-                <div className="flex justify-center">
-                  <Button
-                    variant="destructive"
-                    className="mt-5 mr-5 flex w-1/3 cursor-pointer items-center justify-center bg-foreground text-white hover:bg-foreground-500"
-                    onClick={() => setShowEmptyWarning(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="mt-5 ml-5 flex w-1/3 cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500"
-                    onClick={() => {
-                      setShowEmptyWarning(false);
-                      setSubmitting(true);
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={submitting}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSubmitting(false);
+            setDate(undefined);
+            setMessage(undefined);
+          }
+        }}
+      >
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Trade Request with {postData.createdBy}</DialogTitle>
+            <DialogDescription>
+              <span>Select a Date & Time, with an optional message to complete the trade request.</span>
+
+              <div className="mt-5 flex justify-center gap-10">
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="date-picker" className="px-1">
+                    Date
+                  </Label>
+                  <Popover
+                    open={calenderOpen}
+                    onOpenChange={(open) => {
+                      setCalenderOpen(open);
                     }}
                   >
-                    Continue Trade
-                  </Button>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" id="date-picker" className="justify-between border-secondary font-mono text-foreground-950">
+                        {date ? date.toLocaleDateString() : "Select date"}
+                        <ChevronDownIcon />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        captionLayout="dropdown"
+                        hidden={{ before: new Date() }}
+                        onSelect={(selectedDate) => {
+                          setDate(selectedDate);
+                          setCalenderOpen(false);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-        <Dialog
-          open={submitting}
-          onOpenChange={(open) => {
-            if (!open) {
-              setSubmitting(false);
-              setDate(undefined);
-              setMessage(undefined);
-            }
-          }}
-        >
-          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle>Trade Request with {postData.createdBy}</DialogTitle>
-              <DialogDescription>
-                <span>Select a Date & Time, with an optional message to complete the trade request.</span>
-                <div className="mt-5 flex justify-center gap-10">
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="date-picker" className="px-1">
-                      Date
-                    </Label>
-                    <Popover
-                      open={calenderOpen}
-                      onOpenChange={(open) => {
-                        setCalenderOpen(open);
-                      }}
-                    >
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" id="date-picker" className="justify-between border-secondary font-mono text-foreground-950">
-                          {date ? date.toLocaleDateString() : "Select date"}
-                          <ChevronDownIcon className="" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          captionLayout="dropdown"
-                          hidden={{ before: new Date() }}
-                          onSelect={(selectedDate) => {
-                            setDate(selectedDate);
-                            setCalenderOpen(false);
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="time-picker" className="px-1">
-                      Time
-                    </Label>
-                    <Input
-                      type="time"
-                      id="time-picker"
-                      autoComplete="off"
-                      step="60"
-                      defaultValue="00:00"
-                      className="appearance-none border-secondary bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                      onBlur={(e) => {
-                        e.preventDefault();
-                        const time = e.currentTarget.value;
-                        const [hours, minutes] = time.split(":").map(Number);
-                        setDate((prev) => new Date(prev!.setHours(hours!, minutes)));
-                      }}
-                      disabled={!date}
-                    />
-                  </div>
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="time-picker" className="px-1">
+                    Time
+                  </Label>
+                  <Input
+                    type="time"
+                    id="time-picker"
+                    autoComplete="off"
+                    step="60"
+                    defaultValue="00:00"
+                    className="appearance-none border-secondary bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                    onBlur={(e) => {
+                      e.preventDefault();
+                      const time = e.currentTarget.value;
+                      const [hours, minutes] = time.split(":").map(Number);
+                      setDate((prev) => {
+                        if (!prev) return prev;
+                        const d = new Date(prev);
+                        d.setHours(hours ?? 0, minutes ?? 0);
+                        return d;
+                      });
+                    }}
+                    disabled={!date}
+                  />
                 </div>
-              </DialogDescription>
-              <div className="mt-5">
-                <Label htmlFor="message" className="px-1">
-                  Initial Trade Message
-                </Label>
-                <Textarea
-                  className="mt-2"
-                  value={message ?? ""}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="I put two shirts in exchange for your jacket."
-                  id="message"
-                />
               </div>
-              <div className="mt-2 flex justify-end">
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "flex w-1/3 cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500",
-                    `${apiSubmitting ? "cursor-wait" : "cursor-default"}`
-                  )}
-                  onClick={() => {
-                    handleSubmit();
-                    setSubmitting(false);
-                    setDate(undefined);
-                    setMessage(undefined);
-                  }}
-                  disabled={!date || apiSubmitting}
-                >
-                  {apiSubmitting ? "Submitting..." : "Submit"}
-                </Button>
-              </div>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </DialogContent>
-    </Dialog>
+            </DialogDescription>
+            <div className="mt-5">
+              <Label htmlFor="message" className="px-1">
+                Initial Trade Message
+              </Label>
+
+              <Textarea
+                className="mt-2"
+                value={message ?? ""}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="I&apos;d like to trade these items for your post."
+                id="message"
+              />
+            </div>
+
+            <div className="mt-2 flex justify-end">
+              <Button
+                variant="outline"
+                className={cn(
+                  "flex w-1/3 cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500",
+                  createTradeMutation.isPending && "cursor-wait"
+                )}
+                onClick={() => {
+                  handleSubmit();
+                  setSubmitting(false);
+                  setDate(undefined);
+                  setMessage(undefined);
+                }}
+                disabled={createTradeMutation.isPending}
+              >
+                {createTradeMutation.isPending ? "Submitting..." : "Submit"}
+              </Button>
+            </div>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
