@@ -92,8 +92,8 @@ export default function FilterLayer({ nextAvailablePost }: { nextAvailablePost: 
         }
       });
 
-      if (!!selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
-      if (!!selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
+      if (selectedMaxPrice && selectedMaxPrice > PRICE_MAX) setMaxPrice(PRICE_MAX);
+      if (selectedMinPrice && selectedMinPrice < 1) setMinPrice(1);
     }
   }, [
     filters?.error,

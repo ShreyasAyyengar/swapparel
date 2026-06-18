@@ -16,8 +16,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import type z from "zod";
-import CommentInput from "../post/selected/comment-input";
-import Comments from "../post/selected/comments";
 import TradingBox from "../post/trading/trade";
 
 type PostDialogProps = {
@@ -226,13 +224,13 @@ export default function PostDialog({ postData, onProfileClick = () => {} }: Post
                 ))}
               </p>
               <hr className="my-2 border-foreground border-t-2" />
-              <p className="font-bold">Comments:</p>
+              {/* <p className="font-bold">Comments:</p>
               {postData.comments.length > 0 && <CommentInput sentence="Add a new comment!" post={postData} />}
               {postData.comments.length < 1 ? (
                 <CommentInput sentence="Be the first to comment!" post={postData} />
               ) : (
                 <Comments post={postData} />
-              )}
+              )} */}
             </div>
           </div>
           {canSeeButton && (
