@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
+import { parseAsString, useQueryState } from "nuqs";
 import type z from "zod";
 import TradingBox from "../post/trading/trade";
 
@@ -27,6 +28,8 @@ type PostDialogProps = {
 
 export default function PostDialog({ postData, className }: PostDialogProps) {
   const router = useRouter();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [postId, setPostId] = useQueryState("id", parseAsString);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
@@ -57,8 +60,24 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
     };
   }, [carouselApi]);
 
+  useEffect(() => {
+    if (postId === postData._id) {
+      setDialogOpen(true);
+    }
+  }, [postId, postData._id]);
+
   return (
-    <Dialog>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (open) {
+          setPostId(postData._id);
+        } else {
+          setPostId(null);
+        }
+      }}
+    >
       <DialogTrigger className={cn("rounded-sm bg-foreground-300 p-5 text-background-800", className)}>
         <p className="font-bold">{postData.title}</p>
         <span title={postData.createdBy} className="w-full truncate">
