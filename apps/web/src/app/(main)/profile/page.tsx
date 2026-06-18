@@ -7,9 +7,8 @@ import { useEffect, useState } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
-import MasonryElement from "../feed/_components/post/masonry-element";
+import PostDialog from "../feed/_components/shadcn-post/post-dialog";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
-import ExpandedPostLayer from "../feed/_components/post/selected/expanded-post-layer";
 import CreatePostLayer from "../feed/_create/create-post-layer";
 import LoadingProfile from "./_components/loading-profile";
 import NoProfile from "./_components/no-profile";
@@ -58,7 +57,6 @@ export default function Page() {
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
-      {posts && posts.length > 0 && <ExpandedPostLayer loadedFeedPosts={posts} />}
       <CreatePostLayer />
       <div
         className={`mt-5 grid grid-cols-1 justify-items-center overflow-hidden rounded-full border border-secondary bg-primary p-5 px-10 text-foreground transition-[width] duration-700 ease-out ${mounted ? "w-1/2" : "w-0"} md:grid-cols-2 md:justify-between md:justify-items-stretch`}
@@ -93,7 +91,7 @@ export default function Page() {
                 ?.slice()
                 .reverse()
                 .map((post) => (
-                  <MasonryElement key={post._id} className="bg-primary" postData={post} />
+                  <PostDialog key={post._id} postData={post} className="bg-primary" />
                 ))}
             </MasonryLayout>
           </div>

@@ -7,8 +7,6 @@ import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useQueryState } from "nuqs";
 import { useEffect } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
@@ -44,14 +42,11 @@ export const { useAppForm } = createFormHook({
 });
 
 export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
-  const router = useRouter();
-  const [_, setPost] = useQueryState("post");
   // TODO<Alex>: add new post to feed
 
   const createPostMutation = useMutation(
     webClientORPC.posts.createPost.mutationOptions({
-      onSuccess: async (data) => {
-        await setPost(data.id);
+      onSuccess: async () => {
         closeAction();
       },
     })
