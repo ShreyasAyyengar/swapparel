@@ -3,12 +3,12 @@ import { cn } from "@swapparel/shad-ui/lib/utils";
 import { ImageUp } from "lucide-react";
 import { useCallback, useState } from "react";
 import UploadedImageThumbnail from "./_fields/uploaded-image-thumbnail";
-import { type FormValues, useFieldContext } from "./create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "./create-post-form";
 
 // No longer needed - we use upload.id directly
 
 export default function UploadDropzone() {
-  const field = useFieldContext<FormValues["images"]>();
+  const field = useFieldContext<CreatePostFormValues["images"]>();
 
   const [draggingOver, setDraggingOver] = useState(false);
 
@@ -34,7 +34,7 @@ export default function UploadDropzone() {
 
       // Always append to current state value to avoid stale closures
       const currentValue = field.state.value;
-      field.handleChange([...currentValue, ...newUploads] as FormValues["images"]);
+      field.handleChange([...currentValue, ...newUploads] as CreatePostFormValues["images"]);
     },
     [field]
   );
@@ -54,7 +54,7 @@ export default function UploadDropzone() {
 
   const removeById = useCallback(
     (id: string) => {
-      field.handleChange(field.state.value.filter((u) => u.id !== id) as FormValues["images"]);
+      field.handleChange(field.state.value.filter((u) => u.id !== id) as CreatePostFormValues["images"]);
     },
     [field]
   );

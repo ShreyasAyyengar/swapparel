@@ -16,11 +16,11 @@ import ColorField from "./_fields/colour-field";
 import DescriptionField from "./_fields/description-field";
 import GarmentField from "./_fields/garment-field";
 import HashtagsField from "./_fields/hashtags-field";
+import ImagesField from "./_fields/images-field";
 import MaterialField from "./_fields/material-field";
 import PriceField from "./_fields/price-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
-import UploadField from "./_fields/upload-field";
 
 export type CreatePostFormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
@@ -36,7 +36,8 @@ export const { useAppForm } = createFormHook({
     MaterialField,
     PriceField,
     HashtagsField,
-    UploadField,
+    ImagesField,
+    // UploadField,
     // TODO some fields can be highlighted by highlighting texts, others not
   },
   formComponents: {},
@@ -145,7 +146,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {/*region photo upload*/}
               <div className="mt-3 w-1/2 pt-7.5 pr-5 pb-10 pl-5">
                 <FieldGroup className="h-full w-full">
-                  <form.AppField name="images">{(field) => <field.UploadField />}</form.AppField>
+                  <form.AppField name="images">{(field) => <field.ImagesField />}</form.AppField>
                 </FieldGroup>
               </div>
               {/*endregion photo upload*/}
