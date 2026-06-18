@@ -11,10 +11,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@swapparel/shad-ui/components/carousel";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import type z from "zod";
 import TradingBox from "../post/trading/trade";
@@ -32,32 +32,12 @@ export default function PostDialog({ postData, className, onProfileClick = () =>
   const [isTrading, setIsTrading] = useState(false);
   const [canSeeButton, setCanSeeButton] = useState(false);
   const { data, isPending } = authClient.useSession();
-  const imageContainerRef = useRef<HTMLDivElement>(null);
-  const textContainerRef = useRef<HTMLDivElement>(null);
   const MAX_DESCRIPTION = 1000;
 
   useEffect(() => {
     if (isPending) return;
     if (data?.user.email !== postData.createdBy) setCanSeeButton(true);
   }, [data, isPending, postData.createdBy]);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (imageContainerRef.current && textContainerRef.current) {
-        textContainerRef.current.style.height = `${imageContainerRef.current.clientHeight}px`;
-      }
-    };
-
-    const resizeObserver = new ResizeObserver(updateHeight);
-
-    if (imageContainerRef.current) {
-      resizeObserver.observe(imageContainerRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -126,13 +106,15 @@ export default function PostDialog({ postData, className, onProfileClick = () =>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
-          <DialogTitle>{postData.title}</DialogTitle>
-          <DialogDescription>{postData.createdBy}</DialogDescription>
+          <DialogTitle>
+            {postData.title} <span className="font-normal text-muted-foreground text-sm">- {postData.createdBy}</span>
+          </DialogTitle>
+          {/* <DialogDescription>{postData.createdBy}</DialogDescription> */}
         </DialogHeader>
         <div className="relative text-foreground">
           {isTrading && <TradingBox post={postData} onClick={() => setIsTrading(false)} />}
-          <div className="grid grid-cols-1 items-center gap-5 xl:grid-cols-2">
-            <div ref={imageContainerRef}>
+          <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
+            <div>
               <Carousel className="group relative" setApi={setCarouselApi}>
                 <CarouselContent>
                   {postData.images.map((image, index) => {
@@ -174,10 +156,7 @@ export default function PostDialog({ postData, className, onProfileClick = () =>
                 </div>
               </Carousel>
             </div>
-            <div
-              className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2"
-              ref={textContainerRef}
-            >
+            <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2">
               <button type="button" className="cursor-pointer text-left font-bold hover:underline" onClick={onProfileClick}>
                 {postData.createdBy}
               </button>
