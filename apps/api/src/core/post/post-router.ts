@@ -1,27 +1,23 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
 import { S3Client, write } from "bun";
-import heicConvert from "heic-convert";
+import { fileTypeFromBuffer } from "file-type";
+import sharp from "sharp";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserService } from "../users/user-service";
 import { PostService } from "./post-service";
 
-export const uploadToR2 = async (postId: string, file: File, mimeType: string, index: number) => {
-  let finalMimeType = mimeType;
-  const key = `${postId}/${index}`;
-  let fileExtension = file.name.split(".").pop();
+export const uploadToR2 = async (postId: string, file: File, index: number) => {
   const fileBuffer = Buffer.from(await file.arrayBuffer());
+  let uploadMimeType = (await fileTypeFromBuffer(fileBuffer))?.mime;
+
+  let fileExtension = file.name.split(".").pop();
   let body = fileBuffer;
 
-  if (mimeType === "image/heic" || mimeType === "image/heif") {
-    body = await heicConvert({
-      buffer: fileBuffer,
-      format: "JPEG",
-      quality: 1,
-    });
-
+  if (uploadMimeType === "image/heic" || uploadMimeType === "image/heif") {
+    body = Buffer.from(await sharp(fileBuffer).jpeg({ quality: 100 }).toBuffer());
     fileExtension = "jpg";
-    finalMimeType = "image/jpeg";
+    uploadMimeType = "image/jpeg";
   }
 
   const s3 = new S3Client({
@@ -31,7 +27,8 @@ export const uploadToR2 = async (postId: string, file: File, mimeType: string, i
     endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   });
 
-  await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: finalMimeType }));
+  const key = `${postId}/${index}`;
+  await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: uploadMimeType }));
 
   return `https://cdn.swapparel.app/${key}.${fileExtension}`;
 };
@@ -48,7 +45,7 @@ export const postRouter = {
       }
 
       const id = uuidv7();
-      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, image.mimeType, index)));
+      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, index)));
 
       const postData = {
         _id: id,
@@ -78,7 +75,6 @@ export const postRouter = {
         });
       }
 
-      Bun.gc(true);
       return { id };
     }
   ),
