@@ -199,6 +199,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                     </div>
                   ) : (
                     <div className="flex flex-1 items-center justify-center">
+                      {/* TODO: add a redirect to "create post" */}
                       <p className="text-muted-foreground text-sm">You don't have any posts to offer yet.</p>
                     </div>
                   )}
@@ -298,7 +299,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                 className="mt-2"
                 value={message ?? ""}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="I&apos;d like to trade these items for your post."
+                placeholder="I'd like to trade these items for your post."
                 id="message"
               />
             </div>
