@@ -13,6 +13,7 @@ import {
 } from "@swapparel/shad-ui/components/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
 import { cn } from "@swapparel/shad-ui/lib/utils";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
@@ -22,10 +23,10 @@ import TradingBox from "../post/trading/trade";
 type PostDialogProps = {
   postData: z.infer<typeof postSchema>;
   className?: string;
-  onProfileClick?: () => void;
 };
 
-export default function PostDialog({ postData, className, onProfileClick = () => {} }: PostDialogProps) {
+export default function PostDialog({ postData, className }: PostDialogProps) {
+  const router = useRouter();
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
@@ -157,7 +158,7 @@ export default function PostDialog({ postData, className, onProfileClick = () =>
               </Carousel>
             </div>
             <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2">
-              <button type="button" className="cursor-pointer text-left font-bold hover:underline" onClick={onProfileClick}>
+              <button type="button" className="cursor-pointer text-left font-bold hover:underline" onClick={() => router.push(`/profile?profile=${encodeURIComponent(postData.createdBy)}`)}>
                 {postData.createdBy}
               </button>
               <hr className="my-2 border-foreground border-t-2" />
