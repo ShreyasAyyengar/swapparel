@@ -130,7 +130,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
           {/* <DialogDescription>{postData.createdBy}</DialogDescription> */}
         </DialogHeader>
         <div className="relative text-foreground">
-          <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
+          <div className="mb-5 grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
             <div>
               <Carousel className="group relative" setApi={setCarouselApi}>
                 <CarouselContent>
