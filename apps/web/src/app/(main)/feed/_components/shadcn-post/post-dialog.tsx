@@ -2,7 +2,6 @@
 
 import type { postSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
-import { Button } from "@swapparel/shad-ui/components/button";
 import {
   Carousel,
   type CarouselApi,
@@ -19,7 +18,7 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import type z from "zod";
-import TradingBox from "../post/trading/trade";
+import TradeDialog from "./trade-dialog";
 
 type PostDialogProps = {
   postData: z.infer<typeof postSchema>;
@@ -33,7 +32,6 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
-  const [isTrading, setIsTrading] = useState(false);
   const [canSeeButton, setCanSeeButton] = useState(false);
   const { data, isPending } = authClient.useSession();
   const MAX_DESCRIPTION = 1000;
@@ -132,7 +130,6 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
           {/* <DialogDescription>{postData.createdBy}</DialogDescription> */}
         </DialogHeader>
         <div className="relative text-foreground">
-          {isTrading && <TradingBox post={postData} onClick={() => setIsTrading(false)} />}
           <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
             <div>
               <Carousel className="group relative" setApi={setCarouselApi}>
@@ -238,17 +235,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               )} */}
             </div>
           </div>
-          {canSeeButton && (
-            <div className="mt-4 flex items-center">
-              <Button
-                className="w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500"
-                onClick={() => setIsTrading(true)}
-                disabled={isTrading}
-              >
-                {isTrading ? "Trading..." : "Trade"}
-              </Button>
-            </div>
-          )}
+          <TradeDialog postData={postData} canSeeButton={canSeeButton} />
         </div>
       </DialogContent>
     </Dialog>
