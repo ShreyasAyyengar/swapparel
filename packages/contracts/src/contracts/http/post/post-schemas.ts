@@ -7,11 +7,7 @@ export const PRICE_MAX = 500;
 
 export const VALID_MIME_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"] as const;
 
-export const uploadPhotoInput = z.object({
-  id: z.string().uuid(),
-  file: z.file("Invalid file."),
-  mimeType: z.enum(VALID_MIME_TYPES, "Invalid file type."),
-});
+export const MAX_IMAGES = 10;
 
 export const MATERIALS = [
   "Cotton",
@@ -134,5 +130,8 @@ export const userFormPostSchema = z.object({
     hashtags: true,
     price: true,
   }),
-  images: z.array(uploadPhotoInput).min(1, "At least one image is required to create a post."),
+  images: z
+    .array(z.file())
+    .min(1, "At least one image is required to create a post.")
+    .max(MAX_IMAGES, `Maximum of ${MAX_IMAGES} images allowed.`),
 });

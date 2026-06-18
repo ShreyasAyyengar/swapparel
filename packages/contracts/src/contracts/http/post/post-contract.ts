@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { postSchema, uploadPhotoInput, userFormPostSchema } from "./post-schemas";
+import { postSchema, userFormPostSchema } from "./post-schemas";
 
 export const postContract = {
   createPost: oc
@@ -8,7 +8,7 @@ export const postContract = {
       method: "POST",
     })
     // id is only for frontend state management. we do not need it in the payload
-    .input(userFormPostSchema.omit({ images: true }).extend({ images: z.array(uploadPhotoInput.omit({ id: true })).min(1) }))
+    .input(userFormPostSchema)
     .output(
       z.object({
         id: z.uuidv7(),
