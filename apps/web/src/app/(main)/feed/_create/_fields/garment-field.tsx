@@ -1,7 +1,7 @@
 import { GARMENT_TYPES } from "@swapparel/contracts";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@swapparel/shad-ui/components/select";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 const garmentSelectContent = [...GARMENT_TYPES]
   .sort((a, b) => a.localeCompare(b))
@@ -12,7 +12,7 @@ const garmentSelectContent = [...GARMENT_TYPES]
   ));
 
 export default function GarmentField() {
-  const field = useFieldContext<FormValues["postData"]["garmentType"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["garmentType"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
@@ -21,7 +21,7 @@ export default function GarmentField() {
       <Select
         name={field.name}
         value={field.state.value}
-        onValueChange={(newValue) => field.handleChange(newValue as FormValues["postData"]["garmentType"])}
+        onValueChange={(newValue) => field.handleChange(newValue as CreatePostFormValues["postData"]["garmentType"])}
       >
         <SelectTrigger id={field.name} aria-invalid={isInvalid}>
           <SelectValue placeholder="Select" />

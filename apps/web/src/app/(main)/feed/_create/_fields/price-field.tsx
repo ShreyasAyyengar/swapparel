@@ -2,11 +2,11 @@ import { Checkbox } from "@swapparel/shad-ui/components/checkbox";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import { Input } from "@swapparel/shad-ui/components/input";
 import { useState } from "react";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 export default function PriceField() {
   const [enabled, setEnabled] = useState(false);
-  const field = useFieldContext<FormValues["postData"]["price"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["price"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   const value = String(field.state.value ?? "");

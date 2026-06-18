@@ -8,19 +8,19 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@swapparel/shad-ui/components/multi-select";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 const materialsSorted = [...MATERIALS].sort();
 
 export default function MaterialField() {
-  const field = useFieldContext<FormValues["postData"]["material"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["material"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Material</FieldLabel>
       <MultiSelect
         values={field.state.value}
-        onValuesChange={(newValues) => field.handleChange(newValues as FormValues["postData"]["material"])}
+        onValuesChange={(newValues) => field.handleChange(newValues as CreatePostFormValues["postData"]["material"])}
       >
         <MultiSelectTrigger className="w-full max-w-[400px]">
           <MultiSelectValue placeholder="Select material..." />

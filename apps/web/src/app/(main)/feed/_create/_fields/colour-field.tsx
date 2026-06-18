@@ -8,17 +8,20 @@ import {
   MultiSelectTrigger,
   MultiSelectValue,
 } from "@swapparel/shad-ui/components/multi-select";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 const colorsSorted = [...COLOURS].sort();
 
 export default function ColorField() {
-  const field = useFieldContext<FormValues["postData"]["colour"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["colour"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Color</FieldLabel>
-      <MultiSelect values={field.state.value} onValuesChange={(newValues) => field.handleChange(newValues as FormValues["postData"]["colour"])}>
+      <MultiSelect
+        values={field.state.value}
+        onValuesChange={(newValues) => field.handleChange(newValues as CreatePostFormValues["postData"]["colour"])}
+      >
         <MultiSelectTrigger className="w-full max-w-[400px]">
           <MultiSelectValue placeholder="Select colours..." />
         </MultiSelectTrigger>

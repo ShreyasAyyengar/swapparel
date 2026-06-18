@@ -1,7 +1,7 @@
 import { SIZES } from "@swapparel/contracts";
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@swapparel/shad-ui/components/select";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 const sizeSelectContent = SIZES.map((size, index) => (
   <SelectItem key={index} value={size}>
@@ -10,7 +10,7 @@ const sizeSelectContent = SIZES.map((size, index) => (
 ));
 
 export default function SizeField() {
-  const field = useFieldContext<FormValues["postData"]["size"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["size"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
@@ -19,7 +19,7 @@ export default function SizeField() {
       <Select
         name={field.name}
         value={field.state.value}
-        onValueChange={(newValue) => field.handleChange(newValue as FormValues["postData"]["size"])}
+        onValueChange={(newValue) => field.handleChange(newValue as CreatePostFormValues["postData"]["size"])}
       >
         <SelectTrigger id={field.name} aria-invalid={isInvalid}>
           <SelectValue placeholder="Select" />

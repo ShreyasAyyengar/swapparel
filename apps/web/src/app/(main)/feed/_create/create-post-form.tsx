@@ -22,7 +22,7 @@ import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
 import UploadField from "./_fields/upload-field";
 
-export type FormValues = z.input<typeof userFormPostSchema>;
+export type CreatePostFormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
 export const { useAppForm } = createFormHook({
   fieldContext,
@@ -74,17 +74,17 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     },
     defaultValues: {
       postData: {
-        title: "" as FormValues["postData"]["title"],
-        description: "" as FormValues["postData"]["description"],
-        garmentType: "" as FormValues["postData"]["garmentType"],
-        size: "" as FormValues["postData"]["size"],
-        colour: [] as FormValues["postData"]["colour"],
-        material: [] as FormValues["postData"]["material"],
-        hashtags: [] as FormValues["postData"]["hashtags"],
-        price: undefined as FormValues["postData"]["price"],
+        title: "" as CreatePostFormValues["postData"]["title"],
+        description: "" as CreatePostFormValues["postData"]["description"],
+        garmentType: "" as CreatePostFormValues["postData"]["garmentType"],
+        size: "" as CreatePostFormValues["postData"]["size"],
+        colour: [] as CreatePostFormValues["postData"]["colour"],
+        material: [] as CreatePostFormValues["postData"]["material"],
+        hashtags: [] as CreatePostFormValues["postData"]["hashtags"],
+        price: undefined as CreatePostFormValues["postData"]["price"],
       },
-      images: [] as FormValues["images"],
-    } satisfies FormValues as FormValues,
+      images: [] as CreatePostFormValues["images"],
+    } satisfies CreatePostFormValues as CreatePostFormValues,
     validators: {
       onChange: userFormPostSchema,
     },

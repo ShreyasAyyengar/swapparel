@@ -1,9 +1,9 @@
 import { Field, FieldError, FieldLabel } from "@swapparel/shad-ui/components/field";
 import { Input } from "@swapparel/shad-ui/components/input";
-import { type FormValues, useFieldContext } from "../create-post-form";
+import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
 
 export default function TitleField() {
-  const field = useFieldContext<FormValues["postData"]["title"]>();
+  const field = useFieldContext<CreatePostFormValues["postData"]["title"]>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
