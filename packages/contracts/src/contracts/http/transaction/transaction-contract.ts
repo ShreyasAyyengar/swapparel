@@ -1,6 +1,21 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { embeddedPostSchema, transactionSchema } from "./transaction-schemas";
+import { postSchema } from "../post/post-schemas";
+import { transactionSchema } from "./transaction-schemas";
+
+const transactionIdSchema = transactionSchema.shape._id;
+const postIdSchema = postSchema.shape._id;
+
+const updateTransactionInputSchema = z
+  .object({
+    _id: transactionIdSchema,
+    scheduledFor: z.coerce.date().optional(),
+    location: z.string().trim().min(1).optional().nullable(),
+    status: transactionSchema.shape.status.optional(),
+  })
+  .refine(({ scheduledFor, location, status }) => scheduledFor !== undefined || location !== undefined || status !== undefined, {
+    message: "At least one transaction field must be provided.",
+  });
 
 export const transactionContract = {
   createTransaction: oc
@@ -9,17 +24,14 @@ export const transactionContract = {
     })
     .input(
       z.object({
-        sellerEmail: z.email(),
-        sellerPost: embeddedPostSchema,
-        buyerEmail: z.email(),
-        buyerPosts: z.array(embeddedPostSchema),
-        dateToSwap: z.coerce.date(),
-        initialMessage: z.string().optional(),
+        sellerPostId: postIdSchema,
+        buyerPostIds: z.array(postIdSchema),
+        scheduledFor: z.coerce.date(),
       })
     )
     .output(
       z.object({
-        _id: z.uuidv7(),
+        _id: transactionIdSchema,
       })
     )
     .errors({
@@ -36,34 +48,6 @@ export const transactionContract = {
       BAD_REQUEST: {
         data: z.object({
           issues: z.array(z.any()).optional(),
-          message: z.string(),
-        }),
-      },
-    }),
-
-  deleteTransaction: oc
-    .route({
-      method: "DELETE",
-    })
-    .input(
-      z.object({
-        _id: z.uuidv7(),
-      })
-    )
-    .output(
-      z.object({
-        success: z.boolean(),
-        message: z.string(),
-      })
-    )
-    .errors({
-      INTERNAL_SERVER_ERROR: {
-        data: z.object({
-          message: z.string(),
-        }),
-      },
-      NOT_FOUND: {
-        data: z.object({
           message: z.string(),
         }),
       },
@@ -92,13 +76,7 @@ export const transactionContract = {
     .route({
       method: "PATCH",
     })
-    .input(
-      z.object({
-        _id: z.uuidv7(),
-        dateToSwap: transactionSchema.shape.dateToSwap.optional(),
-        locationToSwap: transactionSchema.shape.locationToSwap.optional(),
-      })
-    )
+    .input(updateTransactionInputSchema)
     .output(
       z.object({
         success: z.boolean(),
