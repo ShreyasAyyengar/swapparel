@@ -1,5 +1,6 @@
 import { userSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
+import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
 const UserSchema = userSchema;
