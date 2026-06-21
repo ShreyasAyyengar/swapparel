@@ -80,7 +80,7 @@ export default function Page() {
 
       {posts && posts.length > 0 ? (
         //TODO<Alex>: correct overflow-y-auto hotfix
-        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground bg-accent">
+        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground">
           <div>
             <p className={"mt-5 font-bold text-2xl"}>POSTS</p>
             <div className="w-full border border-foreground" />
@@ -91,7 +91,7 @@ export default function Page() {
                 ?.slice()
                 .reverse()
                 .map((post) => (
-                  <PostDialog key={post._id} postData={post} />
+                  <PostDialog key={post._id} postData={post} className="border border-secondary bg-accent" />
                 ))}
             </MasonryLayout>
           </div>

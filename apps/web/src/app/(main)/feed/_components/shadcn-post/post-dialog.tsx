@@ -92,16 +92,16 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
         />
         <div className="w-full pt-2">
           <p title={postData.size} className="w-full truncate text-left">
-            Size: <Badge className="bg-background-800 font-bold">{postData.size}</Badge>
+            Size: <Badge className="bg-background-800 font-bold text-background">{postData.size}</Badge>
           </p>
           <p title={postData.garmentType} className="w-full truncate text-left">
-            Garment Type: <Badge className="bg-background-800 font-bold">{postData.garmentType}</Badge>
+            Garment Type: <Badge className="bg-background-800 font-bold text-background">{postData.garmentType}</Badge>
           </p>
           <p title={postData.colour.join(", ")} className="w-full truncate text-left">
             {/*Colors: {postData.colour.join(", ")}*/}
             Color:{" "}
             {postData.colour.map((color) => (
-              <Badge className="mr-1 bg-background-800 font-bold" key={color}>
+              <Badge className="mr-1 bg-background-800 font-bold text-background" key={color}>
                 {color}
               </Badge>
             ))}
@@ -110,7 +110,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
             {/*Materials: {postData.material}*/}
             Material:{" "}
             {postData.material.map((mats) => (
-              <Badge className="mr-1 bg-background-800 font-bold" key={mats}>
+              <Badge className="mr-1 bg-background-800 font-bold text-background" key={mats}>
                 {mats}
               </Badge>
             ))}
