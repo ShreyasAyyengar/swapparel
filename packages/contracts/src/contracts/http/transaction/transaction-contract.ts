@@ -115,10 +115,5 @@ export const transactionContract = {
           message: z.string(),
         }),
       },
-      UNAUTHORIZED: {
-        data: z.object({
-          message: z.string(),
-        }),
-      },
     }),
 };
