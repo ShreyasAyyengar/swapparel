@@ -7,16 +7,22 @@ import { UserService } from "../users/user-service";
 import { TransactionService } from "./transaction-service";
 
 export const transactionRouter = {
+  // TODO redo to support array of seller posts
   createTransaction: protectedProcedure.transaction.createTransaction.handler(
     async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
-      const buyerEmail = context.user.email;
+      const buyer = context.user;
+      const uniqueBuyerPostIds = [...new Set(input.buyerPostIds)];
 
-      // Fetch all data upfront in parallel
-      const [sellerPost, buyerUser, buyerPosts] = await Promise.all([
-        PostService.findById(input.sellerPost.id).select("_id title createdBy").lean(),
-        UserService.findOne({ email: buyerEmail }).lean(),
-        input.buyerPosts
-          ? PostService.find({ _id: { $in: input.buyerPosts.map((p) => p.id) } })
+      if (uniqueBuyerPostIds.length !== input.buyerPostIds.length) {
+        throw BAD_REQUEST({
+          data: { message: "Buyer post IDs must be unique." },
+        });
+      }
+
+      const [sellerPost, buyerPosts] = await Promise.all([
+        PostService.findById(input.sellerPostId).select("_id title createdBy").lean(),
+        uniqueBuyerPostIds.length
+          ? PostService.find({ _id: { $in: uniqueBuyerPostIds } })
               .select("_id title createdBy")
               .lean()
           : Promise.resolve([]),
@@ -24,70 +30,63 @@ export const transactionRouter = {
 
       if (!sellerPost) {
         throw NOT_FOUND({
-          data: { message: `Seller post ${input.sellerPost.id} not found.` },
+          data: { message: `Seller post ${input.sellerPostId} not found.` },
         });
       }
 
-      if (!buyerUser) {
-        throw NOT_FOUND({
-          data: { message: "Buyer user not found." },
-        });
-      }
-
-      // Prevent trading with themselves
-      if (sellerPost.createdBy === buyerEmail) {
+      if (sellerPost.createdBy === buyer.email) {
         throw BAD_REQUEST({
           data: { message: "User cannot trade with themselves." },
         });
       }
 
-      // Get seller user info
       const sellerUser = await UserService.findOne({ email: sellerPost.createdBy }).lean();
+
       if (!sellerUser) {
         throw NOT_FOUND({
           data: { message: "Seller user not found." },
         });
       }
 
+      if (buyerPosts.length !== uniqueBuyerPostIds.length) {
+        throw NOT_FOUND({
+          data: { message: "One or more buyer posts were not found." },
+        });
+      }
+
+      if (buyerPosts.some((post) => post.createdBy !== buyer.email)) {
+        throw BAD_REQUEST({
+          data: { message: "Buyer posts must belong to the authenticated user." },
+        });
+      }
+
       const _id = uuidv7();
+      const now = new Date();
 
       const transactionData: z.infer<typeof transactionSchema> = {
         _id,
-
-        // Embedded seller data
         seller: {
-          email: sellerUser.email,
-          avatarURL: sellerUser.image,
+          userId: sellerUser.id,
+          emailSnapshot: sellerUser.email,
+          avatarUrlSnapshot: sellerUser.image || undefined,
         },
         sellerPost: {
-          id: sellerPost._id,
-          title: sellerPost.title,
-          createdBy: sellerPost.createdBy,
+          postId: sellerPost._id,
+          titleSnapshot: sellerPost.title,
         },
-
-        // Embedded buyer data
         buyer: {
-          email: buyerUser.email,
-          avatarURL: buyerUser.image,
+          userId: buyer.id,
+          emailSnapshot: buyer.email,
+          avatarUrlSnapshot: buyer.image || undefined,
         },
         buyerPosts: buyerPosts.map((post) => ({
-          id: post._id,
-          title: post.title,
-          createdBy: post.createdBy,
+          postId: post._id,
+          titleSnapshot: post.title,
         })),
-
-        // Transaction details
-        dateToSwap: input.dateToSwap,
-        messages: input.initialMessage
-          ? [
-              {
-                createdAt: new Date().toISOString(),
-                authorEmail: buyerEmail,
-                content: input.initialMessage,
-              },
-            ]
-          : [],
-        completed: false,
+        scheduledFor: input.scheduledFor,
+        status: "pending",
+        createdAt: now,
+        updatedAt: now,
       };
 
       const tryParse = transactionSchema.safeParse(transactionData);
@@ -114,13 +113,12 @@ export const transactionRouter = {
       return { _id };
     }
   ),
-  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
-    const email = context.user.email;
+  getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context }) => {
+    const userId = context.user.id;
 
-    // Simple queries - no joins needed!
     const [initiatedTransactions, receivedTransactions] = await Promise.all([
-      TransactionService.find({ "buyer.email": email }).lean(),
-      TransactionService.find({ "seller.email": email }).lean(),
+      TransactionService.find({ "buyer.userId": userId }).lean(),
+      TransactionService.find({ "seller.userId": userId }).lean(),
     ]);
 
     return {
@@ -130,10 +128,7 @@ export const transactionRouter = {
   }),
 
   updateTransaction: protectedProcedure.transaction.updateTransaction.handler(
-    async ({ input, context, errors: { NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR } }) => {
-      const userEmail = context.user.email;
-
-      // Find the transaction
+    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
       const transaction = await TransactionService.findById(input._id);
 
       if (!transaction) {
@@ -142,21 +137,49 @@ export const transactionRouter = {
         });
       }
 
-      const sellerPost = await PostService.findById(transaction.sellerPost.id);
-      const isAuthorized = transaction.buyer.email === userEmail || sellerPost?.createdBy === userEmail;
+      const isAuthorized = transaction.buyer.userId === context.user.id || transaction.seller.userId === context.user.id;
 
       if (!isAuthorized) {
-        throw UNAUTHORIZED({
+        throw FORBIDDEN({
           data: { message: "User not authorized to update this transaction." },
         });
       }
 
-      const updateData: Partial<z.infer<typeof transactionSchema>> = {};
-      if (input.dateToSwap !== undefined) updateData.dateToSwap = input.dateToSwap;
-      if (input.locationToSwap !== undefined) updateData.locationToSwap = input.locationToSwap;
+      if (transaction.status === "completed" || transaction.status === "cancelled") {
+        throw BAD_REQUEST({
+          data: { message: `A ${transaction.status} transaction cannot be updated.` },
+        });
+      }
+
+      if (input.status !== undefined && input.status !== transaction.status) {
+        const allowedTransitions = {
+          pending: ["accepted", "cancelled"],
+          accepted: ["completed", "cancelled"],
+        } as const;
+
+        if (!(allowedTransitions[transaction.status] as readonly string[]).includes(input.status)) {
+          throw BAD_REQUEST({
+            data: { message: `Cannot change transaction status from ${transaction.status} to ${input.status}.` },
+          });
+        }
+
+        if (input.status === "accepted" && transaction.seller.userId !== context.user.id) {
+          throw FORBIDDEN({
+            data: { message: "Only the seller can accept a transaction." },
+          });
+        }
+      }
+
+      const updateData: Partial<z.infer<typeof transactionSchema>> = {
+        updatedAt: new Date(),
+      };
+      if (input.scheduledFor !== undefined) updateData.scheduledFor = input.scheduledFor;
+      if (input.location) updateData.location = input.location;
+      if (input.status !== undefined) updateData.status = input.status;
 
       try {
-        await TransactionService.updateOne({ _id: input._id }, { $set: updateData });
+        const update = input.location === null ? { $set: updateData, $unset: { location: 1 } } : { $set: updateData };
+        await TransactionService.updateOne({ _id: input._id }, update);
         return { success: true };
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
