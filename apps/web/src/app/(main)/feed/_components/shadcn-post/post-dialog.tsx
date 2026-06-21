@@ -191,38 +191,38 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
 
               {postData.price && (
                 <p>
-                  Price: <span className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">{postData.price}</span>
+                  Price: <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">${postData.price}</Badge>
                 </p>
               )}
 
               <p>
-                Garment Type: <span className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">{postData.garmentType}</span>
+                Garment Type: <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">{postData.garmentType}</Badge>
               </p>
               <p>
                 Color:{" "}
                 {postData.colour.map((color) => (
-                  <span className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={color}>
+                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={color}>
                     {color}
-                  </span>
+                  </Badge>
                 ))}
               </p>
               <p>
-                Size: <span className="rounded-md bg-foreground px-1 font-bold text-background">{postData.size}</span>
+                Size: <Badge className="rounded-md bg-foreground px-1 font-bold text-background">{postData.size}</Badge>
               </p>
               <p>
                 Material:{" "}
                 {postData.material.map((mats) => (
-                  <span className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={mats}>
+                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={mats}>
                     {mats}
-                  </span>
+                  </Badge>
                 ))}
               </p>
               <p>
                 Hashtags:{" "}
                 {postData.hashtags.map((hashtag) => (
-                  <span className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={hashtag}>
+                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={hashtag}>
                     {hashtag}
-                  </span>
+                  </Badge>
                 ))}
               </p>
               <hr className="my-2 border-foreground border-t-2" />
