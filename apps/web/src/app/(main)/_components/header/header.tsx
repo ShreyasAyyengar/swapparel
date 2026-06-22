@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CreatePostHeaderButton from "./create-post-header-button";
 import ProfileButton from "./profile-button";
 import SlimBanner from "./simple-banner-slim.svg";
@@ -7,13 +8,13 @@ import ThemeChanger from "./theme-changer";
 export default function Header() {
   return (
     <header className="relative sticky inset-0 top-0 z-1 flex items-center bg-secondary p-3">
-      <a href="/feed">
+      <Link href="/feed">
         <SlimBanner
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 fill-foreground transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fill-foreground transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"
           width={175}
           height={58}
         />
-      </a>
+      </Link>
       <div className="mr-auto flex items-center gap-6">
         {/*<MenuHeaderButton />*/}
         {/*  TODO<future>: revamp */}
