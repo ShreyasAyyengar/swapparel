@@ -13,7 +13,7 @@ export default function ProfileButton() {
       <LoaderCircle
         width={37.5}
         height={37.5}
-        className="animate-spin text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+        className="animate-spin duration-100 ease-in hover:scale-110 hover:cursor-pointer "
       />
     );
 
@@ -34,7 +34,7 @@ export default function ProfileButton() {
       height={37.5}
       onClick={handleClick}
       className={
-        "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+        "duration-100 ease-in hover:scale-110 hover:cursor-pointer "
       }
     />
   );
