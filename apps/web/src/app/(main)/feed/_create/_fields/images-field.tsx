@@ -72,7 +72,7 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
                 <CloudUploadIcon className="size-8" />
                 <div>
                   <p className="font-semibold">Upload images</p>
-                  <p className="text-muted-foreground text-sm">Click here or drag and drop to upload</p>
+                  <p className="text-sm">Click here or drag and drop to upload</p>
                 </div>
               </DropzoneTrigger>
             </DropZoneArea>
@@ -85,7 +85,7 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
 
           <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
             {dropzone.fileStatuses.map((fileStatus, index) => (
-              <DropzoneFileListItem className="overflow-hidden rounded-md bg-secondary p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
+              <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
                 {fileStatus.status === "success" ? (
                   <Image
                     src={fileStatus.result}
@@ -101,7 +101,7 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
                 <div className="mb-2 ml-2 flex items-center justify-between">
                   <div className="min-w-0">
                     <p className="truncate text-sm">{fileStatus.fileName}</p>
-                    <p className="text-foreground/50 text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+                    <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
                   </div>
                   <DropzoneRemoveFile
                     variant="ghost"

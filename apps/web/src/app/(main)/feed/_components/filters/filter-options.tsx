@@ -63,7 +63,7 @@ function FilterOptions({
     showingFilters && (
       <div
         ref={ref}
-        className="mt-2 flex max-h-[80vh] w-150 flex-col overflow-y-auto rounded-2xl border border-secondary bg-accent p-5 text-foreground"
+        className="mt-2 flex max-h-[80vh] w-150 flex-col overflow-y-auto rounded-2xl border border-border bg-popover p-5 text-popover-foreground"
       >
         <Button className={"my-4 cursor-pointer"} onClick={clearFilters}>
           CLEAR FILTERS

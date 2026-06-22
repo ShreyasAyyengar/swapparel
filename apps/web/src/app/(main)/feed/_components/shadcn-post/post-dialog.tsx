@@ -76,7 +76,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
         }
       }}
     >
-      <DialogTrigger className={cn("rounded-sm bg-foreground-300 p-5 text-background-800", className)}>
+      <DialogTrigger className={cn("rounded-sm bg-card p-5 text-card-foreground", className)}>
         <p className="font-bold">{postData.title}</p>
         <span title={postData.createdBy} className="w-full truncate">
           {postData.createdBy}
@@ -86,22 +86,22 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
           width={200}
           height={200}
           alt="thumbnail"
-          className="w-full rounded-md border-2 border-foreground-400"
+          className="w-full rounded-md border-2 border-border"
           loading="eager"
           priority={false}
         />
         <div className="w-full pt-2">
           <p title={postData.size} className="w-full truncate text-left">
-            Size: <Badge className="bg-background-800 font-bold text-background">{postData.size}</Badge>
+            Size: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.size}</Badge>
           </p>
           <p title={postData.garmentType} className="w-full truncate text-left">
-            Garment Type: <Badge className="bg-background-800 font-bold text-background">{postData.garmentType}</Badge>
+            Garment Type: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.garmentType}</Badge>
           </p>
           <p title={postData.colour.join(", ")} className="w-full truncate text-left">
             {/*Colors: {postData.colour.join(", ")}*/}
             Color:{" "}
             {postData.colour.map((color) => (
-              <Badge className="mr-1 bg-background-800 font-bold text-background" key={color}>
+              <Badge className="mr-1 bg-secondary text-secondary-foreground font-bold" key={color}>
                 {color}
               </Badge>
             ))}
@@ -110,14 +110,14 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
             {/*Materials: {postData.material}*/}
             Material:{" "}
             {postData.material.map((mats) => (
-              <Badge className="mr-1 bg-background-800 font-bold text-background" key={mats}>
+              <Badge className="mr-1 bg-secondary text-secondary-foreground font-bold" key={mats}>
                 {mats}
               </Badge>
             ))}
           </p>
           {postData.price && (
             <p className="w-full truncate text-left">
-              Price: <Badge className="bg-background-800 font-bold text-background">{postData.price}</Badge>
+              Price: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.price}</Badge>
             </p>
           )}
         </div>
@@ -125,7 +125,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
       <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
-            {postData.title} <span className="font-normal text-muted-foreground text-sm">- {postData.createdBy}</span>
+            {postData.title} <span className="font-normal text-sm">- {postData.createdBy}</span>
           </DialogTitle>
           {/* <DialogDescription>{postData.createdBy}</DialogDescription> */}
         </DialogHeader>
@@ -140,7 +140,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
 
                     return (
                       <CarouselItem key={`${postURL}-${index}`} className="basis-full">
-                        <div className="relative aspect-square w-full overflow-hidden rounded-md border border-background-700">
+                        <div className="relative aspect-square w-full overflow-hidden rounded-md border border-border">
                           {!isLoaded && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="h-full w-full animate-pulse bg-muted" />
@@ -173,7 +173,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
                 </div>
               </Carousel>
             </div>
-            <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-2">
+            <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-accent p-2">
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
@@ -181,38 +181,38 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               >
                 {postData.createdBy}
               </button>
-              <hr className="my-2 border-foreground border-t-2" />
+              <hr className="my-2 border-border border-t-2" />
 
               <p className="font-bold">Description:</p>
               <p className="wrap-break-word max-w-[45ch]">
                 {`${postData.description.slice(0, MAX_DESCRIPTION)}${postData.description.length > MAX_DESCRIPTION ? "..." : ""}`}
               </p>
-              <hr className="my-2 border-foreground border-t-2" />
+              <hr className="my-2 border-border border-t-2" />
 
               {postData.price && (
                 <p>
-                  Price: <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">${postData.price}</Badge>
+                  Price: <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold">${postData.price}</Badge>
                 </p>
               )}
 
               <p>
-                Garment Type: <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background">{postData.garmentType}</Badge>
+                Garment Type: <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold">{postData.garmentType}</Badge>
               </p>
               <p>
                 Color:{" "}
                 {postData.colour.map((color) => (
-                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={color}>
+                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={color}>
                     {color}
                   </Badge>
                 ))}
               </p>
               <p>
-                Size: <Badge className="rounded-md bg-foreground px-1 font-bold text-background">{postData.size}</Badge>
+                Size: <Badge className="rounded-md bg-secondary text-secondary-foreground px-1 font-bold">{postData.size}</Badge>
               </p>
               <p>
                 Material:{" "}
                 {postData.material.map((mats) => (
-                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={mats}>
+                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={mats}>
                     {mats}
                   </Badge>
                 ))}
@@ -220,12 +220,12 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               <p>
                 Hashtags:{" "}
                 {postData.hashtags.map((hashtag) => (
-                  <Badge className="mr-1 rounded-md bg-foreground px-1 font-bold text-background" key={hashtag}>
+                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={hashtag}>
                     {hashtag}
                   </Badge>
                 ))}
               </p>
-              <hr className="my-2 border-foreground border-t-2" />
+              <hr className="my-2 border-border border-t-2" />
               {/* <p className="font-bold">Comments:</p>
               {postData.comments.length > 0 && <CommentInput sentence="Add a new comment!" post={postData} />}
               {postData.comments.length < 1 ? (

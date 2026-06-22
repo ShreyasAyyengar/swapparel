@@ -94,7 +94,7 @@ export default function FilterHashtags({
           }
         }}
         onPaste={handlePaste}
-        className="focu mb-2 w-full max-w-xl rounded-full border border-foreground bg-secondary-foreground p-1 pl-2 placeholder-gray-400 transition duration-200 focus:border-accent focus:ring-accent"
+        className="focu mb-2 w-full max-w-xl rounded-full border border-border bg-popover p-1 pl-2 text-popover-foreground placeholder-muted-foreground transition duration-200 focus:border-ring focus:ring-ring"
       />
       <div className={"flex flex-wrap gap-1"}>{hashtagList.length > 0 && hashtagBadges}</div>
     </>

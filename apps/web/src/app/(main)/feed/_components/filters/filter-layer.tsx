@@ -164,7 +164,7 @@ export default function FilterLayer({ nextAvailablePost, initialPosts = [] }: { 
         <MasonryLayout>
           {filteredPosts.map((post) => (
             // TODO<Alex>: hotfix
-            <PostDialog key={post._id} postData={post} className="border border-secondary bg-accent" />
+            <PostDialog key={post._id} postData={post} className="border border-border bg-card" />
           ))}
         </MasonryLayout>
         {!isFetching && <div ref={optimisticRef} />}
@@ -187,7 +187,7 @@ export default function FilterLayer({ nextAvailablePost, initialPosts = [] }: { 
       {!(hasNextPage || fetchingSticky) && (
         <div>
           <div className="flex items-center justify-center">
-            <div className="m-8 flex w-full max-w-3/4 flex-col items-center gap-6 border border-secondary text-center" />
+            <div className="m-8 flex w-full max-w-3/4 flex-col items-center gap-6 border border-border text-center" />
           </div>
           <div className="mb-10 text-center font-bold text-3xl">Could not load any more Swag...</div>
         </div>

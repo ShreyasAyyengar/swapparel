@@ -95,8 +95,8 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
 
   return (
     <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
-      <div className="rounded-2xl border border-foreground">
-        <div className="rounded-2xl bg-primary-200/40">
+      <div className="rounded-2xl border border-border">
+        <div className="rounded-2xl bg-card">
           <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
           <Separator className="mt-3" />
           <form
@@ -157,8 +157,8 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {([canSubmit, isSubmitting]) => (
                 <Button
                   className={cn(
-                    "m-3 mr-5 w-1/8 text-background",
-                    `${canSubmit ? "bg-foreground hover:cursor-pointer hover:bg-foreground-500" : "bg-foreground/50 hover:bg-foreground/50"}`,
+                    "m-3 mr-5 w-1/8 ",
+                    `${canSubmit ? "bg-primary text-primary-foreground hover:cursor-pointer hover:bg-primary/85" : "bg-muted text-muted-foreground"}`,
                     `${isSubmitting ? "cursor-wait" : "cursor-default"}`
                   )}
                   onClick={form.handleSubmit}
