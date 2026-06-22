@@ -124,10 +124,8 @@ export const transactionRouter = {
       TransactionService.find({ "seller.userId": userId }).lean(),
     ]);
 
-    // TODO if this is never discriminated by the client, refactor to return a single array of transactions
     return {
-      initiatedTransactions,
-      receivedTransactions,
+      transactions: [...initiatedTransactions, ...receivedTransactions],
     };
   }),
 

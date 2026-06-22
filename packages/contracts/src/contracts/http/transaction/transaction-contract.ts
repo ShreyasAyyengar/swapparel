@@ -70,8 +70,7 @@ export const transactionContract = {
     })
     .output(
       z.object({
-        initiatedTransactions: z.array(transactionSchema),
-        receivedTransactions: z.array(transactionSchema),
+        transactions: z.array(transactionSchema),
       })
     )
     .errors({
