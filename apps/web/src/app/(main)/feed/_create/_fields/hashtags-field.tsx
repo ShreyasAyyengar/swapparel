@@ -71,7 +71,7 @@ export default function HashtagsField() {
         }}
         // biome-ignore lint/a11y/noNoninteractiveTabindex: I need this speed
         tabIndex={0}
-        className="field-sizing-content flex h-9 w-full cursor-text flex-wrap items-center gap-1.5 overflow-x-auto rounded-md border border-input bg-popover px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 hover:bg-accent hover:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40"
+        className="field-sizing-content flex h-9 w-full cursor-text flex-wrap items-center gap-1.5 overflow-x-auto rounded-md border border-input bg-popover px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] hover:bg-muted hover:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40"
         aria-invalid={isInvalid}
       >
         {hashtags?.map((hashtag, index) => (
@@ -84,7 +84,7 @@ export default function HashtagsField() {
                 e.stopPropagation();
                 removeHashtag(index);
               }}
-              className="ml-1 rounded-full hover:bg-muted-foreground/20"
+              className="ml-1 rounded-full hover:bg-muted"
             >
               <X className="h-3 w-3" />
             </button>

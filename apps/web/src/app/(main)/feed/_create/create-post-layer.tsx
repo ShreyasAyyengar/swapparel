@@ -8,7 +8,7 @@ export default function CreatePostLayer() {
 
   if (isCreating === null) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto backdrop-blur-md">
       <CreatePostForm closeAction={() => setIsCreating(null)} />
     </div>
   );

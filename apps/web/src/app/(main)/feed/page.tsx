@@ -12,16 +12,16 @@ export default async function Page() {
       <div className="fixed inset-0 flex flex-col items-center justify-center">
         <span className="mt-10 font-bold text-5xl text-foreground">Failed to load feed</span>
         <span className="mt-10 font-bold text-3xl text-foreground">There was a (catastrophic!) problem when fetching the feed</span>
-        <span className="mt-10 font-bold text-3xl text-foreground">
+        <span className="mt-10 font-bold text-3xl ">
           Please report this to our{" "}
-          <a href="https://github.com/swapparel/swapparel/issues" className="text-primary underline">
+          <a href="https://github.com/swapparel/swapparel/issues" className="underline">
             GitHub Issues
           </a>{" "}
           and include the error details below.
         </span>
         <div className="relative mx-5 mt-10 h-1/3 w-1/2">
-          <div className="rounded-tl-md rounded-tr-md bg-background-100/50 p-2 text-left text-white">Error Details</div>
-          <div className="h-full overflow-auto rounded-br-md rounded-bl-md bg-foreground p-2 text-left font-mono text-background">
+          <div className="rounded-tl-md rounded-tr-md bg-card p-2 text-left text-card-foreground">Error Details</div>
+          <div className="h-full overflow-auto rounded-br-md rounded-bl-md bg-card p-2 text-left font-mono text-card-foreground">
             Error: {JSON.stringify(error, null, 2)}
           </div>
         </div>

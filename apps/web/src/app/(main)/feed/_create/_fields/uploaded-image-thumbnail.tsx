@@ -27,7 +27,7 @@ export default function UploadedImageThumbnail({
     >
       {file ? (
         file.name.toLowerCase().endsWith(".png") || file.name.toLowerCase().endsWith(".jpeg") || file.name.toLowerCase().endsWith(".jpg") ? (
-          <div className="group relative h-full w-full rounded-2xl border border-foreground">
+          <div className="group relative h-full w-full rounded-2xl border ">
             <Image src={URL.createObjectURL(file)} alt={file.name} width={65} height={65} className="h-full w-full rounded-2xl object-cover" />
             <X size={20} className="-top-1 -right-1 absolute rounded-full bg-zinc-700 opacity-100 transition-opacity group-hover:opacity-0" />
             <X
@@ -38,9 +38,9 @@ export default function UploadedImageThumbnail({
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="group relative h-full w-full rounded-2xl border border-foreground">
+          <div className="group relative h-full w-full rounded-2xl border border-border">
                 <div className="flex h-full w-full items-center justify-center">
-                  <ImageOff size={50} className="rounded-2xl text-foreground" />
+                  <ImageOff size={50} className="rounded-2xl text-muted-foreground" />
                 </div>
                 <X
                   size={20}
@@ -54,13 +54,13 @@ export default function UploadedImageThumbnail({
             </TooltipTrigger>
             <TooltipContent className="flex flex-col items-center gap-2">
               <p className="text-sm">Preview Unavailable</p>
-              <p className="text-secondary-100 text-sm">Your image will still be uploaded</p>
+              <p className="text-muted-foreground text-sm">Your image will still be uploaded</p>
             </TooltipContent>
           </Tooltip>
         )
       ) : (
         <CircleFadingPlus
-          className="text-neutral-400 [transition:color_0.2s,rotate_0.75s] hover:rotate-360 hover:text-foreground"
+          className="text-muted-foreground [transition:color_0.2s,rotate_0.75s] hover:rotate-360 hover:text-foreground"
           size={65}
           strokeWidth={1.0}
         />

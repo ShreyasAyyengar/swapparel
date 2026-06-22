@@ -19,7 +19,7 @@ export default function PriceField() {
       </div>
 
       <div className="relative">
-        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-foreground/70">$</span>
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">$</span>
 
         <Input
           id={field.name}
