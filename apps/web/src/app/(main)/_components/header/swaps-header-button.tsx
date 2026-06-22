@@ -25,7 +25,7 @@ export default function SwapsHeaderButton() {
       onClick={openTrades}
       onMouseEnter={() => setBool(random.boolean())}
       className={cn(
-        "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary",
+        "duration-100 ease-in hover:scale-110 hover:cursor-pointer ",
         bool ? "hover:-rotate-10" : "hover:rotate-10"
       )}
     />
