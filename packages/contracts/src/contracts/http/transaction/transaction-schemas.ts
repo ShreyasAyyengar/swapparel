@@ -51,7 +51,7 @@ export const transactionItemSchema = z.object({
   titleSnapshot: postSchema.shape.title,
 });
 
-export const transactionStatusSchema = z.enum(["pending", "accepted", "completed", "cancelled"]);
+export const transactionStatusSchema = z.enum(["ongoing", "completed", "cancelled"]);
 
 export const transactionSchema = z.object({
   _id: z.uuidv7(),
@@ -59,7 +59,7 @@ export const transactionSchema = z.object({
   seller: transactionPartySchema,
   buyer: transactionPartySchema,
 
-  sellerPost: z.array(transactionItemSchema),
+  sellerPosts: z.array(transactionItemSchema),
   buyerPosts: z.array(transactionItemSchema),
 
   scheduledFor: z.date(),
