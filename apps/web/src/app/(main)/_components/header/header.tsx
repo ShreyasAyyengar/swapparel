@@ -7,7 +7,7 @@ import ThemeChanger from "./theme-changer";
 
 export default function Header() {
   return (
-    <header className="relative sticky inset-0 top-0 z-1 flex items-center bg-secondary p-3">
+    <header className="relative inset-0 top-0 z-1 flex items-center bg-secondary p-3">
       <Link href="/feed">
         <SlimBanner
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 fill-foreground transition ease-in hover:scale-110 hover:fill-accent dark:hover:fill-primary"
