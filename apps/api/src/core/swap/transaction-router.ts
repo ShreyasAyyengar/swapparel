@@ -2,30 +2,19 @@ import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
+import { MessageService } from "../messaging/messaging-service";
 import { PostService } from "../post/post-service";
 import { UserService } from "../users/user-service";
 import { TransactionService } from "./transaction-service";
 
 export const transactionRouter = {
-  // TODO redo to support array of seller posts
   createTransaction: protectedProcedure.transaction.createTransaction.handler(
-    async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
+    async ({ input, errors: { NOT_FOUND, UNPROCESSABLE_CONTENT, INTERNAL_SERVER_ERROR }, context }) => {
       const buyer = context.user;
-      const uniqueBuyerPostIds = [...new Set(input.buyerPostIds)];
 
-      if (uniqueBuyerPostIds.length !== input.buyerPostIds.length) {
-        throw BAD_REQUEST({
-          data: { message: "Buyer post IDs must be unique." },
-        });
-      }
-
-      const [sellerPost, buyerPosts] = await Promise.all([
+      const [sellerPost, buyerPost] = await Promise.all([
         PostService.findById(input.sellerPostId).select("_id title createdBy").lean(),
-        uniqueBuyerPostIds.length
-          ? PostService.find({ _id: { $in: uniqueBuyerPostIds } })
-              .select("_id title createdBy")
-              .lean()
-          : Promise.resolve([]),
+        PostService.findById(input.buyerPostId).select("_id title createdBy").lean(),
       ]);
 
       if (!sellerPost) {
@@ -33,30 +22,28 @@ export const transactionRouter = {
           data: { message: `Seller post ${input.sellerPostId} not found.` },
         });
       }
+      if (!buyerPost) {
+        throw NOT_FOUND({
+          data: { message: `Buyer post ${input.buyerPostId} not found.` },
+        });
+      }
 
-      if (sellerPost.createdBy === buyer.email) {
-        throw BAD_REQUEST({
+      if (sellerPost.createdBy === buyerPost.createdBy) {
+        throw UNPROCESSABLE_CONTENT({
           data: { message: "User cannot trade with themselves." },
         });
       }
 
       const sellerUser = await UserService.findOne({ email: sellerPost.createdBy }).lean();
-
       if (!sellerUser) {
         throw NOT_FOUND({
           data: { message: "Seller user not found." },
         });
       }
 
-      if (buyerPosts.length !== uniqueBuyerPostIds.length) {
-        throw NOT_FOUND({
-          data: { message: "One or more buyer posts were not found." },
-        });
-      }
-
-      if (buyerPosts.some((post) => post.createdBy !== buyer.email)) {
-        throw BAD_REQUEST({
-          data: { message: "Buyer posts must belong to the authenticated user." },
+      if (buyerPost.createdBy !== buyer.email) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "Buyer post must belong to the authenticated user." },
         });
       }
 
@@ -65,37 +52,42 @@ export const transactionRouter = {
 
       const transactionData: z.infer<typeof transactionSchema> = {
         _id,
+
         seller: {
           userId: sellerUser.id,
           emailSnapshot: sellerUser.email,
           avatarUrlSnapshot: sellerUser.image || undefined,
         },
-        sellerPost: {
-          postId: sellerPost._id,
-          titleSnapshot: sellerPost.title,
-        },
+        sellerPosts: [
+          {
+            postId: sellerPost._id,
+            titleSnapshot: sellerPost.title,
+          },
+        ], // initially buyer chooses one post to swap with;
+
         buyer: {
           userId: buyer.id,
           emailSnapshot: buyer.email,
           avatarUrlSnapshot: buyer.image || undefined,
         },
-        buyerPosts: buyerPosts.map((post) => ({
-          postId: post._id,
-          titleSnapshot: post.title,
-        })),
+        buyerPosts: [
+          {
+            postId: buyerPost._id,
+            titleSnapshot: buyerPost.title,
+          },
+        ],
+
         scheduledFor: input.scheduledFor,
-        status: "pending",
+        status: "ongoing",
         createdAt: now,
         updatedAt: now,
       };
 
       const tryParse = transactionSchema.safeParse(transactionData);
-
       if (!tryParse.success) {
-        throw BAD_REQUEST({
+        throw UNPROCESSABLE_CONTENT({
           data: {
-            issues: tryParse.error.issues,
-            message: "Invalid transaction data",
+            message: tryParse.error.message,
           },
         });
       }
@@ -110,9 +102,20 @@ export const transactionRouter = {
         });
       }
 
+      if (input.initialMessage) {
+        await MessageService.insertOne({
+          _id: uuidv7(),
+          transactionId: _id,
+          authorId: buyer.id,
+          createdAt: now,
+          content: [input.initialMessage],
+        });
+      }
+
       return { _id };
     }
   ),
+
   getTransactions: protectedProcedure.transaction.getTransactions.handler(async ({ context }) => {
     const userId = context.user.id;
 
@@ -121,6 +124,7 @@ export const transactionRouter = {
       TransactionService.find({ "seller.userId": userId }).lean(),
     ]);
 
+    // TODO if this is never discriminated by the client, refactor to return a single array of transactions
     return {
       initiatedTransactions,
       receivedTransactions,
@@ -128,7 +132,7 @@ export const transactionRouter = {
   }),
 
   updateTransaction: protectedProcedure.transaction.updateTransaction.handler(
-    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
+    async ({ input, context, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR, FORBIDDEN, UNPROCESSABLE_CONTENT } }) => {
       const transaction = await TransactionService.findById(input._id);
 
       if (!transaction) {
@@ -146,26 +150,60 @@ export const transactionRouter = {
       }
 
       if (transaction.status === "completed" || transaction.status === "cancelled") {
-        throw BAD_REQUEST({
+        throw UNPROCESSABLE_CONTENT({
           data: { message: `A ${transaction.status} transaction cannot be updated.` },
         });
       }
 
+      // status checks
       if (input.status !== undefined && input.status !== transaction.status) {
         const allowedTransitions = {
-          pending: ["accepted", "cancelled"],
-          accepted: ["completed", "cancelled"],
+          ongoing: ["completed", "cancelled"],
         } as const;
 
         if (!(allowedTransitions[transaction.status] as readonly string[]).includes(input.status)) {
-          throw BAD_REQUEST({
+          throw UNPROCESSABLE_CONTENT({
             data: { message: `Cannot change transaction status from ${transaction.status} to ${input.status}.` },
           });
         }
+      }
 
-        if (input.status === "accepted" && transaction.seller.userId !== context.user.id) {
-          throw FORBIDDEN({
-            data: { message: "Only the seller can accept a transaction." },
+      // postIds check
+      if (input.updatedBuyerPosts !== undefined) {
+        const buyerPostIdsSet = new Set(input.updatedBuyerPosts.map((item) => item.postId));
+        if (buyerPostIdsSet.size !== input.updatedBuyerPosts.length) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "Duplicate post IDs provided for buyer." },
+          });
+        }
+
+        // Ensure all post IDs exist in the database and belong to the buyer
+        const buyerPostIds = input.updatedBuyerPosts.map((item) => item.postId);
+        // TODO: this is a bit scuffed because emails change. ideally only compare identities using userIds.
+        const buyerPostsExist = await PostService.find({ _id: { $in: buyerPostIds }, createdBy: transaction.buyer.emailSnapshot })
+          .select("_id")
+          .lean();
+        if (buyerPostsExist.length !== buyerPostIds.length) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "One or more buyer post IDs do not exist." },
+          });
+        }
+      }
+      if (input.updatedSellerPosts !== undefined) {
+        const sellerPostIdsSet = new Set(input.updatedSellerPosts.map((item) => item.postId));
+        if (sellerPostIdsSet.size !== input.updatedSellerPosts.length) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "Duplicate post IDs provided for seller." },
+          });
+        }
+
+        const sellerPostIds = input.updatedSellerPosts.map((item) => item.postId);
+        const sellerPostsExist = await PostService.find({ _id: { $in: sellerPostIds }, createdBy: transaction.seller.emailSnapshot })
+          .select("_id")
+          .lean();
+        if (sellerPostsExist.length !== sellerPostIds.length) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "One or more seller post IDs do not exist." },
           });
         }
       }
@@ -176,6 +214,8 @@ export const transactionRouter = {
       if (input.scheduledFor !== undefined) updateData.scheduledFor = input.scheduledFor;
       if (input.location) updateData.location = input.location;
       if (input.status !== undefined) updateData.status = input.status;
+      if (input.updatedBuyerPosts !== undefined) updateData.buyerPosts = input.updatedBuyerPosts;
+      if (input.updatedSellerPosts !== undefined) updateData.sellerPosts = input.updatedSellerPosts;
 
       try {
         const update = input.location === null ? { $set: updateData, $unset: { location: 1 } } : { $set: updateData };
