@@ -1,6 +1,6 @@
 import { eventIterator, oc } from "@orpc/contract";
 import { z } from "zod";
-import { messageSchema } from "../../http/messaging/message-schemas";
+import { messageSchema } from "../../http/messaging/messaging-schemas";
 import { transactionSchema } from "../../http/transaction/transaction-schemas";
 
 export const messagingContract = {
