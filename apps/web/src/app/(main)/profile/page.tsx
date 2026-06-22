@@ -7,9 +7,8 @@ import { useEffect, useState } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
-import MasonryElement from "../feed/_components/post/masonry-element";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
-import ExpandedPostLayer from "../feed/_components/post/selected/expanded-post-layer";
+import PostDialog from "../feed/_components/shadcn-post/post-dialog";
 import CreatePostLayer from "../feed/_create/create-post-layer";
 import LoadingProfile from "./_components/loading-profile";
 import NoProfile from "./_components/no-profile";
@@ -58,10 +57,9 @@ export default function Page() {
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
-      {posts && posts.length > 0 && <ExpandedPostLayer loadedFeedPosts={posts} />}
       <CreatePostLayer />
       <div
-        className={`mt-5 grid grid-cols-1 justify-items-center overflow-hidden rounded-full border border-secondary bg-primary p-5 px-10 text-foreground transition-[width] duration-700 ease-out ${mounted ? "w-1/2" : "w-0"} md:grid-cols-2 md:justify-between md:justify-items-stretch`}
+        className={`mt-5 grid grid-cols-1 justify-items-center overflow-hidden rounded-full border border-secondary bg-primary p-5 px-10 text-background transition-[width] duration-700 ease-out ${mounted ? "w-1/2" : "w-0"} md:grid-cols-2 md:justify-between md:justify-items-stretch`}
       >
         {mounted && (
           <>
@@ -82,7 +80,7 @@ export default function Page() {
 
       {posts && posts.length > 0 ? (
         //TODO<Alex>: correct overflow-y-auto hotfix
-        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground bg-accent">
+        <div className="relative mt-10 flex w-3/4 flex-col items-center justify-center gap-5 overflow-y-auto rounded-md border-2 border-foreground">
           <div>
             <p className={"mt-5 font-bold text-2xl"}>POSTS</p>
             <div className="w-full border border-foreground" />
@@ -93,7 +91,7 @@ export default function Page() {
                 ?.slice()
                 .reverse()
                 .map((post) => (
-                  <MasonryElement key={post._id} className="bg-primary" postData={post} />
+                  <PostDialog key={post._id} postData={post} className="border border-secondary bg-accent" />
                 ))}
             </MasonryLayout>
           </div>
