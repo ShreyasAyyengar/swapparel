@@ -1,7 +1,8 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
+import { MAX_MESSAGE_LENGTH } from "../messaging/messaging-schemas";
 import { postSchema } from "../post/post-schemas";
-import { transactionSchema } from "./transaction-schemas";
+import { transactionItemSchema, transactionSchema } from "./transaction-schemas";
 
 const transactionIdSchema = transactionSchema.shape._id;
 const postIdSchema = postSchema.shape._id;
@@ -12,10 +13,20 @@ const updateTransactionInputSchema = z
     scheduledFor: z.coerce.date().optional(),
     location: z.string().trim().min(1).optional().nullable(),
     status: transactionSchema.shape.status.optional(),
+    updatedBuyerPosts: z.array(transactionItemSchema).optional(),
+    updatedSellerPosts: z.array(transactionItemSchema).optional(),
   })
-  .refine(({ scheduledFor, location, status }) => scheduledFor !== undefined || location !== undefined || status !== undefined, {
-    message: "At least one transaction field must be provided.",
-  });
+  .refine(
+    ({ scheduledFor, location, status, updatedBuyerPosts, updatedSellerPosts }) =>
+      scheduledFor !== undefined ||
+      location !== undefined ||
+      status !== undefined ||
+      updatedBuyerPosts !== undefined ||
+      updatedSellerPosts !== undefined,
+    {
+      message: "At least one transaction field must be provided.",
+    }
+  );
 
 export const transactionContract = {
   createTransaction: oc
@@ -25,8 +36,9 @@ export const transactionContract = {
     .input(
       z.object({
         sellerPostId: postIdSchema,
-        buyerPostIds: z.array(postIdSchema),
+        buyerPostId: postIdSchema,
         scheduledFor: z.coerce.date(),
+        initialMessage: z.string().trim().min(1).max(MAX_MESSAGE_LENGTH).optional(),
       })
     )
     .output(
@@ -45,9 +57,8 @@ export const transactionContract = {
           message: z.string(),
         }),
       },
-      BAD_REQUEST: {
+      UNPROCESSABLE_CONTENT: {
         data: z.object({
-          issues: z.array(z.any()).optional(),
           message: z.string(),
         }),
       },
@@ -84,6 +95,16 @@ export const transactionContract = {
     )
     .errors({
       INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      FORBIDDEN: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      UNPROCESSABLE_CONTENT: {
         data: z.object({
           message: z.string(),
         }),
