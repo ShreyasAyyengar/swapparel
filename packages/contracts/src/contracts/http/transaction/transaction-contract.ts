@@ -36,7 +36,7 @@ export const transactionContract = {
     .input(
       z.object({
         sellerPostId: postIdSchema,
-        buyerPostId: postIdSchema,
+        buyerPostIds: z.array(postIdSchema),
         scheduledFor: z.coerce.date(),
         initialMessage: messageContent.optional(),
       })

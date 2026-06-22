@@ -12,9 +12,11 @@ export const transactionRouter = {
     async ({ input, errors: { NOT_FOUND, UNPROCESSABLE_CONTENT, INTERNAL_SERVER_ERROR }, context }) => {
       const buyer = context.user;
 
-      const [sellerPost, buyerPost] = await Promise.all([
+      const [sellerPost, buyerPosts] = await Promise.all([
         PostService.findById(input.sellerPostId).select("_id title createdBy").lean(),
-        PostService.findById(input.buyerPostId).select("_id title createdBy").lean(),
+        PostService.find({ _id: { $in: input.buyerPostIds }, createdBy: buyer.email })
+          .select("_id title")
+          .lean(),
       ]);
 
       if (!sellerPost) {
@@ -22,13 +24,18 @@ export const transactionRouter = {
           data: { message: `Seller post ${input.sellerPostId} not found.` },
         });
       }
-      if (!buyerPost) {
-        throw NOT_FOUND({
-          data: { message: `Buyer post ${input.buyerPostId} not found.` },
+      if (buyerPosts.length !== input.buyerPostIds.length) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "One or more buyer post IDs do not exist." },
+        });
+      }
+      if (buyerPosts.some((p) => p.createdBy !== buyer.email)) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "Buyer post must belong to the authenticated user." },
         });
       }
 
-      if (sellerPost.createdBy === buyerPost.createdBy) {
+      if (sellerPost.createdBy === buyer.email) {
         throw UNPROCESSABLE_CONTENT({
           data: { message: "User cannot trade with themselves." },
         });
@@ -41,7 +48,7 @@ export const transactionRouter = {
         });
       }
 
-      if (buyerPost.createdBy !== buyer.email) {
+      if (buyerPosts.some((p) => p.createdBy !== buyer.email)) {
         throw UNPROCESSABLE_CONTENT({
           data: { message: "Buyer post must belong to the authenticated user." },
         });
@@ -70,12 +77,10 @@ export const transactionRouter = {
           emailSnapshot: buyer.email,
           avatarUrlSnapshot: buyer.image || undefined,
         },
-        buyerPosts: [
-          {
-            postId: buyerPost._id,
-            titleSnapshot: buyerPost.title,
-          },
-        ],
+        buyerPosts: buyerPosts.map((p) => ({
+          postId: p._id,
+          titleSnapshot: p.title,
+        })),
 
         scheduledFor: input.scheduledFor,
         status: "ongoing",
