@@ -22,9 +22,9 @@ import { Check, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authClient } from "src/lib/auth-client";
-import { webClientORPC } from "src/lib/orpc-web-client";
 import type z from "zod";
+import { authClient } from "../../../../../lib/auth-client";
+import { webClientORPC } from "../../../../../lib/orpc-web-client";
 
 type TradeDialogProps = {
   postData: z.infer<typeof postSchema>;
@@ -92,19 +92,9 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
     if (!email) return;
 
     await createTradeMutation.mutateAsync({
-      sellerEmail: postData.createdBy,
-      sellerPost: {
-        id: postData._id,
-        title: postData.title,
-        createdBy: postData.createdBy,
-      },
-      buyerEmail: email,
-      buyerPosts: selectedPosts.map((p) => ({
-        id: p._id,
-        title: p.title,
-        createdBy: p.createdBy,
-      })),
-      dateToSwap: date ?? new Date(),
+      sellerPostId: postData._id,
+      buyerPostIds: selectedPosts.map((p) => p._id),
+      scheduledFor: date,
       initialMessage: message,
     });
   };
