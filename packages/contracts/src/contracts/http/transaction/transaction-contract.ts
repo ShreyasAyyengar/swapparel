@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { MAX_MESSAGE_LENGTH } from "../messaging/messaging-schemas";
+import { messageContent } from "../messaging/messaging-schemas";
 import { postSchema } from "../post/post-schemas";
 import { transactionItemSchema, transactionSchema } from "./transaction-schemas";
 
@@ -38,7 +38,7 @@ export const transactionContract = {
         sellerPostId: postIdSchema,
         buyerPostId: postIdSchema,
         scheduledFor: z.coerce.date(),
-        initialMessage: z.string().trim().min(1).max(MAX_MESSAGE_LENGTH).optional(),
+        initialMessage: messageContent.optional(),
       })
     )
     .output(
