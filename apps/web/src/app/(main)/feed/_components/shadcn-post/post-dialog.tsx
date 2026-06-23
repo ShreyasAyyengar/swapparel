@@ -178,7 +178,10 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
-                onClick={() => sendToProfilePage(postData.createdBy, router)}
+                onClick={async () => {
+                  await setPostId(null);
+                  sendToProfilePage(postData.createdBy, router);
+                }}
               >
                 {postData.createdBy}
               </button>

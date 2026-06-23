@@ -14,7 +14,7 @@ export const userRouter = {
       });
 
     const json = user.toJSON({ flattenObjectIds: true });
-    const tryParse = userSchema.safeParse({ ...json, id: json._id ?? json.id });
+    const tryParse = userSchema.safeParse({ ...json, id: json._id ?? json._id });
     if (!tryParse.success) {
       throw INTERNAL_SERVER_ERROR({
         data: {
