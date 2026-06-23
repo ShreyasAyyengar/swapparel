@@ -12,6 +12,7 @@ import {
 } from "@swapparel/shad-ui/components/dropzone";
 import { FieldError } from "@swapparel/shad-ui/components/field";
 import { Label } from "@swapparel/shad-ui/components/label";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CloudUploadIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
@@ -56,19 +57,21 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
     },
   });
 
+  const hasFiles = dropzone.fileStatuses.length > 0;
+
   return (
-    <div>
+    <div className={cn(!hasFiles && "flex flex-col h-full")}>
       <Label className="pointer-events-none">Photos</Label>
 
-      <div className="not-prose flex flex-col gap-4">
+      <div className={cn("not-prose flex flex-col gap-4", !hasFiles && "flex-1")}>
         <Dropzone {...dropzone}>
-          <div>
+          <div className={cn(!hasFiles && "flex flex-col flex-1")}>
             <div className="flex justify-between">
               <DropzoneDescription>Please select up to 5 images</DropzoneDescription>
             </div>
 
-            <DropZoneArea className="p-0">
-              <DropzoneTrigger className="flex w-full flex-col items-center gap-4 bg-transparent p-10 text-center text-sm">
+            <DropZoneArea className={cn("p-0", !hasFiles && "flex-1 items-stretch")}>
+              <DropzoneTrigger className={cn("flex w-full flex-col items-center justify-center gap-4 bg-transparent p-10 text-center text-sm", !hasFiles && "h-full")}>
                 <CloudUploadIcon className="size-8" />
                 <div>
                   <p className="font-semibold">Upload images</p>
