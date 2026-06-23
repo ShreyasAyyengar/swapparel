@@ -92,43 +92,45 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
             </div>
           </div>
 
-          <ScrollArea className="h-[250px] pr-5">
-            <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
-              {dropzone.fileStatuses.map((fileStatus, index) => (
-                <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
-                  {fileStatus.status === "success" ? (
-                    <Image
-                      src={fileStatus.result}
-                      alt={`uploaded-${fileStatus.fileName}`}
-                      className="aspect-video object-cover"
-                      width={2000}
-                      height={1000}
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="aspect-video animate-pulse bg-black/20" />
-                  )}
-                  <div className="mb-2 ml-2 flex items-center justify-between">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">{fileStatus.fileName}</p>
-                      <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+          {hasFiles && (
+            <ScrollArea className="h-[250px] pr-5">
+              <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
+                {dropzone.fileStatuses.map((fileStatus, index) => (
+                  <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
+                    {fileStatus.status === "success" ? (
+                      <Image
+                        src={fileStatus.result}
+                        alt={`uploaded-${fileStatus.fileName}`}
+                        className="aspect-video object-cover"
+                        width={2000}
+                        height={1000}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="aspect-video animate-pulse bg-black/20" />
+                    )}
+                    <div className="mb-2 ml-2 flex items-center justify-between">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm">{fileStatus.fileName}</p>
+                        <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+                      </div>
+                      <DropzoneRemoveFile
+                        variant="ghost"
+                        className="shrink-0 cursor-pointer hover:outline"
+                        onClick={() => {
+                          onClearServerError?.();
+                          dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
+                          field.handleChange(field.state.value.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <Trash2Icon className="size-4" />
+                      </DropzoneRemoveFile>
                     </div>
-                    <DropzoneRemoveFile
-                      variant="ghost"
-                      className="shrink-0 cursor-pointer hover:outline"
-                      onClick={() => {
-                        onClearServerError?.();
-                        dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
-                        field.handleChange(field.state.value.filter((_, i) => i !== index));
-                      }}
-                    >
-                      <Trash2Icon className="size-4" />
-                    </DropzoneRemoveFile>
-                  </div>
-                </DropzoneFileListItem>
-              ))}
-            </DropzoneFileList>
-          </ScrollArea>
+                  </DropzoneFileListItem>
+                ))}
+              </DropzoneFileList>
+            </ScrollArea>
+          )}
         </Dropzone>
       </div>
     </div>
