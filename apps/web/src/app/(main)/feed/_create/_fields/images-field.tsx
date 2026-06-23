@@ -86,7 +86,7 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
             </div>
           </div>
 
-          <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
+          <DropzoneFileList className="grid grid-cols-3 gap-3 p-0 max-h-[200px] overflow-y-auto">
             {dropzone.fileStatuses.map((fileStatus, index) => (
               <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
                 {fileStatus.status === "success" ? (
