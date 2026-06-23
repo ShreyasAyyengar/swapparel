@@ -13,7 +13,7 @@ export const userRouter = {
         },
       });
 
-    const tryParse = userSchema.safeParse(user.toJSON());
+    const tryParse = userSchema.safeParse(user.toJSON({ flattenObjectIds: true }));
     if (!tryParse.success) {
       throw INTERNAL_SERVER_ERROR({
         data: {
