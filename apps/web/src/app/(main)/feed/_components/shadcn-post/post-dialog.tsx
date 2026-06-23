@@ -14,15 +14,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createSerializer, parseAsString, useQueryState } from "nuqs";
+import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import type z from "zod";
+import sendToProfilePage from "src/app/(main)/profile/_components/helper-functions";
 import TradeDialog from "./trade-dialog";
-
-const serializeProfile = createSerializer({
-  email: parseAsString,
-});
 
 type PostDialogProps = {
   postData: z.infer<typeof postSchema>;
@@ -181,7 +178,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
-                onClick={() => router.push(`/profile${serializeProfile({ email: postData.createdBy })}`)}
+                onClick={() => sendToProfilePage(postData.createdBy, router)}
               >
                 {postData.createdBy}
               </button>
