@@ -139,7 +139,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               <div className="h-auto border" />
 
               {/*region photo upload*/}
-              <div className="mt-3 w-1/2 pt-7.5 pr-5 pb-10 pl-5">
+              <div className="w-1/2 pt-4 pr-5 pb-5 pl-5">
                 <FieldGroup className="h-full w-full">
                   <form.AppField name="images">{(field) => <field.ImagesField />}</form.AppField>
                 </FieldGroup>
@@ -157,7 +157,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               {([canSubmit, isSubmitting]) => (
                 <Button
                   className={cn(
-                    "m-3 mr-5 w-1/8 ",
+                    "m-3 mr-5 w-1/8",
                     `${canSubmit ? "bg-primary text-primary-foreground hover:cursor-pointer hover:bg-primary/85" : "bg-muted text-muted-foreground"}`,
                     `${isSubmitting ? "cursor-wait" : "cursor-default"}`
                   )}
