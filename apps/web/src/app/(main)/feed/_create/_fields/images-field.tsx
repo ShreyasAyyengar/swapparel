@@ -12,6 +12,7 @@ import {
 } from "@swapparel/shad-ui/components/dropzone";
 import { FieldError } from "@swapparel/shad-ui/components/field";
 import { Label } from "@swapparel/shad-ui/components/label";
+import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CloudUploadIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
@@ -86,7 +87,8 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
             </div>
           </div>
 
-          <DropzoneFileList className="grid grid-cols-3 gap-3 p-0 max-h-[200px] overflow-y-auto">
+          <ScrollArea className="h-[250px]">
+            <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
             {dropzone.fileStatuses.map((fileStatus, index) => (
               <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
                 {fileStatus.status === "success" ? (
@@ -121,6 +123,7 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
               </DropzoneFileListItem>
             ))}
           </DropzoneFileList>
+          </ScrollArea>
         </Dropzone>
       </div>
     </div>
