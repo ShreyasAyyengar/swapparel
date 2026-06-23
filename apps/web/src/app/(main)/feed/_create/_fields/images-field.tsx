@@ -1,7 +1,7 @@
 import { MAX_IMAGES } from "@swapparel/contracts";
 import {
-  Dropzone,
   DropZoneArea,
+  Dropzone,
   DropzoneDescription,
   DropzoneFileList,
   DropzoneFileListItem,
@@ -61,18 +61,23 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
   const hasFiles = dropzone.fileStatuses.length > 0;
 
   return (
-    <div className={cn(!hasFiles && "flex flex-col h-full")}>
+    <div className={cn(!hasFiles && "flex h-full flex-col")}>
       <Label className="pointer-events-none">Photos</Label>
 
       <div className={cn("not-prose flex flex-col gap-4", !hasFiles && "flex-1")}>
         <Dropzone {...dropzone}>
-          <div className={cn(!hasFiles && "flex flex-col flex-1")}>
+          <div className={cn(!hasFiles && "flex flex-1 flex-col")}>
             <div className="flex justify-between">
               <DropzoneDescription>Please select up to 5 images</DropzoneDescription>
             </div>
 
             <DropZoneArea className={cn("p-0", !hasFiles && "flex-1 items-stretch")}>
-              <DropzoneTrigger className={cn("flex w-full flex-col items-center justify-center gap-4 bg-transparent p-10 text-center text-sm", !hasFiles && "h-full")}>
+              <DropzoneTrigger
+                className={cn(
+                  "flex w-full flex-col items-center justify-center gap-4 bg-transparent p-10 text-center text-sm",
+                  !hasFiles && "h-full"
+                )}
+              >
                 <CloudUploadIcon className="size-8" />
                 <div>
                   <p className="font-semibold">Upload images</p>
@@ -87,42 +92,42 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
             </div>
           </div>
 
-          <ScrollArea className="h-[250px]">
+          <ScrollArea className="h-[250px] pr-5">
             <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
-            {dropzone.fileStatuses.map((fileStatus, index) => (
-              <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
-                {fileStatus.status === "success" ? (
-                  <Image
-                    src={fileStatus.result}
-                    alt={`uploaded-${fileStatus.fileName}`}
-                    className="aspect-video object-cover"
-                    width={2000}
-                    height={1000}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="aspect-video animate-pulse bg-black/20" />
-                )}
-                <div className="mb-2 ml-2 flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm">{fileStatus.fileName}</p>
-                    <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+              {dropzone.fileStatuses.map((fileStatus, index) => (
+                <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
+                  {fileStatus.status === "success" ? (
+                    <Image
+                      src={fileStatus.result}
+                      alt={`uploaded-${fileStatus.fileName}`}
+                      className="aspect-video object-cover"
+                      width={2000}
+                      height={1000}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="aspect-video animate-pulse bg-black/20" />
+                  )}
+                  <div className="mb-2 ml-2 flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm">{fileStatus.fileName}</p>
+                      <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+                    </div>
+                    <DropzoneRemoveFile
+                      variant="ghost"
+                      className="shrink-0 cursor-pointer hover:outline"
+                      onClick={() => {
+                        onClearServerError?.();
+                        dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
+                        field.handleChange(field.state.value.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <Trash2Icon className="size-4" />
+                    </DropzoneRemoveFile>
                   </div>
-                  <DropzoneRemoveFile
-                    variant="ghost"
-                    className="shrink-0 cursor-pointer hover:outline"
-                    onClick={() => {
-                      onClearServerError?.();
-                      dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
-                      field.handleChange(field.state.value.filter((_, i) => i !== index));
-                    }}
-                  >
-                    <Trash2Icon className="size-4" />
-                  </DropzoneRemoveFile>
-                </div>
-              </DropzoneFileListItem>
-            ))}
-          </DropzoneFileList>
+                </DropzoneFileListItem>
+              ))}
+            </DropzoneFileList>
           </ScrollArea>
         </Dropzone>
       </div>
