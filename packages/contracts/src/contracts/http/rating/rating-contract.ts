@@ -49,5 +49,8 @@ export const ratingContract = {
       INTERNAL_SERVER_ERROR: {
         data: z.object({ message: z.string() }),
       },
+      BAD_REQUEST: {
+        data: z.object({ issues: z.array(z.any()), message: z.string() }),
+      },
     }),
 };

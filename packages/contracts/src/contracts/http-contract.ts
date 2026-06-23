@@ -1,6 +1,7 @@
 import { commentContract } from "./http/comments/comment-contract";
 import { feedContract } from "./http/feed/feed-contract";
 import { postContract } from "./http/post/post-contract";
+import { ratingContract } from "./http/rating/rating-contract";
 import { transactionContract } from "./http/transaction/transaction-contract";
 import { userContract } from "./http/user/user-contract";
 
@@ -9,6 +10,7 @@ export const httpContract = {
   posts: postContract,
   comments: commentContract,
   feed: feedContract,
+  ratings: ratingContract,
   transaction: transactionContract,
   users: userContract,
 };
