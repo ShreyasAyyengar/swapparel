@@ -115,12 +115,12 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
     <>
       <Dialog open={isTrading} onOpenChange={setIsTrading}>
         <DialogTrigger asChild>
-          <Button className="w-full bg-foreground text-background hover:cursor-pointer hover:bg-foreground-500">Trade</Button>
+          <Button className="w-full bg-primary text-primary-foreground hover:cursor-pointer hover:bg-primary/85">Trade</Button>
         </DialogTrigger>
         <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
           <DialogHeader>
             <DialogTitle>
-              Trade: {postData.title} <span className="font-normal text-muted-foreground text-sm">- {postData.createdBy}</span>
+              Trade: {postData.title} <span className="font-normal text-sm">- {postData.createdBy}</span>
             </DialogTitle>
           </DialogHeader>
           <div className="text-foreground">
@@ -135,7 +135,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
 
                       return (
                         <CarouselItem key={`${postURL}-${index}`} className="basis-full">
-                          <div className="relative aspect-square w-full overflow-hidden rounded-md border border-background-700">
+                          <div className="relative aspect-square w-full overflow-hidden rounded-md border border-border">
                             {!isLoaded && (
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="h-full w-full animate-pulse bg-muted" />
@@ -170,7 +170,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
               </div>
               <div>
                 <p className="mb-2 font-semibold">Your Posts to Offer (optional)</p>
-                <div className="flex max-h-[calc(90vh-250px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-secondary bg-accent p-4">
+                <div className="flex max-h-[calc(90vh-250px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-card p-4">
                   {postsByUser && postsByUser.length > 0 ? (
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4">
                       {postsByUser.map((post) => {
@@ -180,7 +180,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                             key={post._id}
                             className={cn(
                               "relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 transition-all",
-                              isSelected ? "border-success" : "border-transparent hover:border-foreground-400"
+                              isSelected ? "border-success" : "border-transparent hover:border-muted-foreground"
                             )}
                             onClick={() => handleTradeSelection(post)}
                             onKeyDown={() => handleTradeSelection(post)}
@@ -200,15 +200,15 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                   ) : (
                     <div className="flex flex-1 items-center justify-center">
                       {/* TODO: add a redirect to "create post" */}
-                      <p className="text-muted-foreground text-sm">You don't have any posts to offer yet.</p>
+                      <p className="text-sm">You don't have any posts to offer yet.</p>
                     </div>
                   )}
-                  <p className="mt-2 text-right text-muted-foreground text-sm">{selectedPosts.length} selected</p>
+                  <p className="mt-2 text-right text-sm">{selectedPosts.length} selected</p>
                 </div>
               </div>
             </div>
             <Button
-              className="flex w-full cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500"
+              className="flex w-full cursor-pointer items-center justify-center bg-primary text-primary-foreground hover:bg-primary/85"
               onClick={() => setSubmitting(true)}
             >
               Submit Trade Request
@@ -244,7 +244,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                     }}
                   >
                     <PopoverTrigger asChild>
-                      <Button variant="outline" id="date-picker" className="justify-between border-secondary font-mono text-foreground-950">
+                      <Button variant="outline" id="date-picker" className="justify-between border-border font-mono text-foreground">
                         {date ? date.toLocaleDateString() : "Select date"}
                         <ChevronDownIcon />
                       </Button>
@@ -273,7 +273,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
                     autoComplete="off"
                     step="60"
                     defaultValue="00:00"
-                    className="appearance-none border-secondary bg-background font-mono text-foreground-950 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                    className="appearance-none border-border bg-background font-mono text-foreground [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                     onBlur={(e) => {
                       e.preventDefault();
                       const time = e.currentTarget.value;
@@ -308,7 +308,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
               <Button
                 variant="outline"
                 className={cn(
-                  "flex w-1/3 cursor-pointer items-center justify-center bg-foreground text-background hover:bg-foreground-500",
+                  "flex w-1/3 cursor-pointer items-center justify-center bg-primary text-primary-foreground hover:bg-primary/85",
                   createTradeMutation.isPending && "cursor-wait"
                 )}
                 onClick={() => {

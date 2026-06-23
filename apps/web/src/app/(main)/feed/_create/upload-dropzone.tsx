@@ -81,7 +81,7 @@ export default function UploadDropzone() {
     <div
       className={cn(
         "flex items-center justify-center rounded-2xl border-2 bg-popover [transition:border_0.3s]",
-        field.state.value.length === 0 && "h-full cursor-pointer border-dashed hover:border-foreground",
+        field.state.value.length === 0 && "h-full cursor-pointer border-dashed hover:border-muted-foreground",
         draggingOver ? "border-blue-500" : "border-ring"
       )}
       onDragEnter={handleDragEnter}
@@ -102,7 +102,7 @@ export default function UploadDropzone() {
         <div className="flex flex-col items-center justify-center text-center">
           <ImageUp size={150} strokeWidth={1.0} className="animate-[bounce_1s_ease-in_infinite]" />
           <Separator className="my-4" />
-          <p className="p-5 text-foreground text-sm">Drag & Drop files here or click to browse</p>
+          <p className="p-5 text-muted-foreground text-sm">Drag & Drop files here or click to browse</p>
         </div>
       )}
     </div>

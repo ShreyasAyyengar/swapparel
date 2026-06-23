@@ -1,7 +1,7 @@
 import { MAX_IMAGES } from "@swapparel/contracts";
 import {
-  Dropzone,
   DropZoneArea,
+  Dropzone,
   DropzoneDescription,
   DropzoneFileList,
   DropzoneFileListItem,
@@ -12,6 +12,8 @@ import {
 } from "@swapparel/shad-ui/components/dropzone";
 import { FieldError } from "@swapparel/shad-ui/components/field";
 import { Label } from "@swapparel/shad-ui/components/label";
+import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { CloudUploadIcon, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { type CreatePostFormValues, useFieldContext } from "../create-post-form";
@@ -56,23 +58,30 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
     },
   });
 
+  const hasFiles = dropzone.fileStatuses.length > 0;
+
   return (
-    <div>
+    <div className={cn(!hasFiles && "flex h-full flex-col")}>
       <Label className="pointer-events-none">Photos</Label>
 
-      <div className="not-prose flex flex-col gap-4">
+      <div className={cn("not-prose flex flex-col gap-4", !hasFiles && "flex-1")}>
         <Dropzone {...dropzone}>
-          <div>
+          <div className={cn(!hasFiles && "flex flex-1 flex-col")}>
             <div className="flex justify-between">
               <DropzoneDescription>Please select up to 5 images</DropzoneDescription>
             </div>
 
-            <DropZoneArea className="p-0">
-              <DropzoneTrigger className="flex w-full flex-col items-center gap-4 bg-transparent p-10 text-center text-sm">
+            <DropZoneArea className={cn("p-0", !hasFiles && "flex-1 items-stretch")}>
+              <DropzoneTrigger
+                className={cn(
+                  "flex w-full flex-col items-center justify-center gap-4 bg-transparent p-10 text-center text-sm",
+                  !hasFiles && "h-full"
+                )}
+              >
                 <CloudUploadIcon className="size-8" />
                 <div>
                   <p className="font-semibold">Upload images</p>
-                  <p className="text-muted-foreground text-sm">Click here or drag and drop to upload</p>
+                  <p className="text-sm">Click here or drag and drop to upload</p>
                 </div>
               </DropzoneTrigger>
             </DropZoneArea>
@@ -83,41 +92,45 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
             </div>
           </div>
 
-          <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
-            {dropzone.fileStatuses.map((fileStatus, index) => (
-              <DropzoneFileListItem className="overflow-hidden rounded-md bg-secondary p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
-                {fileStatus.status === "success" ? (
-                  <Image
-                    src={fileStatus.result}
-                    alt={`uploaded-${fileStatus.fileName}`}
-                    className="aspect-video object-cover"
-                    width={2000}
-                    height={1000}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="aspect-video animate-pulse bg-black/20" />
-                )}
-                <div className="mb-2 ml-2 flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm">{fileStatus.fileName}</p>
-                    <p className="text-foreground/50 text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
-                  </div>
-                  <DropzoneRemoveFile
-                    variant="ghost"
-                    className="shrink-0 cursor-pointer hover:outline"
-                    onClick={() => {
-                      onClearServerError?.();
-                      dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
-                      field.handleChange(field.state.value.filter((_, i) => i !== index));
-                    }}
-                  >
-                    <Trash2Icon className="size-4" />
-                  </DropzoneRemoveFile>
-                </div>
-              </DropzoneFileListItem>
-            ))}
-          </DropzoneFileList>
+          {hasFiles && (
+            <ScrollArea className="h-[250px] pr-5">
+              <DropzoneFileList className="grid grid-cols-3 gap-3 p-0">
+                {dropzone.fileStatuses.map((fileStatus, index) => (
+                  <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
+                    {fileStatus.status === "success" ? (
+                      <Image
+                        src={fileStatus.result}
+                        alt={`uploaded-${fileStatus.fileName}`}
+                        className="aspect-video object-cover"
+                        width={2000}
+                        height={1000}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="aspect-video animate-pulse bg-black/20" />
+                    )}
+                    <div className="mb-2 ml-2 flex items-center justify-between">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm">{fileStatus.fileName}</p>
+                        <p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>
+                      </div>
+                      <DropzoneRemoveFile
+                        variant="ghost"
+                        className="shrink-0 cursor-pointer hover:outline"
+                        onClick={() => {
+                          onClearServerError?.();
+                          dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
+                          field.handleChange(field.state.value.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <Trash2Icon className="size-4" />
+                      </DropzoneRemoveFile>
+                    </div>
+                  </DropzoneFileListItem>
+                ))}
+              </DropzoneFileList>
+            </ScrollArea>
+          )}
         </Dropzone>
       </div>
     </div>

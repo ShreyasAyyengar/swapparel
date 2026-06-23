@@ -18,7 +18,7 @@ export default function ThemeChanger() {
         width={37.5}
         height={37.5}
         className={
-          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+          "duration-100 ease-in hover:scale-110 hover:cursor-pointer "
         }
         onClick={() => setTheme("light")}
       />
@@ -29,7 +29,7 @@ export default function ThemeChanger() {
         width={37.5}
         height={37.5}
         className={
-          "text-background duration-100 ease-in hover:scale-110 hover:cursor-pointer hover:text-primary-foreground dark:hover:text-primary"
+          "duration-100 ease-in hover:scale-110 hover:cursor-pointer "
         }
         onClick={() => setTheme("dark")}
       />
