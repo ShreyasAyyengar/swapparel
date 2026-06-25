@@ -233,4 +233,16 @@ export const transactionRouter = {
       }
     }
   ),
+
+  getMessageHistory: protectedProcedure.transaction.getMessageHistory.handler(
+    async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
+      const transaction = await TransactionService.findById(input.transactionId);
+      if (!transaction) {
+        throw NOT_FOUND({
+          data: { message: `Transaction ${input.transactionId} not found.` },
+        });
+      }
+      return { messages: await MessageService.find({ transactionId: input.transactionId }).sort({ createdAt: 1 }).lean() };
+    }
+  ),
 };
