@@ -61,7 +61,7 @@ export const transactionRouter = {
         _id,
 
         seller: {
-          userId: sellerUser.id,
+          userId: sellerUser._id,
           emailSnapshot: sellerUser.email,
           avatarUrlSnapshot: sellerUser.image || undefined,
         },
@@ -132,6 +132,59 @@ export const transactionRouter = {
     return {
       transactions: [...initiatedTransactions, ...receivedTransactions],
     };
+  }),
+
+  getTransactionsByInterlocutor: protectedProcedure.transaction.getTransactionsByInterlocutor.handler(({ input, context }) => {
+    const userId = context.user.id;
+
+    return TransactionService.find({
+      $and: [
+        {
+          $or: [
+            { "buyer.userId": userId },
+            { "seller.userId": userId },
+          ],
+        },
+        {
+          $or: [
+            { "buyer.userId": input.interlocutorId },
+            { "seller.userId": input.interlocutorId },
+          ],
+        },
+      ],
+    }).lean();
+  }),
+
+  getInterlocutors: protectedProcedure.transaction.getInterlocutors.handler(({ context }) => {
+    const userId = context.user.id;
+
+    return TransactionService.aggregate([
+      {
+        $match: {
+          $or: [{ "buyer.userId": userId }, { "seller.userId": userId }],
+        },
+      },
+      {
+        $project: {
+          interlocutorId: {
+            $cond: [{ $eq: ["$buyer.userId", userId] }, "$seller.userId", "$buyer.userId"],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$interlocutorId",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          interlocutorId: "$_id",
+          count: 1,
+        },
+      },
+    ]);
   }),
 
   updateTransaction: protectedProcedure.transaction.updateTransaction.handler(
