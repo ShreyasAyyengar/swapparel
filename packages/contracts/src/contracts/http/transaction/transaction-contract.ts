@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { messageContent } from "../messaging/messaging-schemas";
+import { messageContent, messageSchema } from "../messaging/messaging-schemas";
 import { postSchema } from "../post/post-schemas";
 import { userSchema } from "../user/user-schemas";
 import { transactionItemSchema, transactionSchema } from "./transaction-schemas";
@@ -146,6 +146,33 @@ export const transactionContract = {
         }),
       },
       UNPROCESSABLE_CONTENT: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  getMessageHistory: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        transactionId: transactionIdSchema,
+      })
+    )
+    .output(
+      z.object({
+        messages: z.array(messageSchema),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
         data: z.object({
           message: z.string(),
         }),
