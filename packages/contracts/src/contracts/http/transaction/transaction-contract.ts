@@ -2,6 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { messageContent } from "../messaging/messaging-schemas";
 import { postSchema } from "../post/post-schemas";
+import { userSchema } from "../user/user-schemas";
 import { transactionItemSchema, transactionSchema } from "./transaction-schemas";
 
 const transactionIdSchema = transactionSchema.shape._id;
@@ -75,6 +76,47 @@ export const transactionContract = {
     )
     .errors({
       NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  getTransactionsByInterlocutor: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        interlocutorId: userSchema.shape._id,
+      })
+    )
+    .output(
+      z.array(transactionSchema)
+    )
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  getInterlocutors: oc
+    .route({
+      method: "GET",
+    })
+    .output(
+      z.array(
+        z.object({
+          interlocutorId: userSchema.shape._id,
+          count: z.number(),
+        })
+      )
+    )
+    .errors({
       INTERNAL_SERVER_ERROR: {
         data: z.object({
           message: z.string(),
