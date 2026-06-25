@@ -8,9 +8,14 @@ export const userContract = {
       method: "GET",
     })
     .input(
-      z.object({
-        email: userSchema.shape.email,
-      })
+      z
+        .object({
+          email: userSchema.shape.email.optional(),
+          id: userSchema.shape._id.optional(),
+        })
+        .refine(({ email, id }) => email || id, {
+          message: "Either email or id must be provided.",
+        })
     )
     .output(userSchema)
     .errors({
