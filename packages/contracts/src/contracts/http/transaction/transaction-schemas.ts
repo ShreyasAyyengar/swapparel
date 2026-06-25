@@ -41,7 +41,7 @@ export const PUBLIC_LOCATIONS = {
 };
 
 export const transactionPartySchema = z.object({
-  userId: userSchema.shape.id,
+  userId: userSchema.shape._id,
   emailSnapshot: z.email(),
   avatarUrlSnapshot: z.url().optional(),
 });
