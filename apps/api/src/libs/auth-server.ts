@@ -1,5 +1,6 @@
 import { APIError, betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { v7 as uuidv7 } from "uuid";
 import { databaseConnection } from "../database/database";
 import { env } from "../env";
 
@@ -29,6 +30,11 @@ export const authServer = betterAuth({
 
         return profile;
       },
+    },
+  },
+  advanced: {
+    database: {
+      generateId: () => uuidv7(),
     },
   },
   // THIS IS USELESS UNLESS BETTERAUTH CAN FIX THEIR ROUTING. IF WORKS, MOVE DOMAIN LOGIC TO mapProfileToUser
