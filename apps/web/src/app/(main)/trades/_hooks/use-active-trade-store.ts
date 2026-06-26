@@ -3,11 +3,11 @@ import type { z } from "zod";
 import { create } from "zustand/react";
 
 type ActiveTradeStore = {
-  activeTrade: z.infer<typeof transactionSchema> | undefined;
-  setActiveTrade: (trade: z.infer<typeof transactionSchema> | undefined) => void;
+  activeTradeId: z.infer<typeof transactionSchema.shape._id> | undefined;
+  setActiveTradeId: (tradeId: z.infer<typeof transactionSchema.shape._id> | undefined) => void;
 };
 
 export const useActiveTradeStore = create<ActiveTradeStore>((set) => ({
-  activeTrade: undefined,
-  setActiveTrade: (trade) => set({ activeTrade: trade }),
+  activeTradeId: undefined,
+  setActiveTradeId: (tradeId) => set({ activeTradeId: tradeId }),
 }));
