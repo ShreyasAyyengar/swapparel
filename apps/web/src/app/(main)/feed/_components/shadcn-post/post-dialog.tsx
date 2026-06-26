@@ -18,6 +18,7 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { authClient } from "src/lib/auth-client";
 import type z from "zod";
+import sendToProfilePage from "src/app/(main)/profile/_components/helper-functions";
 import TradeDialog from "./trade-dialog";
 
 type PostDialogProps = {
@@ -177,7 +178,10 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
-                onClick={() => router.push(`/profile?profile=${encodeURIComponent(postData.createdBy)}`)}
+                onClick={async () => {
+                  await setPostId(null);
+                  sendToProfilePage(postData.createdBy, router);
+                }}
               >
                 {postData.createdBy}
               </button>
