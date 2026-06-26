@@ -28,8 +28,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
-    "types": ["bun"]
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
