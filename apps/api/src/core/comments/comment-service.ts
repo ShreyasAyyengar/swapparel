@@ -1,5 +1,6 @@
 import { commentSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
+import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
 const CommentSchema = commentSchema;
