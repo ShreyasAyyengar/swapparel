@@ -45,7 +45,7 @@ export const postRouter = {
       }
 
       const id = uuidv7();
-      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image.file, index)));
+      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image, index)));
 
       const postData = {
         _id: id,

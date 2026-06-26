@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { postSchema } from "../post/post-schemas";
-
-const MESSAGE_MAX_LENGTH = 300;
+import { userSchema } from "../user/user-schemas";
 
 export const PUBLIC_LOCATIONS = {
   C9_JRL_DINING_HALL: {
@@ -41,38 +40,32 @@ export const PUBLIC_LOCATIONS = {
   },
 };
 
-export const messageSchema = z.object({
-  createdAt: z.string("createdAt timestamp is required."),
-  authorEmail: z.email("Author's email is required."),
-  content: z.string("Message content is required.").max(MESSAGE_MAX_LENGTH),
+export const transactionPartySchema = z.object({
+  userId: userSchema.shape._id,
+  emailSnapshot: z.email(),
+  avatarUrlSnapshot: z.url().optional(),
 });
 
-export const embeddedPostSchema = z.object({
-  id: postSchema.shape._id,
-  title: postSchema.shape.title,
-  createdBy: postSchema.shape.createdBy,
+export const transactionItemSchema = z.object({
+  postId: postSchema.shape._id,
+  titleSnapshot: postSchema.shape.title,
 });
 
-export const embeddedUserSchema = z.object({
-  email: z.email(),
-  avatarURL: z.url(),
-});
+export const transactionStatusSchema = z.enum(["ongoing", "completed", "cancelled"]);
 
-// TODO check _id bullshit
 export const transactionSchema = z.object({
   _id: z.uuidv7(),
 
-  // Seller info (embedded)
-  seller: embeddedUserSchema,
-  sellerPost: embeddedPostSchema,
+  seller: transactionPartySchema,
+  buyer: transactionPartySchema,
 
-  // Buyer info (embedded)
-  buyer: embeddedUserSchema,
-  buyerPosts: z.array(embeddedPostSchema).optional(),
+  sellerPosts: z.array(transactionItemSchema),
+  buyerPosts: z.array(transactionItemSchema),
 
-  // Transaction details
-  dateToSwap: z.coerce.date(),
-  locationToSwap: z.union([z.enum(Object.keys(PUBLIC_LOCATIONS)), z.string()]).optional(),
-  messages: z.array(messageSchema),
-  completed: z.boolean().default(false),
+  scheduledFor: z.date(),
+  location: z.string().trim().min(1).optional(),
+
+  status: transactionStatusSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });

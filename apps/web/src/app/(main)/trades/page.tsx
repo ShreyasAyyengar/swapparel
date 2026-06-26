@@ -1,15 +1,18 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
+import { MessageCircleMore } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
-import SelectedTrade from "./_components/selected-trade";
-import TradeCard, { TradeCardSkeleton } from "./_components/trade-card";
+import ConversationCard, { ConversationCardSkeleton } from "./_components/conversation/conversation-card";
+import SelectedConversation from "./_components/conversation/selected-conversation";
+import { useActiveConversationStore } from "./_hooks/use-active-conversation-store";
 import { useActiveTradeStore } from "./_hooks/use-active-trade-store";
+
+const conversationSkeletonIds = ["conversation-1", "conversation-2", "conversation-3", "conversation-4", "conversation-5"];
 
 export default function Page() {
   // auth state
@@ -25,95 +28,97 @@ export default function Page() {
     });
   }, [authData, isPending]);
 
-  // validate tab on first render
-  const [tab, setTab] = useQueryState("tab", parseAsString);
-  useEffect(() => {
-    if (!tab || (tab !== "sent" && tab !== "received")) setTab("sent");
-
-    // remove URL query on unmount
-    return () => {
-      setTab(null);
-    };
-  }, []);
-
-  // fetch all transactions
-  const { data, isInitialLoading } = useQuery(
-    webClientORPC.transaction.getTransactions.queryOptions({
-      enabled: !!authData, // this request is a protectedProcedure, do not enable until auth is confirmed
+  const { data: interlocutors, isLoading } = useQuery(
+    webClientORPC.transaction.getInterlocutors.queryOptions({
+      enabled: !!authData,
     })
   );
 
-  // validate URL trans ID
+  // A direct trade URL restores both the interlocutor and the selected trade.
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const { activeTrade, setActiveTrade } = useActiveTradeStore();
+  const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
+  const setActiveTradeId = useActiveTradeStore((state) => state.setActiveTradeId);
+  const activeConversation = useActiveConversationStore((state) => state.activeConversation);
+  const setActiveConversation = useActiveConversationStore((state) => state.setActiveConversation);
+  const { data: transactionData } = useQuery(
+    webClientORPC.transaction.getTransactions.queryOptions({
+      enabled: !!authData && !!transactionIdURL,
+    })
+  );
 
   useEffect(() => {
     if (!transactionIdURL) {
-      setActiveTrade(undefined);
+      if (activeTradeId) setActiveTradeId(undefined);
       return;
     }
 
-    return () => setActiveTrade(undefined);
-  }, [transactionIdURL, setActiveTrade]);
+    if (!(transactionData && authData)) return;
 
-  useEffect(() => {
-    if (!(data && transactionIdURL)) return;
+    const transaction = transactionData.transactions.find(({ _id }) => _id === transactionIdURL);
+    if (!transaction) {
+      setTransactionIdURL(null);
+      return;
+    }
 
-    const find =
-      data?.initiatedTransactions.find((t) => t._id === transactionIdURL) ?? data?.receivedTransactions.find((t) => t._id === transactionIdURL);
+    const currentUserId = authData.user.id;
+    const interlocutorId = transaction.buyer.userId === currentUserId ? transaction.seller.userId : transaction.buyer.userId;
+    if (activeConversation !== interlocutorId) setActiveConversation(interlocutorId);
+    if (activeTradeId !== transaction._id) setActiveTradeId(transaction._id);
+  }, [
+    activeConversation,
+    activeTradeId,
+    authData,
+    setActiveConversation,
+    setActiveTradeId,
+    setTransactionIdURL,
+    transactionData,
+    transactionIdURL,
+  ]);
 
-    if (find) setActiveTrade(find);
-    else setTransactionIdURL(null); // no mapping to actual trade
-  }, [transactionIdURL, data]);
-
-  const showSkeletons = !authData || isInitialLoading;
+  const showSkeletons = !authData || isLoading;
 
   return (
-    <div className="align fixed inset-0 mt-[61.5px] flex items-center justify-center">
-      {/* Side bar */}
-      <div className="ml-80 h-175 w-1/3 rounded-tl-2xl rounded-bl-2xl border-secondary border-t border-b border-l bg-neutral-900 p-2">
-        <Tabs defaultValue={tab ?? "sent"} onValueChange={setTab}>
-          <TabsList>
-            <TabsTrigger value="sent">Sent</TabsTrigger>
-            <TabsTrigger value="received">Received</TabsTrigger>
-          </TabsList>
-          <TabsContent value="sent">
-            <div className="flex flex-col gap-2">
-              {showSkeletons ? (
-                <>
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                </>
+    <main className="mx-auto max-w-[1600px] py-2">
+      <div className="grid h-[calc(100dvh-85px)] min-h-[620px] overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="min-h-0 border-border border-b bg-muted/30 lg:border-r lg:border-b-0">
+          <div className="border-border border-b px-4 py-4">
+            <p className="font-semibold text-lg">Trades</p>
+            <p className="text-muted-foreground text-sm">Choose someone to view your active swaps.</p>
+          </div>
+          <div className="flex max-h-56 flex-col gap-1 overflow-y-auto p-2 lg:max-h-none">
+            {!showSkeletons ? (
+              interlocutors && interlocutors.length > 0 ? (
+                interlocutors.map(({ interlocutorId, count }) => (
+                  <ConversationCard key={interlocutorId} userId={interlocutorId} transactionCount={count} />
+                ))
               ) : (
-                data?.initiatedTransactions.map((t) => <TradeCard key={t._id} type="sent" transaction={t} />)
-              )}
-            </div>
-          </TabsContent>
-          <TabsContent value="received">
-            <div className="flex w-full flex-col gap-2">
-              {showSkeletons ? (
-                <>
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                  <TradeCardSkeleton />
-                </>
-              ) : (
-                data?.receivedTransactions.map((t) => <TradeCard key={t._id} type="received" transaction={t} />)
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-12 text-center text-muted-foreground">
+                  <MessageCircleMore className="size-8" />
+                  <p className="text-sm">Your trading conversations will appear here.</p>
+                </div>
+              )
+            ) : (
+              conversationSkeletonIds.map((id) => <ConversationCardSkeleton key={id} />)
+            )}
+          </div>
+        </aside>
 
-      {/* Main panel */}
-      <div className="mr-80 h-175 w-full rounded-tr-2xl rounded-br-2xl border border-secondary bg-neutral-900">
-        {activeTrade ? (
-          <SelectedTrade key={activeTrade._id} transaction={activeTrade} />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center font-bold text-2xl">No trade selected</div>
-        )}
+        <section className="min-h-0 bg-background">
+          {activeConversation ? (
+            <SelectedConversation key={activeConversation} userId={activeConversation} />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
+              <div className="rounded-full bg-muted p-4">
+                <MessageCircleMore className="size-7 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-semibold text-lg">Select a trading partner</p>
+                <p className="text-muted-foreground text-sm">Their active trades and messages will open here.</p>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

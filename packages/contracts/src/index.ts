@@ -4,6 +4,7 @@ export * from "./contracts/http/comments/comment-contract";
 export * from "./contracts/http/comments/comment-schemas";
 export * from "./contracts/http/feed/feed-contract";
 export * from "./contracts/http/feed/feed-schemas";
+export * from "./contracts/http/messaging/messaging-schemas";
 export * from "./contracts/http/post/post-contract";
 export * from "./contracts/http/post/post-schemas";
 export * from "./contracts/http/transaction/transaction-contract";

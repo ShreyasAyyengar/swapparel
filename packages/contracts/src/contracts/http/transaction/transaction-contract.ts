@@ -1,6 +1,33 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-import { embeddedPostSchema, transactionSchema } from "./transaction-schemas";
+import { messageContent, messageSchema } from "../messaging/messaging-schemas";
+import { postSchema } from "../post/post-schemas";
+import { userSchema } from "../user/user-schemas";
+import { transactionItemSchema, transactionSchema } from "./transaction-schemas";
+
+const transactionIdSchema = transactionSchema.shape._id;
+const postIdSchema = postSchema.shape._id;
+
+const updateTransactionInputSchema = z
+  .object({
+    _id: transactionIdSchema,
+    scheduledFor: z.coerce.date().optional(),
+    location: z.string().trim().min(1).optional().nullable(),
+    status: transactionSchema.shape.status.optional(),
+    updatedBuyerPosts: z.array(transactionItemSchema).optional(),
+    updatedSellerPosts: z.array(transactionItemSchema).optional(),
+  })
+  .refine(
+    ({ scheduledFor, location, status, updatedBuyerPosts, updatedSellerPosts }) =>
+      scheduledFor !== undefined ||
+      location !== undefined ||
+      status !== undefined ||
+      updatedBuyerPosts !== undefined ||
+      updatedSellerPosts !== undefined,
+    {
+      message: "At least one transaction field must be provided.",
+    }
+  );
 
 export const transactionContract = {
   createTransaction: oc
@@ -9,17 +36,15 @@ export const transactionContract = {
     })
     .input(
       z.object({
-        sellerEmail: z.email(),
-        sellerPost: embeddedPostSchema,
-        buyerEmail: z.email(),
-        buyerPosts: z.array(embeddedPostSchema),
-        dateToSwap: z.coerce.date(),
-        initialMessage: z.string().optional(),
+        sellerPostId: postIdSchema,
+        buyerPostIds: z.array(postIdSchema),
+        scheduledFor: z.coerce.date(),
+        initialMessage: messageContent.optional(),
       })
     )
     .output(
       z.object({
-        _id: z.uuidv7(),
+        _id: transactionIdSchema,
       })
     )
     .errors({
@@ -33,36 +58,7 @@ export const transactionContract = {
           message: z.string(),
         }),
       },
-      BAD_REQUEST: {
-        data: z.object({
-          issues: z.array(z.any()).optional(),
-          message: z.string(),
-        }),
-      },
-    }),
-
-  deleteTransaction: oc
-    .route({
-      method: "DELETE",
-    })
-    .input(
-      z.object({
-        _id: z.uuidv7(),
-      })
-    )
-    .output(
-      z.object({
-        success: z.boolean(),
-        message: z.string(),
-      })
-    )
-    .errors({
-      INTERNAL_SERVER_ERROR: {
-        data: z.object({
-          message: z.string(),
-        }),
-      },
-      NOT_FOUND: {
+      UNPROCESSABLE_CONTENT: {
         data: z.object({
           message: z.string(),
         }),
@@ -75,8 +71,7 @@ export const transactionContract = {
     })
     .output(
       z.object({
-        initiatedTransactions: z.array(transactionSchema),
-        receivedTransactions: z.array(transactionSchema),
+        transactions: z.array(transactionSchema),
       })
     )
     .errors({
@@ -88,17 +83,52 @@ export const transactionContract = {
       },
     }),
 
+  getTransactionsByInterlocutor: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        interlocutorId: userSchema.shape._id,
+      })
+    )
+    .output(
+      z.array(transactionSchema)
+    )
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  getInterlocutors: oc
+    .route({
+      method: "GET",
+    })
+    .output(
+      z.array(
+        z.object({
+          interlocutorId: userSchema.shape._id,
+          count: z.number(),
+        })
+      )
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
   updateTransaction: oc
     .route({
       method: "PATCH",
     })
-    .input(
-      z.object({
-        _id: z.uuidv7(),
-        dateToSwap: transactionSchema.shape.dateToSwap.optional(),
-        locationToSwap: transactionSchema.shape.locationToSwap.optional(),
-      })
-    )
+    .input(updateTransactionInputSchema)
     .output(
       z.object({
         success: z.boolean(),
@@ -110,12 +140,44 @@ export const transactionContract = {
           message: z.string(),
         }),
       },
+      FORBIDDEN: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      UNPROCESSABLE_CONTENT: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
       NOT_FOUND: {
         data: z.object({
           message: z.string(),
         }),
       },
-      UNAUTHORIZED: {
+    }),
+
+  getMessageHistory: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        transactionId: transactionIdSchema,
+      })
+    )
+    .output(
+      z.object({
+        messages: z.array(messageSchema),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
         data: z.object({
           message: z.string(),
         }),
