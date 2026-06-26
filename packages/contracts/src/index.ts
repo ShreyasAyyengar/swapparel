@@ -1,3 +1,5 @@
+export * from "./contracts/http/rating/rating-contract";
+export * from "./contracts/http/rating/rating-schemas";
 export * from "./contracts/http/comments/comment-contract";
 export * from "./contracts/http/comments/comment-schemas";
 export * from "./contracts/http/feed/feed-contract";
