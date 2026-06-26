@@ -14,85 +14,38 @@ export default function Message({
   transaction: z.infer<typeof transactionSchema>;
 }) {
   const { data, isPending } = authClient.useSession();
-  // biome-ignore lint/style/noNonNullAssertion: useSession(); has been called before this component in the tree
-  const authData = data!;
-  const MESSAGECHUNK = 25;
+  if (isPending || !data) return null;
 
-  const sameAuthorAsPrev = prevMessage && prevMessage.authorEmail === message.authorEmail;
-  const fromSelf = message.authorEmail === authData.user.email;
+  const sameAuthorAsPrev = prevMessage?.authorId === message.authorId;
+  const fromSelf = message.authorId === data.user.id;
+  const author = message.authorId === transaction.seller.userId ? transaction.seller : transaction.buyer;
+  const avatarURL = author.avatarUrlSnapshot || "/default-avatar.png";
+  const content = message.content[0] ?? "";
 
-  function chunkWords(str: string, max = MESSAGECHUNK) {
-    const words = str.split(" ");
-    const lines: string[] = [];
-    let current = "";
-
-    for (const word of words) {
-      // If the word itself is longer than max, we need to split it
-      if (word.length > max) {
-        // Flush current line first
-        if (current) {
-          lines.push(current.trim());
-          current = "";
-        }
-
-        // Split the long word into chunks
-        for (let i = 0; i < word.length; i += max) {
-          lines.push(word.slice(i, i + max));
-        }
-      } else {
-        // Normal word logic
-        if ((current + word).length > max) {
-          lines.push(current.trim());
-          current = `${word} `;
-        } else {
-          current += `${word} `;
-        }
-      }
-    }
-
-    if (current) lines.push(current.trim());
-    return lines;
-  }
-
-  // which ever one matches the auth data
-
-  const avatarURL =
-    message.authorEmail === transaction.seller.email ? transaction.seller.avatarURL : transaction.buyer.avatarURL || "/default-avatar.png";
   return (
-    <div className={"flex"}>
+    <div className={cn("flex items-end", fromSelf && "justify-end")}>
       {!fromSelf && (
         <Image
           src={avatarURL || "/default-avatar.png"}
           alt="Avatar"
-          className={cn("mt-2 mr-2 h-8 w-8 rounded-full transition-opacity", sameAuthorAsPrev && "opacity-0")}
-          width={10}
-          height={10}
+          className={cn("mr-2 size-7 rounded-full object-cover", sameAuthorAsPrev && "invisible")}
+          width={28}
+          height={28}
+          unoptimized
         />
       )}
       <div
         className={cn(
-          "flex flex-col rounded-md p-2 text-foreground",
-          fromSelf ? "ml-auto bg-secondary text-background" : "mr-auto bg-primary text-foreground",
-          sameAuthorAsPrev && "mt-0",
-          !sameAuthorAsPrev && "mt-2"
+          "max-w-[78%] rounded-2xl px-3 py-2 text-sm",
+          fromSelf ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted text-foreground",
+          sameAuthorAsPrev ? "mt-0.5" : "mt-3"
         )}
       >
-        {chunkWords(message.content, MESSAGECHUNK).map((chunk, i) => (
-          <p key={i} className="leading-snug">
-            {chunk}
-          </p>
-        ))}
+        <p className="whitespace-pre-wrap break-words leading-relaxed">{content}</p>
+        <p className={cn("mt-1 text-[10px]", fromSelf ? "text-primary-foreground/65" : "text-muted-foreground")}>
+          {new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+        </p>
       </div>
-
-      {fromSelf && (
-        <Image
-          src={avatarURL || "/default-avatar.png"}
-          alt="Avatar"
-          className={cn("mt-2 ml-2 h-8 w-8 rounded-full transition-opacity", sameAuthorAsPrev && "opacity-0")}
-          width={10}
-          height={10}
-        />
-      )}
     </div>
   );
 }
