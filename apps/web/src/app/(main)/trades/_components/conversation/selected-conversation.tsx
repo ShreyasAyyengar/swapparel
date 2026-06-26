@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight, MessagesSquare } from "lucide-react";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
@@ -17,8 +18,10 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   const { data: transactions, isPending } = useQuery(
     webClientORPC.transaction.getTransactionsByInterlocutor.queryOptions({ input: { interlocutorId: userId } })
   );
+  const activeTransactions = transactions?.filter(({ status }) => status !== "cancelled");
+  const archivedTransactions = transactions?.filter(({ status }) => status === "cancelled");
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
-  const activeTrade = transactions?.find(({ _id }) => _id === activeTradeId);
+  const activeTrade = activeTransactions?.find(({ _id }) => _id === activeTradeId);
   const initials =
     user?.name
       .split(" ")
@@ -54,29 +57,60 @@ export default function SelectedConversation({ userId }: { userId: string }) {
           <div className="min-w-0">
             {user ? <p className="truncate font-semibold">{user.name}</p> : <Skeleton className="h-5 w-32" />}
             <p className="text-muted-foreground text-xs">
-              {transactions?.length ?? 0} active {(transactions?.length ?? 0) === 1 ? "trade" : "trades"}
+              {activeTransactions?.length ?? 0} active {(activeTransactions?.length ?? 0) === 1 ? "trade" : "trades"}
             </p>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          <p className="mb-2 px-1 font-medium text-muted-foreground text-xs uppercase tracking-wider">Active trades</p>
-          <div className="flex flex-col gap-2">
-            {isPending ? (
-              <>
-                <TradeCardSkeleton />
-                <TradeCardSkeleton />
-                <TradeCardSkeleton />
-              </>
-            ) : transactions && transactions.length > 0 ? (
-              transactions.map((transaction) => <TradeCard key={transaction._id} interlocutorId={userId} transaction={transaction} />)
-            ) : (
-              <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-                <ArrowLeftRight className="size-6" />
-                <p className="text-sm">No active trades with this person.</p>
+          <Tabs defaultValue="active">
+            <TabsList>
+              <TabsTrigger value="active" className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                Active trades
+              </TabsTrigger>
+              <TabsTrigger value="archived" className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
+                Archived trades
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="active">
+              <div className="flex flex-col gap-2">
+                {isPending ? (
+                  <>
+                    <TradeCardSkeleton />
+                    <TradeCardSkeleton />
+                    <TradeCardSkeleton />
+                  </>
+                ) : activeTransactions && activeTransactions.length > 0 ? (
+                  activeTransactions.map((transaction) => <TradeCard key={transaction._id} interlocutorId={userId} transaction={transaction} />)
+                ) : (
+                  <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+                    <ArrowLeftRight className="size-6" />
+                    <p className="text-sm">No active trades with this person.</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </TabsContent>
+            <TabsContent value="archived">
+              <div className="flex flex-col gap-2">
+                {isPending ? (
+                  <>
+                    <TradeCardSkeleton />
+                    <TradeCardSkeleton />
+                    <TradeCardSkeleton />
+                  </>
+                ) : archivedTransactions && archivedTransactions.length > 0 ? (
+                  archivedTransactions.map((transaction) => (
+                    <TradeCard key={transaction._id} interlocutorId={userId} transaction={transaction} />
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+                    <ArrowLeftRight className="size-6" />
+                    <p className="text-sm">No archived trades with this person.</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </aside>
     </div>
