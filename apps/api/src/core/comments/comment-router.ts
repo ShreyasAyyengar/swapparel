@@ -78,45 +78,45 @@ export const commentRouter = {
     return { id };
   }),
 
-  deleteComment: protectedProcedure.comments.deleteComment.handler(
-    async (input: commentId, context, errors: INTERNAL_SERVER_ERROR, NOT_FOUND, FORBIDDEN) => {
-      // TODO
-      // const comment = await CommentService.findById(commentId).select({ _id: 1 });
-      // if (!comment) {
-      //   throw NOT_FOUND({
-      //     data: {
-      //       message: `Comment with id ${commentId} not found.`,
-      //     },
-      //   });
-      // }
-      //
-      // const post = await PostService.findById(comment.parentPostId).select({ _id: 1 });
-      // if (!post) {
-      //   throw NOT_FOUND({
-      //     data: {
-      //       message: `Post with id ${comment.parentPostId} not found.`,
-      //     },
-      //   });
-      // }
-      //
-      // if (comment.authorId !== context.user.id || post.authorId !== context.user.id) {
-      //   throw FORBIDDEN({
-      //     data: {
-      //       message: "Forbidden.",
-      //     },
-      //   });
-      // }
-      //
-      // try {
-      //   const deleteResult = await CommentService.deleteOne({ _id: commentId });
-      //   return { success: deleteResult.deletedCount === 1 };
-      // } catch (error) {
-      //   throw INTERNAL_SERVER_ERROR({
-      //     data: {
-      //       message: `DB failed to delete comment with id ${commentId}: ${error}`,
-      //     },
-      //   });
-      // }
+  deleteComment: protectedProcedure.comments.deleteComment.handler(async ({ input, context, errors: { INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
+    const comment = await CommentService.findById(input.id).select({ _id: 1 });
+
+    if (!comment) {
+      throw NOT_FOUND({
+        data: {
+          message: `Comment with id ${input.id} not found.`,
+        },
+      });
     }
-  ),
+
+    const post = await PostService.findById(comment.parentPostId).select({ _id: 1 });
+
+    if (!post) {
+      throw NOT_FOUND({
+        data: {
+          message: `Post with id ${comment.parentPostId} not found.`,
+        },
+      });
+    }
+
+    //For security reason this masks the FORBIDDEN error
+    if (comment.authorId !== context.user.id) {
+      throw NOT_FOUND({
+        data: {
+          message: `Comment with id ${input.id} not found.`,
+        },
+      });
+    }
+
+    try {
+      const deleteResult = await CommentService.deleteOne({ _id: input.id });
+      return { success: deleteResult.deletedCount === 1 };
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: {
+          message: `DB failed to delete comment with id ${input.id}: ${error}`,
+        },
+      });
+    }
+  }),
 };
