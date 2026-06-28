@@ -50,7 +50,7 @@ export default function TradeCard({ interlocutorId, transaction }: { interlocuto
       <div className="min-w-0 flex-1 py-0.5">
         <div className="flex items-start justify-between gap-2">
           <p className="line-clamp-2 font-semibold text-sm leading-tight">{firstItem?.titleSnapshot ?? "Trade item"}</p>
-          <Badge variant="outline" className="shrink-0 text-[10px]">
+          <Badge variant="default" className="shrink-0 font-bold text-[10px]">
             {transaction.status}
           </Badge>
         </div>

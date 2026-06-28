@@ -18,10 +18,10 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   const { data: transactions, isPending } = useQuery(
     webClientORPC.transaction.getTransactionsByInterlocutor.queryOptions({ input: { interlocutorId: userId } })
   );
-  const activeTransactions = transactions?.filter(({ status }) => status !== "cancelled");
-  const archivedTransactions = transactions?.filter(({ status }) => status === "cancelled");
+  const activeTransactions = transactions?.filter(({ status }) => status === "ongoing");
+  const archivedTransactions = transactions?.filter(({ status }) => status !== "ongoing");
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
-  const activeTrade = activeTransactions?.find(({ _id }) => _id === activeTradeId);
+  const selectedTrade = transactions?.find(({ _id }) => _id === activeTradeId);
   const initials =
     user?.name
       .split(" ")
@@ -33,8 +33,8 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   return (
     <div className="grid h-full min-h-0 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="min-h-0">
-        {activeTrade ? (
-          <SelectedTrade key={activeTrade._id} interlocutorId={userId} transaction={activeTrade} />
+        {selectedTrade ? (
+          <SelectedTrade key={selectedTrade._id} interlocutorId={userId} transaction={selectedTrade} />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
             <div className="rounded-full bg-muted p-4">
