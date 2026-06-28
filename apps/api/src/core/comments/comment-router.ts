@@ -60,7 +60,7 @@ export const commentRouter = {
     if (!tryParse.success) {
       throw INTERNAL_SERVER_ERROR({
         data: {
-          message: `Failed to confirm ${tryParse.error.issues.map((issue) => issue.message).join(", ")}`,
+          message: `Failed to conform ${tryParse.error.issues.map((issue) => issue.message).join(", ")}`,
         },
       });
     }
