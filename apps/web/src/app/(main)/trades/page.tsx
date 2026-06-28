@@ -105,7 +105,7 @@ export default function Page() {
 
         <section className="min-h-0 bg-background">
           {activeConversation && authData ? (
-            <SelectedConversation key={activeConversation} userId={activeConversation} currentUserId={authData.user.id} />
+            <SelectedConversation key={activeConversation} userId={activeConversation} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
               <div className="rounded-full bg-muted p-4">
