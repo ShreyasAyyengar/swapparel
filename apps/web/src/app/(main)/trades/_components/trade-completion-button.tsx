@@ -2,6 +2,7 @@
 
 import { type transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, LoaderCircle, Undo2 } from "lucide-react";
 import { useState } from "react";
@@ -20,6 +21,7 @@ export default function TradeCompletionButton({
 }) {
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   const isBuyer = transaction.buyer.userId === currentUserId;
   const iConfirmed = isBuyer
@@ -69,20 +71,48 @@ export default function TradeCompletionButton({
       {error && <p className="text-destructive mb-2 text-sm">{error}</p>}
 
       {iConfirmed && !otherConfirmed && (
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleClick}
-          disabled={toggleMutation.isPending}
-        >
-          {toggleMutation.isPending ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Undo2 className="size-4" />
-          )}
-          Cancel request
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setConfirmCancelOpen(true)}
+            disabled={toggleMutation.isPending}
+          >
+            {toggleMutation.isPending ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <Undo2 className="size-4" />
+            )}
+            Cancel request
+          </Button>
+
+          <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Cancel completion request?</DialogTitle>
+                <DialogDescription>
+                  The other party will be notified that you have withdrawn your confirmation.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={() => setConfirmCancelOpen(false)}>
+                  Go back
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    setConfirmCancelOpen(false);
+                    handleClick();
+                  }}
+                >
+                  Yes, cancel
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
 
       {!iConfirmed && (
