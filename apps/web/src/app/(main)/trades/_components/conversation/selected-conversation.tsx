@@ -1,15 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
-import { Button } from "@swapparel/shad-ui/components/button";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftRight, Check, MessagesSquare } from "lucide-react";
+import { ArrowLeftRight, MessagesSquare } from "lucide-react";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 import SelectedTrade from "../selected-trade";
 import TradeCard, { TradeCardSkeleton } from "../trade-card";
+import TradeCompletionButton from "../trade-completion-button";
 
-export default function SelectedConversation({ userId }: { userId: string }) {
+export default function SelectedConversation({ userId, currentUserId }: { userId: string; currentUserId: string }) {
   const { data: user } = useQuery(
     webClientORPC.users.getUser.queryOptions({
       input: { id: userId },
@@ -113,13 +113,8 @@ export default function SelectedConversation({ userId }: { userId: string }) {
             </TabsContent>
           </Tabs>
 
-          {activeTrade?.status === "ongoing" && (
-            <div className="border-border border-t px-4 py-3">
-              <Button type="button" variant="default" className="w-full">
-                <Check />
-                Complete trade
-              </Button>
-            </div>
+          {activeTrade && (
+            <TradeCompletionButton transaction={activeTrade} currentUserId={currentUserId} interlocutorId={userId} />
           )}
         </div>
       </aside>

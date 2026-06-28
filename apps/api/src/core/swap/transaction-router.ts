@@ -206,6 +206,40 @@ export const transactionRouter = {
         });
       }
 
+      // toggle completion confirmation
+      if (input.toggleCompletion !== undefined) {
+        const isBuyer = transaction.buyer.userId === context.user.id;
+        const myField = isBuyer ? "buyerCompletionRequestedAt" : "sellerCompletionRequestedAt";
+        const otherField = isBuyer ? "sellerCompletionRequestedAt" : "buyerCompletionRequestedAt";
+        const now = new Date();
+
+        const raw = transaction.toObject?.() ?? transaction;
+        const alreadyConfirmed = !!(raw as Record<string, unknown>)[myField];
+
+        const updateFields: Record<string, unknown> = {
+          updatedAt: now,
+        };
+
+        if (alreadyConfirmed) {
+          // Cancel the request
+          const unsetFields: Record<string, number> = {};
+          unsetFields[myField] = 1;
+          await TransactionService.updateOne({ _id: input._id }, { $unset: unsetFields, $set: { updatedAt: now } });
+        } else {
+          // Confirm completion request
+          updateFields[myField] = now;
+
+          const otherConfirmed = !!(raw as Record<string, unknown>)[otherField];
+          if (otherConfirmed) {
+            updateFields.status = "completed";
+          }
+
+          await TransactionService.updateOne({ _id: input._id }, { $set: updateFields });
+        }
+
+        return { success: true };
+      }
+
       // status checks
       if (input.status !== undefined && input.status !== transaction.status) {
         const allowedTransitions = {
