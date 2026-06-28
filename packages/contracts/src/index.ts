@@ -11,6 +11,7 @@ export * from "./contracts/http/transaction/transaction-contract";
 export * from "./contracts/http/transaction/transaction-schemas";
 export * from "./contracts/http/user/user-contract";
 export * from "./contracts/http/user/user-schemas";
+export * from "./contracts/http/notification/notification-schemas";
 export * from "./contracts/http-contract";
 export * from "./contracts/web-socket-contract";
 export * from "./contracts/ws/messaging/messaging-schemas";

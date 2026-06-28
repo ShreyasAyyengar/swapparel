@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CreatePostHeaderButton from "./create-post-header-button";
+import NotificationButton from "./notification-button";
 import ProfileButton from "./profile-button";
 import SlimBanner from "./simple-banner-slim.svg";
 import SwapsHeaderButton from "./swaps-header-button";
@@ -19,6 +20,7 @@ export default function Header() {
         {/*<MenuHeaderButton />*/}
         {/*  TODO<future>: revamp */}
         <ProfileButton />
+        <NotificationButton />
       </div>
 
       <div className="ml-auto flex items-center gap-6">

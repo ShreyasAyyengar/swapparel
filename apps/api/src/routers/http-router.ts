@@ -1,5 +1,6 @@
 import { commentRouter } from "../core/comments/comment-router";
 import { feedRouter } from "../core/feed/feed-router";
+import { notificationRouter } from "../core/notification/notification-router";
 import { postRouter } from "../core/post/post-router";
 import { ratingRouter } from "../core/rating/rating-router";
 import { s3Router } from "../core/s3/s3-router";
@@ -14,4 +15,5 @@ export const httpRouter = {
   transaction: transactionRouter,
   users: userRouter,
   s3: s3Router,
+  notifications: notificationRouter,
 };
