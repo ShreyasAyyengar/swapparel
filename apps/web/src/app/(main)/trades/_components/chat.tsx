@@ -168,88 +168,94 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
             )}
           </div>
 
-          <form
-            className="flex border-border border-t bg-background p-3 sm:p-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleMessageSubmit();
-            }}
-          >
-            <div className="flex w-full flex-col gap-2">
-              {hasFiles && (
-                <ScrollArea className="pr-5">
-                  <DropzoneFileList className="grid grid-cols-5 gap-3 p-0">
-                    {dropzone.fileStatuses.map((fileStatus) => (
-                      <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
-                        {fileStatus.status === "success" ? (
-                          <Image
-                            src={fileStatus.result}
-                            alt={`uploaded-${fileStatus.fileName}`}
-                            className="aspect-video object-cover"
-                            width={2000}
-                            height={1000}
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="aspect-video animate-pulse bg-black/20" />
-                        )}
-                        <div className="ml-2 flex items-center justify-between">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm">{fileStatus.fileName}</p>
-                            {/*<p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>*/}
+          {transaction.status === "ongoing" ? (
+            <form
+              className="flex border-border border-t bg-background p-3 sm:p-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleMessageSubmit();
+              }}
+            >
+              <div className="flex w-full flex-col gap-2">
+                {hasFiles && (
+                  <ScrollArea className="pr-5">
+                    <DropzoneFileList className="grid grid-cols-5 gap-3 p-0">
+                      {dropzone.fileStatuses.map((fileStatus) => (
+                        <DropzoneFileListItem className="overflow-hidden rounded-md bg-card p-0 shadow-sm" key={fileStatus.id} file={fileStatus}>
+                          {fileStatus.status === "success" ? (
+                            <Image
+                              src={fileStatus.result}
+                              alt={`uploaded-${fileStatus.fileName}`}
+                              className="aspect-video object-cover"
+                              width={2000}
+                              height={1000}
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="aspect-video animate-pulse bg-black/20" />
+                          )}
+                          <div className="ml-2 flex items-center justify-between">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm">{fileStatus.fileName}</p>
+                              {/*<p className="text-muted-foreground text-xs">{(fileStatus.file.size / BYTES_PER_MB).toFixed(2)} MB</p>*/}
+                            </div>
+                            <DropzoneRemoveFile
+                              variant="ghost"
+                              className="shrink-0 cursor-pointer hover:outline"
+                              onClick={() => {
+                                dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
+                              }}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </DropzoneRemoveFile>
                           </div>
-                          <DropzoneRemoveFile
-                            variant="ghost"
-                            className="shrink-0 cursor-pointer hover:outline"
-                            onClick={() => {
-                              dropzone.onRemoveFile(fileStatus.id).then(undefined, () => undefined);
-                            }}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </DropzoneRemoveFile>
-                        </div>
-                      </DropzoneFileListItem>
-                    ))}
-                  </DropzoneFileList>
-                </ScrollArea>
-              )}
-              <div className="flex w-full items-end gap-2">
-                <textarea
-                  name="messageInput"
-                  placeholder="Message about this trade..."
-                  className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-input bg-muted/30 px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-                  required
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      event.currentTarget.form?.requestSubmit();
-                    }
-                  }}
-                  autoComplete="off"
-                  rows={1}
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  className="size-10 shrink-0 rounded-xl"
-                  disabled={!messageText.trim()}
-                  aria-label="Send message"
-                >
-                  <Send className="size-4" />
-                </Button>
-                <DropzoneTrigger
-                  aria-label="Attach file"
-                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary p-0 text-primary-foreground hover:bg-primary/90"
-                >
-                  <Paperclip className="size-4" />
-                </DropzoneTrigger>
-              </div>
+                        </DropzoneFileListItem>
+                      ))}
+                    </DropzoneFileList>
+                  </ScrollArea>
+                )}
+                <div className="flex w-full items-end gap-2">
+                  <textarea
+                    name="messageInput"
+                    placeholder="Message about this trade..."
+                    className="max-h-32 min-h-10 flex-1 resize-none rounded-xl border border-input bg-muted/30 px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+                    required
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        event.currentTarget.form?.requestSubmit();
+                      }
+                    }}
+                    autoComplete="off"
+                    rows={1}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    className="size-10 shrink-0 rounded-xl"
+                    disabled={!messageText.trim()}
+                    aria-label="Send message"
+                  >
+                    <Send className="size-4" />
+                  </Button>
+                  <DropzoneTrigger
+                    aria-label="Attach file"
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary p-0 text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Paperclip className="size-4" />
+                  </DropzoneTrigger>
+                </div>
 
-              {dropzone.rootError && <DropzoneMessage />}
+                {dropzone.rootError && <DropzoneMessage />}
+              </div>
+            </form>
+          ) : (
+            <div className="border-border border-t bg-muted/30 px-4 py-3 text-center text-muted-foreground text-sm">
+              This conversation is archived and is now read-only.
             </div>
-          </form>
+          )}
         </DropZoneArea>
       </Dropzone>
     </div>
