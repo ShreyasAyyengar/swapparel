@@ -1,6 +1,5 @@
 "use client";
 
-import { type notificationSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
@@ -9,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 
 type Notification = ReturnType<typeof formatNotification>;
@@ -77,9 +75,7 @@ export default function NotificationButton() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  const { data, isLoading } = useQuery(
-    webClientORPC.notifications.getNotifications.queryOptions()
-  );
+  const { data, isLoading } = useQuery(webClientORPC.notifications.getNotifications.queryOptions());
 
   const notifications = data?.notifications.map(formatNotification) ?? [];
   const unreadCount = data?.unreadCount ?? 0;
@@ -94,26 +90,13 @@ export default function NotificationButton() {
     })
   );
 
+  const { data: notificationData = [] } = useQuery(webClientORPC.notifications.subscribeNotifications.experimental_streamedOptions());
+
   useEffect(() => {
-    let aborted = false;
-
-    const subscribe = async () => {
-      const iterator = await socketClientORPC.notifications.subscribeNotifications();
-
-      for await (const payload of iterator) {
-        if (aborted) break;
-        queryClient.invalidateQueries({
-          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
-        });
-      }
-    };
-
-    subscribe();
-
-    return () => {
-      aborted = true;
-    };
-  }, [queryClient]);
+    queryClient.invalidateQueries({
+      queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+    });
+  }, [notificationData]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
@@ -126,18 +109,14 @@ export default function NotificationButton() {
     }
   };
 
-  const handleMarkAllRead = () => {
-    markAsReadMutation.mutate({});
+  const handleMarkAllRead = async () => {
+    await markAsReadMutation.mutateAsync({});
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="relative duration-100 ease-in hover:scale-110 hover:cursor-pointer"
-          aria-label="Notifications"
-        >
+        <button type="button" className="relative duration-100 ease-in hover:scale-110 hover:cursor-pointer" aria-label="Notifications">
           {unreadCount > 0 ? (
             <>
               <BellRing width={37.5} height={37.5} />
@@ -157,13 +136,7 @@ export default function NotificationButton() {
         <div className="flex items-center justify-between border-border border-b px-4 py-3">
           <span className="font-semibold text-sm">Notifications</span>
           {unreadCount > 0 && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              onClick={handleMarkAllRead}
-              disabled={markAsReadMutation.isPending}
-            >
+            <Button type="button" variant="ghost" size="xs" onClick={handleMarkAllRead} disabled={markAsReadMutation.isPending}>
               <Check className="size-3" />
               Mark all read
             </Button>
@@ -196,13 +169,9 @@ export default function NotificationButton() {
                     <p className={`line-clamp-2 leading-tight ${!notification.read ? "font-medium" : ""}`}>
                       {getNotificationPreview(notification)}
                     </p>
-                    <p className="mt-1 text-muted-foreground text-xs">
-                      {formatRelativeTime(notification.createdAt)}
-                    </p>
+                    <p className="mt-1 text-muted-foreground text-xs">{formatRelativeTime(notification.createdAt)}</p>
                   </div>
-                  {!notification.read && (
-                    <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
-                  )}
+                  {!notification.read && <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />}
                 </button>
               ))}
             </div>
