@@ -18,8 +18,8 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   const { data: transactions, isPending } = useQuery(
     webClientORPC.transaction.getTransactionsByInterlocutor.queryOptions({ input: { interlocutorId: userId } })
   );
-  const activeTransactions = transactions?.filter(({ status }) => status !== "cancelled");
-  const archivedTransactions = transactions?.filter(({ status }) => status === "cancelled");
+  const activeTransactions = transactions?.filter(({ status }) => status === "ongoing");
+  const archivedTransactions = transactions?.filter(({ status }) => status !== "ongoing");
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
   const activeTrade = activeTransactions?.find(({ _id }) => _id === activeTradeId);
   const initials =
