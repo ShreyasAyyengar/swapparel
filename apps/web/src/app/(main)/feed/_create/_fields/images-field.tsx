@@ -1,7 +1,7 @@
 import { MAX_IMAGES } from "@swapparel/contracts";
 import {
-  DropZoneArea,
   Dropzone,
+  DropZoneArea,
   DropzoneDescription,
   DropzoneFileList,
   DropzoneFileListItem,
