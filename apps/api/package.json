@@ -13,6 +13,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.1075.0",
     "@elysiajs/cors": "^1.4.2",
     "@orpc/experimental-publisher": "^1.14.6",
     "@orpc/openapi": "^1.14.6",
