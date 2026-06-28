@@ -1,7 +1,7 @@
 import { eventIterator, oc } from "@orpc/contract";
 import { z } from "zod";
-import { messageContent, messageSchema } from "../../http/messaging/messaging-schemas";
 import { transactionSchema } from "../../http/transaction/transaction-schemas";
+import { messageContent, messageSchema } from "./messaging-schemas";
 
 export const messagingContract = {
   publishChatMessage: oc
@@ -9,6 +9,7 @@ export const messagingContract = {
       z.object({
         transactionId: z.uuidv7(),
         message: messageContent,
+        pendingAttachmentKeys: z.array(z.string()).optional(),
       })
     )
     .output(
@@ -24,6 +25,11 @@ export const messagingContract = {
         }),
       },
       FORBIDDEN: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      UNPROCESSABLE_CONTENT: {
         data: z.object({
           message: z.string(),
         }),
