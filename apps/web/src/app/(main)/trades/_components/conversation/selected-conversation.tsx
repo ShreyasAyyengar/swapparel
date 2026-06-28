@@ -3,13 +3,17 @@ import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight, MessagesSquare } from "lucide-react";
+import { authClient } from "../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 import SelectedTrade from "../selected-trade";
 import TradeCard, { TradeCardSkeleton } from "../trade-card";
 import TradeCompletionButton from "../trade-completion-button";
 
-export default function SelectedConversation({ userId, currentUserId }: { userId: string; currentUserId: string }) {
+export default function SelectedConversation({ userId }: { userId: string }) {
+  const { data: session, isPending: isAuthPending } = authClient.useSession();
+  const currentUserId = session?.user.id;
+
   const { data: user } = useQuery(
     webClientORPC.users.getUser.queryOptions({
       input: { id: userId },
@@ -113,7 +117,7 @@ export default function SelectedConversation({ userId, currentUserId }: { userId
             </TabsContent>
           </Tabs>
 
-          {activeTrade && <TradeCompletionButton transaction={activeTrade} currentUserId={currentUserId} interlocutorId={userId} />}
+          {selectedTrade && <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />}
         </div>
       </aside>
     </div>
