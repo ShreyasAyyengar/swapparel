@@ -21,6 +21,7 @@ import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import Message from "./message";
 
+// TODO, as soon as message is sent, do something optimistic, feels too slow.
 export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchema> }) {
   const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]);
   const [messageText, setMessageText] = useState("");
