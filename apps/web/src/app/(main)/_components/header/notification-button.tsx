@@ -90,6 +90,16 @@ export default function NotificationButton() {
     })
   );
 
+  const markAllReadMutation = useMutation(
+    webClientORPC.notifications.markAllRead.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+        });
+      },
+    })
+  );
+
   const { data: notificationData = [] } = useQuery(webClientORPC.notifications.subscribeNotifications.experimental_streamedOptions());
 
   useEffect(() => {
@@ -100,7 +110,7 @@ export default function NotificationButton() {
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
-      markAsReadMutation.mutate({ ids: [notification._id] });
+      markAsReadMutation.mutate({ id: notification._id });
     }
 
     if (notification.transactionId) {
@@ -110,7 +120,7 @@ export default function NotificationButton() {
   };
 
   const handleMarkAllRead = async () => {
-    await markAsReadMutation.mutateAsync({});
+    await markAllReadMutation.mutateAsync();
   };
 
   return (
@@ -136,7 +146,7 @@ export default function NotificationButton() {
         <div className="flex items-center justify-between border-border border-b px-4 py-3">
           <span className="font-semibold text-sm">Notifications</span>
           {unreadCount > 0 && (
-            <Button type="button" variant="ghost" size="xs" onClick={handleMarkAllRead} disabled={markAsReadMutation.isPending}>
+            <Button type="button" variant="ghost" size="xs" onClick={handleMarkAllRead} disabled={markAllReadMutation.isPending}>
               <Check className="size-3" />
               Mark all read
             </Button>

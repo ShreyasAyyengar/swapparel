@@ -27,16 +27,24 @@ export const notificationRouter = {
     const userId = context.user.id;
 
     try {
-      const filter: Record<string, unknown> = { recipientId: userId };
-      if (input.ids) {
-        filter._id = { $in: input.ids };
-      }
-
-      await NotificationService.updateMany(filter, { $set: { read: true } });
+      await NotificationService.updateOne({ _id: input.id, recipientId: userId }, { $set: { read: true } });
       return { success: true };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
-        data: { message: `Failed to mark notifications as read. ${error}` },
+        data: { message: `Failed to mark notification as read. ${error}` },
+      });
+    }
+  }),
+
+  markAllRead: protectedProcedure.notifications.markAllRead.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
+    const userId = context.user.id;
+
+    try {
+      await NotificationService.updateMany({ recipientId: userId }, { $set: { read: true } });
+      return { success: true };
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: { message: `Failed to mark all notifications as read. ${error}` },
       });
     }
   }),

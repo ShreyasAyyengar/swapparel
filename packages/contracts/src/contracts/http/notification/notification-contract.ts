@@ -34,9 +34,26 @@ export const notificationContract = {
     })
     .input(
       z.object({
-        ids: z.array(z.uuidv7()),
+        id: z.uuidv7(),
       })
     )
+    .output(
+      z.object({
+        success: z.boolean(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  markAllRead: oc
+    .route({
+      method: "PATCH",
+    })
     .output(
       z.object({
         success: z.boolean(),
