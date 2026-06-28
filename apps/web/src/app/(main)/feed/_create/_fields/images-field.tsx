@@ -51,7 +51,9 @@ export default function ImagesField({ serverError, onClearServerError }: ImagesF
     },
     validation: {
       accept: {
-        "image/*": [".png", ".jpg", ".jpeg", ".heic"],
+        "image/png": [],
+        "image/jpeg": [],
+        "image/heic": [],
       },
       maxSize: MAX_IMAGE_SIZE_MB * BYTES_PER_MB,
       maxFiles: MAX_IMAGES,

@@ -27,6 +27,10 @@ export const env = createEnv({
     CLOUDFLARE_R2_PUBLIC_URL: z.string(),
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string(),
     CLOUDFLARE_R2_TOKEN_VALUE: z.string(),
+
+    // AWS credentials
+    AWS_ACCESS_KEY: z.string(),
+    AWS_SECRET: z.string(),
   },
 
   // biome-ignore lint/correctness/noUndeclaredVariables: It's there; trust.
