@@ -1,9 +1,10 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
-import { S3Client, write } from "bun";
+import { write } from "bun";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
+import { R2 } from "../../libs/r2-client";
 import { UserService } from "../users/user-service";
 import { PostService } from "./post-service";
 
@@ -20,15 +21,8 @@ export const uploadToR2 = async (postId: string, file: File, index: number) => {
     uploadMimeType = "image/jpeg";
   }
 
-  const s3 = new S3Client({
-    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
-    bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME,
-    endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  });
-
   const key = `${postId}/${index}`;
-  await write(s3.file(`${key}.${fileExtension}`), new Blob([body], { type: uploadMimeType }));
+  await write(R2.file(`${key}.${fileExtension}`), new Blob([body], { type: uploadMimeType }));
 
   return `https://cdn.swapparel.app/${key}.${fileExtension}`;
 };

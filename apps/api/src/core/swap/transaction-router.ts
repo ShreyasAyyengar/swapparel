@@ -2,6 +2,7 @@ import { transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
+import { R2 } from "../../libs/r2-client";
 import { MessageService } from "../messaging/messaging-service";
 import { PostService } from "../post/post-service";
 import { UserService } from "../users/user-service";
@@ -140,16 +141,10 @@ export const transactionRouter = {
     return TransactionService.find({
       $and: [
         {
-          $or: [
-            { "buyer.userId": userId },
-            { "seller.userId": userId },
-          ],
+          $or: [{ "buyer.userId": userId }, { "seller.userId": userId }],
         },
         {
-          $or: [
-            { "buyer.userId": input.interlocutorId },
-            { "seller.userId": input.interlocutorId },
-          ],
+          $or: [{ "buyer.userId": input.interlocutorId }, { "seller.userId": input.interlocutorId }],
         },
       ],
     }).lean();
@@ -295,7 +290,20 @@ export const transactionRouter = {
           data: { message: `Transaction ${input.transactionId} not found.` },
         });
       }
-      return { messages: await MessageService.find({ transactionId: input.transactionId }).sort({ createdAt: 1 }).lean() };
+
+      const messages = await MessageService.find({ transactionId: input.transactionId }).sort({ createdAt: 1 }).lean();
+      for (const message of messages) {
+        if (message.attachments) {
+          message.attachments = await Promise.all(
+            message.attachments.map((key) => {
+              const fileRef = R2.file(key);
+              return fileRef.presign({ method: "GET", expiresIn: 60 * 60 });
+            })
+          );
+        }
+      }
+
+      return { messages };
     }
   ),
 };
