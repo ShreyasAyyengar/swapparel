@@ -163,7 +163,7 @@ export default function NotificationButton() {
             <p className="text-muted-foreground text-sm">No notifications yet</p>
           </div>
         ) : (
-          <ScrollArea className="max-h-80">
+          <ScrollArea className="h-80">
             <div className="flex flex-col">
               {notifications.map((notification) => (
                 <button
