@@ -1,4 +1,4 @@
-import { protectedProcedure, protectedWebSocketProcedure } from "../../libs/orpc-procedures";
+import { protectedProcedure } from "../../libs/orpc-procedures";
 import { notificationPublisher } from "./notification-manager";
 import { NotificationService } from "./notification-service";
 
@@ -41,7 +41,7 @@ export const notificationRouter = {
     }
   }),
 
-  subscribeNotifications: protectedWebSocketProcedure.notifications.subscribeNotifications.handler(async function* ({ context, signal }) {
+  subscribeNotifications: protectedProcedure.notifications.subscribeNotifications.handler(async function* ({ context, signal }) {
     const iterator = notificationPublisher.subscribe(context.user.id, {
       signal,
     });

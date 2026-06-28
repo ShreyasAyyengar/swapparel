@@ -13,9 +13,11 @@ export const notificationContract = {
       method: "GET",
     })
     .input(
-      z.object({
-        limit: z.coerce.number().min(1).max(50).default(20),
-      })
+      z
+        .object({
+          limit: z.coerce.number().min(1).max(50).default(20),
+        })
+        .optional()
     )
     .output(getNotificationsOutputSchema)
     .errors({
