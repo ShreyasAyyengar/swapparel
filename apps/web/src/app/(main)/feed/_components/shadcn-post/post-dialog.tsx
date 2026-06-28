@@ -16,9 +16,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import { authClient } from "src/lib/auth-client";
 import type z from "zod";
-import sendToProfilePage from "src/app/(main)/profile/_components/helper-functions";
+import { authClient } from "../../../../../lib/auth-client";
+import sendToProfilePage from "../../../profile/_components/helper-functions";
 import TradeDialog from "./trade-dialog";
 
 type PostDialogProps = {
@@ -93,16 +93,16 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
         />
         <div className="w-full pt-2">
           <p title={postData.size} className="w-full truncate text-left">
-            Size: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.size}</Badge>
+            Size: <Badge className="bg-secondary font-bold text-secondary-foreground">{postData.size}</Badge>
           </p>
           <p title={postData.garmentType} className="w-full truncate text-left">
-            Garment Type: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.garmentType}</Badge>
+            Garment Type: <Badge className="bg-secondary font-bold text-secondary-foreground">{postData.garmentType}</Badge>
           </p>
           <p title={postData.colour.join(", ")} className="w-full truncate text-left">
             {/*Colors: {postData.colour.join(", ")}*/}
             Color:{" "}
             {postData.colour.map((color) => (
-              <Badge className="mr-1 bg-secondary text-secondary-foreground font-bold" key={color}>
+              <Badge className="mr-1 bg-secondary font-bold text-secondary-foreground" key={color}>
                 {color}
               </Badge>
             ))}
@@ -111,14 +111,14 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
             {/*Materials: {postData.material}*/}
             Material:{" "}
             {postData.material.map((mats) => (
-              <Badge className="mr-1 bg-secondary text-secondary-foreground font-bold" key={mats}>
+              <Badge className="mr-1 bg-secondary font-bold text-secondary-foreground" key={mats}>
                 {mats}
               </Badge>
             ))}
           </p>
           {postData.price && (
             <p className="w-full truncate text-left">
-              Price: <Badge className="bg-secondary text-secondary-foreground font-bold">{postData.price}</Badge>
+              Price: <Badge className="bg-secondary font-bold text-secondary-foreground">{postData.price}</Badge>
             </p>
           )}
         </div>
@@ -195,28 +195,29 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
 
               {postData.price && (
                 <p>
-                  Price: <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold">${postData.price}</Badge>
+                  Price: <Badge className="mr-1 rounded-md bg-secondary px-1 font-bold text-secondary-foreground">${postData.price}</Badge>
                 </p>
               )}
 
               <p>
-                Garment Type: <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold">{postData.garmentType}</Badge>
+                Garment Type:{" "}
+                <Badge className="mr-1 rounded-md bg-secondary px-1 font-bold text-secondary-foreground">{postData.garmentType}</Badge>
               </p>
               <p>
                 Color:{" "}
                 {postData.colour.map((color) => (
-                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={color}>
+                  <Badge className="mr-1 rounded-md bg-secondary px-1 font-bold text-secondary-foreground" key={color}>
                     {color}
                   </Badge>
                 ))}
               </p>
               <p>
-                Size: <Badge className="rounded-md bg-secondary text-secondary-foreground px-1 font-bold">{postData.size}</Badge>
+                Size: <Badge className="rounded-md bg-secondary px-1 font-bold text-secondary-foreground">{postData.size}</Badge>
               </p>
               <p>
                 Material:{" "}
                 {postData.material.map((mats) => (
-                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={mats}>
+                  <Badge className="mr-1 rounded-md bg-secondary px-1 font-bold text-secondary-foreground" key={mats}>
                     {mats}
                   </Badge>
                 ))}
@@ -224,7 +225,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               <p>
                 Hashtags:{" "}
                 {postData.hashtags.map((hashtag) => (
-                  <Badge className="mr-1 rounded-md bg-secondary text-secondary-foreground px-1 font-bold" key={hashtag}>
+                  <Badge className="mr-1 rounded-md bg-secondary px-1 font-bold text-secondary-foreground" key={hashtag}>
                     {hashtag}
                   </Badge>
                 ))}
