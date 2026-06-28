@@ -1,8 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
+import { Button } from "@swapparel/shad-ui/components/button";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftRight, MessagesSquare } from "lucide-react";
+import { ArrowLeftRight, Check, MessagesSquare } from "lucide-react";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 import SelectedTrade from "../selected-trade";
@@ -62,8 +63,8 @@ export default function SelectedConversation({ userId }: { userId: string }) {
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          <Tabs defaultValue="active">
+        <div className="flex min-h-0 flex-1 flex-col p-3">
+          <Tabs defaultValue="active" className="flex min-h-0 flex-1 flex-col">
             <TabsList>
               <TabsTrigger value="active" className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
                 Active trades
@@ -72,7 +73,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
                 Archived trades
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="active">
+            <TabsContent value="active" className="min-h-0 overflow-y-auto">
               <div className="flex flex-col gap-2">
                 {isPending ? (
                   <>
@@ -90,7 +91,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
                 )}
               </div>
             </TabsContent>
-            <TabsContent value="archived">
+            <TabsContent value="archived" className="min-h-0 overflow-y-auto">
               <div className="flex flex-col gap-2">
                 {isPending ? (
                   <>
@@ -111,6 +112,15 @@ export default function SelectedConversation({ userId }: { userId: string }) {
               </div>
             </TabsContent>
           </Tabs>
+
+          {activeTrade?.status === "ongoing" && (
+            <div className="border-border border-t px-4 py-3">
+              <Button type="button" variant="default" className="w-full">
+                <Check />
+                Complete trade
+              </Button>
+            </div>
+          )}
         </div>
       </aside>
     </div>
