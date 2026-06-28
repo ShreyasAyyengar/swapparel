@@ -35,7 +35,6 @@ export const { useAppForm } = createFormHook({
     PriceField,
     HashtagsField,
     ImagesField,
-    // UploadField,
     // TODO some fields can be highlighted by highlighting texts, others not
   },
   formComponents: {},
