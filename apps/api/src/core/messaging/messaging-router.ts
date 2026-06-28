@@ -3,9 +3,12 @@ import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedWebSocketProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
+import { insertNotification } from "../notification/notification-manager";
 import { TransactionService } from "../swap/transaction-service";
 import { transactionChatPublisher, transactionDataPublisher } from "./chat-subscription-manager";
 import { MessageService } from "./messaging-service";
+
+const MESSAGE_PREVIEW_MAX_LENGTH = 80;
 
 type Transaction = z.infer<typeof transactionSchema>;
 
@@ -82,6 +85,17 @@ export const messagingRouter = {
         await transactionChatPublisher.publish(input.transactionId, {
           edited: false,
           incomingMessage: messagePayload,
+        });
+
+        const otherParticipantId = transaction.buyer.userId === context.user.id ? transaction.seller.userId : transaction.buyer.userId;
+        const otherParticipantName =
+          transaction.buyer.userId === context.user.id ? transaction.seller.emailSnapshot : transaction.buyer.emailSnapshot;
+        await insertNotification({
+          recipientId: otherParticipantId,
+          type: "new_message",
+          transactionId: input.transactionId,
+          actorName: otherParticipantName,
+          messagePreview: input.message.slice(0, MESSAGE_PREVIEW_MAX_LENGTH),
         });
 
         return { success: true, message: messagePayload };
