@@ -13,11 +13,9 @@ export const notificationContract = {
       method: "GET",
     })
     .input(
-      z
-        .object({
-          limit: z.coerce.number().min(1).max(50).default(20),
-        })
-        .optional()
+      z.object({
+        limit: z.coerce.number().min(1).max(50).default(20),
+      })
     )
     .output(getNotificationsOutputSchema)
     .errors({
@@ -34,7 +32,7 @@ export const notificationContract = {
     })
     .input(
       z.object({
-        ids: z.array(z.uuidv7()).optional(),
+        ids: z.array(z.uuidv7()),
       })
     )
     .output(
