@@ -1,35 +1,14 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
-import { write } from "bun";
 import { fileTypeFromBuffer } from "file-type";
-import sharp from "sharp";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
-import { R2 } from "../../libs/r2-client";
 import { UserService } from "../users/user-service";
+import { convertToJpeg, getBlockingLabel, moderateImage, uploadToR2 } from "./image-processing";
 import { PostService } from "./post-service";
-
-export const uploadToR2 = async (postId: string, file: File, index: number) => {
-  const fileBuffer = Buffer.from(await file.arrayBuffer());
-  let uploadMimeType = (await fileTypeFromBuffer(fileBuffer))?.mime;
-
-  let fileExtension = file.name.split(".").pop();
-  let body = fileBuffer;
-
-  if (uploadMimeType === "image/heic" || uploadMimeType === "image/heif") {
-    body = Buffer.from(await sharp(fileBuffer).jpeg({ quality: 100 }).toBuffer());
-    fileExtension = "jpg";
-    uploadMimeType = "image/jpeg";
-  }
-
-  const key = `${postId}/${index}`;
-  await write(R2.file(`${key}.${fileExtension}`), new Blob([body], { type: uploadMimeType }));
-
-  return `https://cdn.swapparel.app/${key}.${fileExtension}`;
-};
 
 export const postRouter = {
   createPost: protectedProcedure.posts.createPost.handler(
-    async ({ input, errors: { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR }, context }) => {
+    async ({ input, errors: { NOT_FOUND, BAD_REQUEST, UNPROCESSABLE_CONTENT, INTERNAL_SERVER_ERROR }, context }) => {
       const userDocument = await UserService.findOne({ email: context.user.email });
 
       if (!userDocument) {
@@ -38,8 +17,29 @@ export const postRouter = {
         });
       }
 
+      const fileBuffers: Buffer[] = [];
+      for (const image of input.images) {
+        const fileBuffer = Buffer.from(await image.arrayBuffer());
+        const uploadMimeType = (await fileTypeFromBuffer(fileBuffer))?.mime;
+
+        if (uploadMimeType === "image/jpeg" || uploadMimeType === "image/png") fileBuffers.push(fileBuffer);
+        else fileBuffers.push(await convertToJpeg(fileBuffer));
+      }
+
+      const imageURLs: string[] = [];
+      for (const fileBuffer of fileBuffers) {
+        const moderationLabels = await moderateImage(fileBuffer);
+        const blockingLabel = getBlockingLabel(moderationLabels);
+        if (blockingLabel) {
+          throw UNPROCESSABLE_CONTENT({ data: { message: `Image blocked by ${blockingLabel.name}` } });
+        }
+      }
+
       const id = uuidv7();
-      const imageURLs = await Promise.all(input.images.map((image, index) => uploadToR2(id, image, index)));
+      for (let i = 0; i < fileBuffers.length; i++) {
+        // biome-ignore lint/style/noNonNullAssertion: flow control
+        imageURLs.push(await uploadToR2(id, fileBuffers[i]!, i));
+      }
 
       const postData = {
         _id: id,
