@@ -1,20 +1,21 @@
-import type { messageSchema, transactionSchema } from "@swapparel/contracts";
+import { ATTACHMENT_MAX_IMAGE_SIZE_MB, BYTES_PER_MB, type messageSchema, type transactionSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedWebSocketProcedure } from "../../libs/orpc-procedures";
+import { R2 } from "../../libs/r2-client";
 import { TransactionService } from "../swap/transaction-service";
 import { transactionChatPublisher, transactionDataPublisher } from "./chat-subscription-manager";
 import { MessageService } from "./messaging-service";
 
 type Transaction = z.infer<typeof transactionSchema>;
 
-const isTransactionParticipant = (transaction: Pick<Transaction, "buyer" | "seller">, userId: string) =>
+export const isTransactionParticipant = (transaction: Pick<Transaction, "buyer" | "seller">, userId: string) =>
   transaction.buyer.userId === userId || transaction.seller.userId === userId;
 
 export const messagingRouter = {
   // Messaging
   publishChatMessage: protectedWebSocketProcedure.messaging.publishChatMessage.handler(
-    async ({ input, context, errors: { FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
+    async ({ input, context, errors: { FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND, UNPROCESSABLE_CONTENT } }) => {
       const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
 
       if (!transaction) {
@@ -37,14 +38,53 @@ export const messagingRouter = {
         createdAt: new Date(),
       };
 
+      const hydratedAttachments: string[] = [];
+      if (input.pendingAttachmentKeys && input.pendingAttachmentKeys.length > 0) {
+        for (const key of input.pendingAttachmentKeys) {
+          const fileRef = R2.file(key);
+          const exists = await fileRef.exists();
+          if (!exists) {
+            throw NOT_FOUND({
+              data: { message: `Attachment ${key} not found.` },
+            });
+          }
+
+          const fileStat = await fileRef.stat();
+          if (fileStat.size > ATTACHMENT_MAX_IMAGE_SIZE_MB * BYTES_PER_MB) {
+            throw UNPROCESSABLE_CONTENT({
+              data: { message: `Attachment ${key} exceeds maximum size of ${ATTACHMENT_MAX_IMAGE_SIZE_MB}MB.` },
+            });
+          }
+
+          if (fileStat.type !== "image/png" && fileStat.type !== "image/jpeg" && fileStat.type !== "image/jpg") {
+            throw UNPROCESSABLE_CONTENT({
+              data: { message: `Attachment ${key} is not a valid image type.` },
+            });
+          }
+        }
+
+        for (const key of input.pendingAttachmentKeys) {
+          const fileRef = R2.file(key);
+          const url = fileRef.presign({
+            method: "GET",
+            expiresIn: 60 * 60,
+          });
+          hydratedAttachments.push(url);
+        }
+
+        message.attachments = input.pendingAttachmentKeys.map((key) => key);
+      }
+
       try {
         await MessageService.insertOne(message);
+
+        const messagePayload = message.attachments ? { ...message, attachments: hydratedAttachments } : message;
         await transactionChatPublisher.publish(input.transactionId, {
           edited: false,
-          incomingMessage: message,
+          incomingMessage: messagePayload,
         });
 
-        return { success: true, message };
+        return { success: true, message: messagePayload };
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
           data: { message: `Failed to publish message. ${error}` },
