@@ -65,6 +65,14 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     };
   }, [transaction._id]);
 
+  useEffect(() => {
+    socketClientORPC.messaging.setActiveChat({ transactionId: transaction._id });
+
+    return () => {
+      socketClientORPC.messaging.clearActiveChat({ transactionId: transaction._id });
+    };
+  }, [transaction._id]);
+
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messages.length === 0) return;
