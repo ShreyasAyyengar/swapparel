@@ -19,17 +19,17 @@ export const authServer = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       accessType: "offline",
-      // mapProfileToUser: (profile) => {
-      //   const email = profile.email;
-      //   if (!email?.endsWith("@ucsc.edu")) {
-      //     const headers = new Headers();
-      //     headers.set("location", `${env.WEBSITE_URL}/auth/error?message=invalid_email_domain`);
-      //     throw new APIError("FOUND", undefined, headers);
-      //     // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
-      //   }
-      //
-      //   return profile;
-      // },
+      mapProfileToUser: (profile) => {
+        const email = profile.email;
+        if (!email?.endsWith("@ucsc.edu")) {
+          const headers = new Headers();
+          headers.set("location", `${env.WEBSITE_URL}/auth/error?message=invalid_email_domain`);
+          throw new APIError("FOUND", undefined, headers);
+          // status must be FOUND so that the redirect goes to WEBSITE_URL and not API_URL
+        }
+
+        return profile;
+      },
     },
   },
   advanced: {
