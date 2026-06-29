@@ -44,6 +44,25 @@ export const notificationRouter = {
     }
   }),
 
+  markAsReadByTransactionId: protectedProcedure.notifications.markAsReadByTransactionId.handler(
+    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
+      const userId = context.user.id;
+
+      try {
+        await NotificationService.updateMany(
+          { recipientId: userId, transactionId: input.transactionId, read: false },
+          { $set: { read: true } }
+        );
+        await cleanupOldReadNotifications(userId);
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: { message: `Failed to mark notifications as read. ${error}` },
+        });
+      }
+    }
+  ),
+
   markAllRead: protectedProcedure.notifications.markAllRead.handler(async ({ context, errors: { INTERNAL_SERVER_ERROR } }) => {
     const userId = context.user.id;
 

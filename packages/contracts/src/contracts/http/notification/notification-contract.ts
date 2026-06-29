@@ -52,6 +52,28 @@ export const notificationContract = {
       },
     }),
 
+  markAsReadByTransactionId: oc
+    .route({
+      method: "PATCH",
+    })
+    .input(
+      z.object({
+        transactionId: z.uuidv7(),
+      })
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      })
+    )
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
   markAllRead: oc
     .route({
       method: "PATCH",
