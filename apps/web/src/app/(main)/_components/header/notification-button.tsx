@@ -86,8 +86,8 @@ export default function NotificationButton() {
   const notifications = (data?.pages.flatMap((page) => page.notifications.map(formatNotification)) ?? []);
   const unreadCount = data?.pages[0]?.unreadCount ?? 0;
 
-  const markAsReadMutation = useMutation(
-    webClientORPC.notifications.markAsRead.mutationOptions({
+  const markAsReadByTransactionIdMutation = useMutation(
+    webClientORPC.notifications.markAsReadByTransactionId.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: notificationsInfiniteOptions.queryKey,
@@ -115,8 +115,8 @@ export default function NotificationButton() {
   }, [notificationData]);
 
   const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read) {
-      markAsReadMutation.mutate({ id: notification._id });
+    if (!notification.read && notification.transactionId) {
+      markAsReadByTransactionIdMutation.mutate({ transactionId: notification.transactionId });
     }
 
     if (notification.transactionId) {
