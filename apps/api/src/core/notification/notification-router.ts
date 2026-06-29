@@ -10,12 +10,19 @@ export const notificationRouter = {
     const limit = input?.limit ?? DEFAULT_NOTIFICATION_LIMIT;
 
     try {
+      const filter: Record<string, unknown> = { recipientId: userId };
+      if (input?.cursor) {
+        filter._id = { $lt: input.cursor };
+      }
+
       const [notifications, unreadCount] = await Promise.all([
-        NotificationService.find({ recipientId: userId }).sort({ createdAt: -1 }).limit(limit).lean(),
+        NotificationService.find(filter).sort({ _id: -1 }).limit(limit).lean(),
         NotificationService.countDocuments({ recipientId: userId, read: false }),
       ]);
 
-      return { notifications, unreadCount };
+      const nextCursor = notifications.length === limit ? notifications[notifications.length - 1]._id : undefined;
+
+      return { notifications, unreadCount, nextCursor };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         data: { message: `Failed to fetch notifications. ${error}` },
