@@ -4,8 +4,8 @@ import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
 import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, MessageSquare } from "lucide-react";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, ChevronDown, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
@@ -70,21 +70,27 @@ function formatNotification(raw: {
   };
 }
 
+const notificationsInfiniteOptions = webClientORPC.notifications.getNotifications.infiniteOptions({
+  input: (cursor) => ({ limit: 20, cursor: cursor ?? undefined }),
+  getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  initialPageParam: undefined as string | undefined,
+});
+
 export default function NotificationButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  const { data, isLoading } = useQuery(webClientORPC.notifications.getNotifications.queryOptions());
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(notificationsInfiniteOptions);
 
-  const notifications = data?.notifications.map(formatNotification) ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const notifications = (data?.pages.flatMap((page) => page.notifications.map(formatNotification)) ?? []);
+  const unreadCount = data?.pages[0]?.unreadCount ?? 0;
 
   const markAsReadMutation = useMutation(
     webClientORPC.notifications.markAsRead.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+          queryKey: notificationsInfiniteOptions.queryKey,
         });
       },
     })
@@ -94,7 +100,7 @@ export default function NotificationButton() {
     webClientORPC.notifications.markAllRead.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+          queryKey: notificationsInfiniteOptions.queryKey,
         });
       },
     })
@@ -104,7 +110,7 @@ export default function NotificationButton() {
 
   useEffect(() => {
     queryClient.invalidateQueries({
-      queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+      queryKey: notificationsInfiniteOptions.queryKey,
     });
   }, [notificationData]);
 
@@ -184,6 +190,17 @@ export default function NotificationButton() {
                   {!notification.read && <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />}
                 </button>
               ))}
+              {hasNextPage && (
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-center gap-1 px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent/50"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  <ChevronDown className="size-4" />
+                  {isFetchingNextPage ? "Loading..." : "Load more"}
+                </button>
+              )}
             </div>
           </ScrollArea>
         )}

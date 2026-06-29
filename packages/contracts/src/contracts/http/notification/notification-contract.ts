@@ -5,6 +5,7 @@ import { notificationSchema } from "./notification-schemas";
 const getNotificationsOutputSchema = z.object({
   notifications: z.array(notificationSchema),
   unreadCount: z.number(),
+  nextCursor: z.string().optional(),
 });
 
 export const notificationContract = {
@@ -15,7 +16,8 @@ export const notificationContract = {
     .input(
       z
         .object({
-          limit: z.coerce.number().min(1).max(50).default(20),
+          limit: z.coerce.number().min(1).max(200).default(20).optional(),
+          cursor: z.string().optional(),
         })
         .optional()
     )
