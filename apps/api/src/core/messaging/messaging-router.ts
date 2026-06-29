@@ -88,13 +88,13 @@ export const messagingRouter = {
         });
 
         const otherParticipantId = transaction.buyer.userId === context.user.id ? transaction.seller.userId : transaction.buyer.userId;
-        const otherParticipantName =
-          transaction.buyer.userId === context.user.id ? transaction.seller.emailSnapshot : transaction.buyer.emailSnapshot;
+        const senderName =
+          transaction.buyer.userId === context.user.id ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
         await insertNotification({
           recipientId: otherParticipantId,
           type: "new_message",
           transactionId: input.transactionId,
-          actorName: otherParticipantName,
+          actorName: senderName,
           messagePreview: input.message.slice(0, MESSAGE_PREVIEW_MAX_LENGTH),
         });
 
