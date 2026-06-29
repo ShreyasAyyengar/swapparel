@@ -41,7 +41,6 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
       try {
         for await (const msg of await socketClientORPC.messaging.subscribeTransactionChat({ transactionId: transaction._id })) {
           if (aborted) break;
-
           setMessages((prevState) => [...prevState, msg.incomingMessage]);
         }
       } catch {
@@ -73,7 +72,9 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
       }),
     validation: {
       accept: {
-        "image/*": [".png", ".jpg", ".jpeg"],
+        "image/png": [],
+        "image/jpeg": [],
+        "image/heic": [],
       },
       maxSize: ATTACHMENT_MAX_IMAGE_SIZE_MB * BYTES_PER_MB,
       maxFiles: 5,
