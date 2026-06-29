@@ -73,6 +73,36 @@ export const messagingContract = {
       },
     }),
 
+  setActiveChat: oc
+    .input(
+      z.object({
+        transactionId: transactionSchema.shape._id,
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  clearActiveChat: oc
+    .input(
+      z.object({
+        transactionId: transactionSchema.shape._id,
+      })
+    )
+    .output(z.object({ success: z.boolean() }))
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
   // also subscribe to message edits
   subscribeTransactionChat: oc
     .input(
