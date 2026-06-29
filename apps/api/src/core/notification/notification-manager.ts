@@ -25,6 +25,20 @@ type InsertNotificationParams = {
   messagePreview?: string;
 };
 
+export async function cleanupOldReadNotifications(userId: string): Promise<void> {
+  const excessReadNotifications = await NotificationService
+    .find({ recipientId: userId, read: true })
+    .sort({ createdAt: -1 })
+    .skip(20)
+    .lean()
+    .select("_id");
+
+  if (excessReadNotifications.length > 0) {
+    const idsToDelete = excessReadNotifications.map((n) => n._id);
+    await NotificationService.deleteMany({ _id: { $in: idsToDelete } });
+  }
+}
+
 export async function insertNotification(params: InsertNotificationParams): Promise<void> {
   const notification: z.infer<typeof notificationSchema> = {
     _id: uuidv7(),

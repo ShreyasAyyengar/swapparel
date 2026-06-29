@@ -1,5 +1,5 @@
 import { protectedProcedure } from "../../libs/orpc-procedures";
-import { notificationPublisher } from "./notification-manager";
+import { cleanupOldReadNotifications, notificationPublisher } from "./notification-manager";
 import { NotificationService } from "./notification-service";
 
 const DEFAULT_NOTIFICATION_LIMIT = 20;
@@ -28,6 +28,7 @@ export const notificationRouter = {
 
     try {
       await NotificationService.updateOne({ _id: input.id, recipientId: userId }, { $set: { read: true } });
+      await cleanupOldReadNotifications(userId);
       return { success: true };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
@@ -41,6 +42,7 @@ export const notificationRouter = {
 
     try {
       await NotificationService.updateMany({ recipientId: userId }, { $set: { read: true } });
+      await cleanupOldReadNotifications(userId);
       return { success: true };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
