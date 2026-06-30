@@ -30,9 +30,10 @@ import { webClientORPC } from "../../../../../lib/orpc-web-client";
 type TradeDialogProps = {
   postData: z.infer<typeof postSchema>;
   canSeeButton: boolean;
+  onTradeSuccess?: () => Promise<void>;
 };
 
-export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps) {
+export default function TradeDialog({ postData, canSeeButton, onTradeSuccess }: TradeDialogProps) {
   const router = useRouter();
   const { data } = authClient.useSession();
   const [isTrading, setIsTrading] = useState(false);
@@ -95,6 +96,7 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
           }),
         ]);
         socketClientORPC.messaging.publishTransactionDataChange({ transactionId: _id });
+        await onTradeSuccess?.();
         router.push(`/trades?trade=${_id}`);
       },
     })

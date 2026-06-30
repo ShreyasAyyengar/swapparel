@@ -83,7 +83,7 @@ export default function NotificationButton() {
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(notificationsInfiniteOptions);
 
-  const notifications = (data?.pages.flatMap((page) => page.notifications.map(formatNotification)) ?? []);
+  const notifications = data?.pages.flatMap((page) => page.notifications.map(formatNotification)) ?? [];
   const unreadCount = data?.pages[0]?.unreadCount ?? 0;
 
   const markAsReadByTransactionIdMutation = useMutation(
@@ -129,6 +129,7 @@ export default function NotificationButton() {
     await markAllReadMutation.mutateAsync();
   };
 
+  // TODO: clicking on a "trade completed" notification should take the user to the exact trade conversation, not just the trades page.
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -193,7 +194,7 @@ export default function NotificationButton() {
               {hasNextPage && (
                 <button
                   type="button"
-                  className="flex w-full items-center justify-center gap-1 px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent/50"
+                  className="flex w-full items-center justify-center gap-1 px-4 py-3 text-muted-foreground text-sm transition-colors hover:bg-accent/50"
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
                 >
