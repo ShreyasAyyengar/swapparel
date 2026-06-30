@@ -25,9 +25,19 @@ import Message from "./message";
 export default function Chat({ transaction }: { transaction: z.infer<typeof transactionSchema> }) {
   const [messages, setMessages] = useState<z.infer<typeof messageSchema>[]>([]);
   const [messageText, setMessageText] = useState("");
-  const { data: chatHistory, isPending } = useQuery(
-    webClientORPC.transaction.getMessageHistory.queryOptions({ input: { transactionId: transaction._id } })
+  const {
+    data: chatHistory,
+    isPending,
+    refetch,
+  } = useQuery(
+    webClientORPC.transaction.getMessageHistory.queryOptions({
+      input: { transactionId: transaction._id },
+    })
   );
+
+  useEffect(() => {
+    refetch();
+  }, [transaction._id]);
 
   useEffect(() => {
     const sortedMessages = [...(chatHistory?.messages ?? [])].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -41,7 +51,6 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
       try {
         for await (const msg of await socketClientORPC.messaging.subscribeTransactionChat({ transactionId: transaction._id })) {
           if (aborted) break;
-
           setMessages((prevState) => [...prevState, msg.incomingMessage]);
         }
       } catch {
@@ -73,7 +82,9 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
       }),
     validation: {
       accept: {
-        "image/*": [".png", ".jpg", ".jpeg"],
+        "image/png": [],
+        "image/jpeg": [],
+        "image/heic": [],
       },
       maxSize: ATTACHMENT_MAX_IMAGE_SIZE_MB * BYTES_PER_MB,
       maxFiles: 5,
