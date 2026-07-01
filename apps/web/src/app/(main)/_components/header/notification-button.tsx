@@ -121,6 +121,7 @@ export default function NotificationButton() {
 
     if (notification.transactionId) {
       setOpen(false);
+      // TODO: find a way to do this using nuqs
       router.push(`/trades?trade=${notification.transactionId}`);
     }
   };
