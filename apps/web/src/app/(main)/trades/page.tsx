@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircleMore } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect } from "react";
 import { env } from "../../../env";
@@ -36,6 +37,7 @@ export default function Page() {
 
   // A direct trade URL restores both the interlocutor and the selected trade.
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
+  const searchParams = useSearchParams();
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
   const setActiveTradeId = useActiveTradeStore((state) => state.setActiveTradeId);
   const activeConversation = useActiveConversationStore((state) => state.activeConversation);
@@ -45,6 +47,14 @@ export default function Page() {
       enabled: !!authData && !!transactionIdURL,
     })
   );
+
+  // Sync useSearchParams into nuqs when nuqs misses a router.push URL change
+  useEffect(() => {
+    const tradeFromUrl = searchParams.get("trade");
+    if (tradeFromUrl !== transactionIdURL) {
+      setTransactionIdURL(tradeFromUrl);
+    }
+  }, [searchParams, transactionIdURL, setTransactionIdURL]);
 
   useEffect(() => {
     if (!transactionIdURL) {
