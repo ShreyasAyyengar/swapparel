@@ -27,7 +27,7 @@ export const ratingContract = {
 
   getMyRatingForTransaction: oc
     .route({ method: "GET" })
-    .input(ratingSchema.pick({ _id: true }))
+    .input(ratingSchema.pick({ transactionId: true }))
     .output(ratingSchema.nullable())
     .errors({
       INTERNAL_SERVER_ERROR: {
