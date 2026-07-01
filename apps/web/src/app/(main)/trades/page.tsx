@@ -66,7 +66,6 @@ export default function Page() {
 
     const transaction = transactionData.transactions.find(({ _id }) => _id === transactionIdURL);
     if (!transaction) {
-      setTransactionIdURL(null);
       return;
     }
 
