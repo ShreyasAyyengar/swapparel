@@ -8,7 +8,7 @@ export const ratingRouter = {
   submitRating: protectedProcedure.ratings.submitRating.handler(
     async ({ input, context, errors: { NOT_FOUND, BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR } }) => {
       const raterEmail = context.user.email;
-      const { ratedUserEmail, value, comment } = input;
+      const { ratedUserEmail, value, comment, transactionId } = input;
 
       if (raterEmail === ratedUserEmail) {
         throw BAD_REQUEST({ data: { message: "Cannot rate yourself" } });
@@ -26,7 +26,7 @@ export const ratingRouter = {
 
       const _id = uuidv7();
       const createdAt = new Date();
-      const ratingData = { _id, raterEmail, ratedUserEmail, value, comment, createdAt };
+      const ratingData = { _id, raterEmail, ratedUserEmail, transactionId, value, comment, createdAt };
 
       const tryParse = ratingSchema.safeParse(ratingData);
       if (!tryParse.success) {
