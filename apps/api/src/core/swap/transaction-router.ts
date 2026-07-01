@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
 import { MessageService } from "../messaging/messaging-service";
+import { insertNotification } from "../notification/notification-manager";
 import { PostService } from "../post/post-service";
 import { UserService } from "../users/user-service";
 import { TransactionService } from "./transaction-service";
@@ -118,6 +119,14 @@ export const transactionRouter = {
         });
       }
 
+      await insertNotification({
+        recipientId: sellerUser._id,
+        type: "trade_request",
+        transactionId: _id,
+        actorName: buyer.email,
+        actorAvatarUrl: buyer.image || undefined,
+      });
+
       return { _id };
     }
   ),
@@ -204,6 +213,59 @@ export const transactionRouter = {
         throw UNPROCESSABLE_CONTENT({
           data: { message: `A ${transaction.status} transaction cannot be updated.` },
         });
+      }
+
+      // toggle completion confirmation
+      if (input.toggleCompletion !== undefined) {
+        const isBuyer = transaction.buyer.userId === context.user.id;
+        const myField = isBuyer ? "buyerCompletionRequestedAt" : "sellerCompletionRequestedAt";
+        const otherField = isBuyer ? "sellerCompletionRequestedAt" : "buyerCompletionRequestedAt";
+        const now = new Date();
+
+        const raw = transaction.toObject?.() ?? transaction;
+        const alreadyConfirmed = !!(raw as Record<string, unknown>)[myField];
+
+        const updateFields: Record<string, unknown> = {
+          updatedAt: now,
+        };
+
+        if (alreadyConfirmed) {
+          // Cancel the request
+          const unsetFields: Record<string, number> = {};
+          unsetFields[myField] = 1;
+          await TransactionService.updateOne({ _id: input._id }, { $unset: unsetFields, $set: { updatedAt: now } });
+        } else {
+          // Confirm completion request
+          updateFields[myField] = now;
+
+          const otherConfirmed = !!(raw as Record<string, unknown>)[otherField];
+          if (otherConfirmed) {
+            updateFields.status = "completed";
+          }
+
+          await TransactionService.updateOne({ _id: input._id }, { $set: updateFields });
+
+          if (otherConfirmed) {
+            const buyerName = transaction.buyer.emailSnapshot;
+            const sellerName = transaction.seller.emailSnapshot;
+            await Promise.all([
+              insertNotification({
+                recipientId: transaction.buyer.userId,
+                type: "trade_completed",
+                transactionId: input._id,
+                actorName: sellerName,
+              }),
+              insertNotification({
+                recipientId: transaction.seller.userId,
+                type: "trade_completed",
+                transactionId: input._id,
+                actorName: buyerName,
+              }),
+            ]);
+          }
+        }
+
+        return { success: true };
       }
 
       // status checks

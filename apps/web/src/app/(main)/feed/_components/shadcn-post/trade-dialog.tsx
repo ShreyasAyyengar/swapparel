@@ -17,21 +17,23 @@ import { Label } from "@swapparel/shad-ui/components/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
 import { Textarea } from "@swapparel/shad-ui/components/textarea";
 import { cn } from "@swapparel/shad-ui/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../lib/auth-client";
+import { socketClientORPC } from "../../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 
 type TradeDialogProps = {
   postData: z.infer<typeof postSchema>;
   canSeeButton: boolean;
+  onTradeSuccess?: () => Promise<void>;
 };
 
-export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps) {
+export default function TradeDialog({ postData, canSeeButton, onTradeSuccess }: TradeDialogProps) {
   const router = useRouter();
   const { data } = authClient.useSession();
   const [isTrading, setIsTrading] = useState(false);
@@ -80,9 +82,24 @@ export default function TradeDialog({ postData, canSeeButton }: TradeDialogProps
     });
   };
 
+  const queryClient = useQueryClient();
+
   const createTradeMutation = useMutation(
     webClientORPC.transaction.createTransaction.mutationOptions({
-      onSuccess: ({ _id }) => {
+      onSuccess: async ({ _id }) => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: webClientORPC.transaction.getInterlocutors.queryOptions().queryKey,
+          }),
+          queryClient.invalidateQueries({
+            queryKey: webClientORPC.transaction.getTransactions.queryOptions().queryKey,
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [["transaction", "getTransactionsByInterlocutor"]],
+          }),
+        ]);
+        socketClientORPC.messaging.publishTransactionDataChange({ transactionId: _id });
+        await onTradeSuccess?.();
         router.push(`/trades?trade=${_id}`);
       },
     })

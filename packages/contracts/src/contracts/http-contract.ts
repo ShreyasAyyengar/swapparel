@@ -1,5 +1,6 @@
 import { commentContract } from "./http/comments/comment-contract";
 import { feedContract } from "./http/feed/feed-contract";
+import { notificationContract } from "./http/notification/notification-contract";
 import { postContract } from "./http/post/post-contract";
 import { ratingContract } from "./http/rating/rating-contract";
 import { transactionContract } from "./http/transaction/transaction-contract";
@@ -15,4 +16,5 @@ export const httpContract = {
   transaction: transactionContract,
   users: userContract,
   s3: s3Contract,
+  notifications: notificationContract,
 };

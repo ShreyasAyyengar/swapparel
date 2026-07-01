@@ -3,9 +3,13 @@ import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedWebSocketProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
+import { insertNotification } from "../notification/notification-manager";
 import { TransactionService } from "../swap/transaction-service";
+import { activeChatStore } from "./active-chat-store";
 import { transactionChatPublisher, transactionDataPublisher } from "./chat-subscription-manager";
 import { MessageService } from "./messaging-service";
+
+const MESSAGE_PREVIEW_MAX_LENGTH = 80;
 
 type Transaction = z.infer<typeof transactionSchema>;
 
@@ -83,6 +87,21 @@ export const messagingRouter = {
           edited: false,
           incomingMessage: messagePayload,
         });
+
+        const otherParticipantId = transaction.buyer.userId === context.user.id ? transaction.seller.userId : transaction.buyer.userId;
+        const senderName =
+          transaction.buyer.userId === context.user.id ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
+
+        const isRecipientViewing = activeChatStore.isActive(otherParticipantId, input.transactionId);
+        if (!isRecipientViewing) {
+          await insertNotification({
+            recipientId: otherParticipantId,
+            type: "new_message",
+            transactionId: input.transactionId,
+            actorName: senderName,
+            messagePreview: input.message.slice(0, MESSAGE_PREVIEW_MAX_LENGTH),
+          });
+        }
 
         return { success: true, message: messagePayload };
       } catch (error) {
@@ -201,6 +220,32 @@ export const messagingRouter = {
       yield payload;
     }
   }),
+
+  setActiveChat: protectedWebSocketProcedure.messaging.setActiveChat.handler(
+    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
+      try {
+        activeChatStore.setActive(context.user.id, input.transactionId);
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: { message: `Failed to set active chat. ${error}` },
+        });
+      }
+    }
+  ),
+
+  clearActiveChat: protectedWebSocketProcedure.messaging.clearActiveChat.handler(
+    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
+      try {
+        activeChatStore.clearActive(context.user.id, input.transactionId);
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({
+          data: { message: `Failed to clear active chat. ${error}` },
+        });
+      }
+    }
+  ),
 
   // Transaction Data (maybe move to different router)
   publishTransactionDataChange: protectedWebSocketProcedure.messaging.publishTransactionDataChange.handler(

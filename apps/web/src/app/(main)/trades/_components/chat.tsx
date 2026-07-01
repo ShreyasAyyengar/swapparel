@@ -12,7 +12,7 @@ import {
 } from "@swapparel/shad-ui/components/dropzone";
 import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, Paperclip, Send, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +32,17 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   } = useQuery(
     webClientORPC.transaction.getMessageHistory.queryOptions({
       input: { transactionId: transaction._id },
+    })
+  );
+
+  const queryClient = useQueryClient();
+  const markAsReadMutation = useMutation(
+    webClientORPC.notifications.markAsReadByTransactionId.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+        });
+      },
     })
   );
 
@@ -62,6 +73,15 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
 
     return () => {
       aborted = true;
+    };
+  }, [transaction._id]);
+
+  useEffect(() => {
+    socketClientORPC.messaging.setActiveChat({ transactionId: transaction._id });
+    markAsReadMutation.mutate({ transactionId: transaction._id });
+
+    return () => {
+      socketClientORPC.messaging.clearActiveChat({ transactionId: transaction._id });
     };
   }, [transaction._id]);
 
