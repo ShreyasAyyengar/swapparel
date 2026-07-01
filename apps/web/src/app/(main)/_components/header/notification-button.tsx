@@ -121,6 +121,15 @@ export default function NotificationButton() {
 
     if (notification.transactionId) {
       setOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: webClientORPC.transaction.getTransactions.queryOptions().queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [["transaction", "getTransactionsByInterlocutor"]],
+      });
+      queryClient.invalidateQueries({
+        queryKey: webClientORPC.transaction.getInterlocutors.queryOptions().queryKey,
+      });
       // TODO: find a way to do this using nuqs
       router.push(`/trades?trade=${notification.transactionId}`);
     }

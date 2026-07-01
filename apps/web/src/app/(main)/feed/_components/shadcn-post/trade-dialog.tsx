@@ -94,6 +94,9 @@ export default function TradeDialog({ postData, canSeeButton, onTradeSuccess }: 
           queryClient.invalidateQueries({
             queryKey: webClientORPC.transaction.getTransactions.queryOptions().queryKey,
           }),
+          queryClient.invalidateQueries({
+            queryKey: [["transaction", "getTransactionsByInterlocutor"]],
+          }),
         ]);
         socketClientORPC.messaging.publishTransactionDataChange({ transactionId: _id });
         await onTradeSuccess?.();
