@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MessageCircleMore } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
@@ -38,6 +38,7 @@ export default function Page() {
   // A direct trade URL restores both the interlocutor and the selected trade.
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
   const searchParams = useSearchParams();
+  const lastSyncedTradeFromUrlRef = useRef<string | null>(searchParams.get("trade"));
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
   const setActiveTradeId = useActiveTradeStore((state) => state.setActiveTradeId);
   const activeConversation = useActiveConversationStore((state) => state.activeConversation);
@@ -51,9 +52,18 @@ export default function Page() {
   // Sync useSearchParams into nuqs when nuqs misses a router.push URL change
   useEffect(() => {
     const tradeFromUrl = searchParams.get("trade");
-    if (tradeFromUrl !== transactionIdURL) {
-      setTransactionIdURL(tradeFromUrl);
+    // Ignore the local nuqs update from the click handler so we do not bounce the same trade ID back and forth.
+    if (tradeFromUrl === transactionIdURL) {
+      lastSyncedTradeFromUrlRef.current = tradeFromUrl;
+      return;
     }
+
+    if (tradeFromUrl === lastSyncedTradeFromUrlRef.current) {
+      return;
+    }
+
+    lastSyncedTradeFromUrlRef.current = tradeFromUrl;
+    setTransactionIdURL(tradeFromUrl);
   }, [searchParams, transactionIdURL, setTransactionIdURL]);
 
   useEffect(() => {
@@ -73,16 +83,7 @@ export default function Page() {
     const interlocutorId = transaction.buyer.userId === currentUserId ? transaction.seller.userId : transaction.buyer.userId;
     if (activeConversation !== interlocutorId) setActiveConversation(interlocutorId);
     if (activeTradeId !== transaction._id) setActiveTradeId(transaction._id);
-  }, [
-    activeConversation,
-    activeTradeId,
-    authData,
-    setActiveConversation,
-    setActiveTradeId,
-    setTransactionIdURL,
-    transactionData,
-    transactionIdURL,
-  ]);
+  }, [activeConversation, activeTradeId, authData, setActiveConversation, setActiveTradeId, transactionData, transactionIdURL]);
 
   const showSkeletons = !authData || isLoading;
 
