@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../lib/auth-client";
 import sendToProfilePage from "../../../profile/_components/helper-functions";
+import CommentBox from "./comments/comment-box";
 import TradeDialog from "./trade-dialog";
 
 type PostDialogProps = {
@@ -231,6 +232,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
                 ))}
               </p>
               <hr className="my-2 border-border border-t-2" />
+              <CommentBox postId={postData._id} />
               {/* <p className="font-bold">Comments:</p>
               {postData.comments.length > 0 && <CommentInput sentence="Add a new comment!" post={postData} />}
               {postData.comments.length < 1 ? (
