@@ -2,8 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircleMore } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { env } from "../../../env";
 import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
@@ -36,6 +37,8 @@ export default function Page() {
 
   // A direct trade URL restores both the interlocutor and the selected trade.
   const [transactionIdURL, setTransactionIdURL] = useQueryState("trade", parseAsString);
+  const searchParams = useSearchParams();
+  const lastSyncedTradeFromUrlRef = useRef<string | null>(searchParams.get("trade"));
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
   const setActiveTradeId = useActiveTradeStore((state) => state.setActiveTradeId);
   const activeConversation = useActiveConversationStore((state) => state.activeConversation);
@@ -45,6 +48,23 @@ export default function Page() {
       enabled: !!authData && !!transactionIdURL,
     })
   );
+
+  // Sync useSearchParams into nuqs when nuqs misses a router.push URL change
+  useEffect(() => {
+    const tradeFromUrl = searchParams.get("trade");
+    // Ignore the local nuqs update from the click handler so we do not bounce the same trade ID back and forth.
+    if (tradeFromUrl === transactionIdURL) {
+      lastSyncedTradeFromUrlRef.current = tradeFromUrl;
+      return;
+    }
+
+    if (tradeFromUrl === lastSyncedTradeFromUrlRef.current) {
+      return;
+    }
+
+    lastSyncedTradeFromUrlRef.current = tradeFromUrl;
+    setTransactionIdURL(tradeFromUrl);
+  }, [searchParams, transactionIdURL, setTransactionIdURL]);
 
   useEffect(() => {
     if (!transactionIdURL) {
@@ -56,7 +76,6 @@ export default function Page() {
 
     const transaction = transactionData.transactions.find(({ _id }) => _id === transactionIdURL);
     if (!transaction) {
-      setTransactionIdURL(null);
       return;
     }
 
@@ -64,22 +83,13 @@ export default function Page() {
     const interlocutorId = transaction.buyer.userId === currentUserId ? transaction.seller.userId : transaction.buyer.userId;
     if (activeConversation !== interlocutorId) setActiveConversation(interlocutorId);
     if (activeTradeId !== transaction._id) setActiveTradeId(transaction._id);
-  }, [
-    activeConversation,
-    activeTradeId,
-    authData,
-    setActiveConversation,
-    setActiveTradeId,
-    setTransactionIdURL,
-    transactionData,
-    transactionIdURL,
-  ]);
+  }, [activeConversation, activeTradeId, authData, setActiveConversation, setActiveTradeId, transactionData, transactionIdURL]);
 
   const showSkeletons = !authData || isLoading;
 
   return (
     <main className="mx-auto max-w-[1600px] py-2">
-      <div className="grid h-[calc(100dvh-85px)] min-h-[620px] overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid h-[calc(100dvh-85px)] min-h-155 overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="min-h-0 border-border border-b bg-muted/30 lg:border-r lg:border-b-0">
           <div className="border-border border-b px-4 py-4">
             <p className="font-semibold text-lg">Trades</p>
@@ -104,8 +114,8 @@ export default function Page() {
         </aside>
 
         <section className="min-h-0 bg-background">
-          {activeConversation ? (
-            <SelectedConversation key={activeConversation} userId={activeConversation} />
+          {activeConversation && authData ? (
+            <SelectedConversation key={activeConversation} userId={activeConversation} selectedTradeId={transactionIdURL ?? undefined} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
               <div className="rounded-full bg-muted p-4">

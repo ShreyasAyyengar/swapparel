@@ -240,7 +240,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               )} */}
             </div>
           </div>
-          <TradeDialog postData={postData} canSeeButton={canSeeButton} />
+          <TradeDialog postData={postData} canSeeButton={canSeeButton} onTradeSuccess={async () => { await setPostId(null); }} />
         </div>
       </DialogContent>
     </Dialog>

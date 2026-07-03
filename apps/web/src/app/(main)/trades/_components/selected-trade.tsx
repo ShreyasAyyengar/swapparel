@@ -43,6 +43,7 @@ export default function SelectedTrade({
 
   useEffect(() => {
     let cancelled = false;
+    if (transaction.status !== "ongoing") return;
 
     const watchUpdates = async () => {
       try {
@@ -130,18 +131,20 @@ export default function SelectedTrade({
             <p className="font-semibold">Trade conversation</p>
             <p className="text-muted-foreground text-xs">Messages and meetup details are specific to this trade.</p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              resetDraft();
-              setEditorOpen(true);
-            }}
-          >
-            <Pencil />
-            Edit meetup
-          </Button>
+          {transaction.status === "ongoing" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                resetDraft();
+                setEditorOpen(true);
+              }}
+            >
+              <Pencil />
+              Edit meetup
+            </Button>
+          )}
         </div>
         <div className="mt-3 grid gap-2 rounded-xl border border-border bg-muted/30 p-3 sm:grid-cols-2">
           <div className="flex min-w-0 items-center gap-2.5">

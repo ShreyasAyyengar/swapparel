@@ -1,8 +1,8 @@
 import { ATTACHMENT_MAX_IMAGE_SIZE_MB, BYTES_PER_MB, type messageSchema, type transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import {
-  Dropzone,
   DropZoneArea,
+  Dropzone,
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneMessage,
@@ -12,7 +12,7 @@ import {
 } from "@swapparel/shad-ui/components/dropzone";
 import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, Paperclip, Send, Trash2Icon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -35,8 +35,22 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     })
   );
 
+  const queryClient = useQueryClient();
+  const markAsReadMutation = useMutation(
+    webClientORPC.notifications.markAsReadByTransactionId.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: webClientORPC.notifications.key(),
+        });
+      },
+    })
+  );
+
   useEffect(() => {
+    if (!transaction._id) return;
+
     refetch();
+    markAsReadMutation.mutate({ transactionId: transaction._id });
   }, [transaction._id]);
 
   useEffect(() => {
@@ -45,12 +59,16 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   }, [chatHistory?.messages]);
 
   useEffect(() => {
-    let aborted = false;
+    const controller = new AbortController();
 
     const watchTransaction = async () => {
       try {
-        for await (const msg of await socketClientORPC.messaging.subscribeTransactionChat({ transactionId: transaction._id })) {
-          if (aborted) break;
+        const iterator = await socketClientORPC.messaging.subscribeTransactionChat(
+          { transactionId: transaction._id },
+          { signal: controller.signal }
+        );
+
+        for await (const msg of iterator) {
           setMessages((prevState) => [...prevState, msg.incomingMessage]);
         }
       } catch {
@@ -61,7 +79,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     watchTransaction();
 
     return () => {
-      aborted = true;
+      controller.abort();
     };
   }, [transaction._id]);
 

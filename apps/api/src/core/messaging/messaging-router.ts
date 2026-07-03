@@ -3,9 +3,13 @@ import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedWebSocketProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
+import { insertNotification } from "../notification/notification-manager";
 import { TransactionService } from "../swap/transaction-service";
+import { activeChatStore } from "./active-chat-store";
 import { transactionChatPublisher, transactionDataPublisher } from "./chat-subscription-manager";
 import { MessageService } from "./messaging-service";
+
+const MESSAGE_PREVIEW_MAX_LENGTH = 80;
 
 type Transaction = z.infer<typeof transactionSchema>;
 
@@ -16,7 +20,7 @@ export const messagingRouter = {
   // Messaging
   publishChatMessage: protectedWebSocketProcedure.messaging.publishChatMessage.handler(
     async ({ input, context, errors: { FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND, UNPROCESSABLE_CONTENT } }) => {
-      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
+      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller status").lean();
 
       if (!transaction) {
         throw NOT_FOUND({
@@ -27,6 +31,12 @@ export const messagingRouter = {
       if (!isTransactionParticipant(transaction, context.user.id)) {
         throw FORBIDDEN({
           data: { message: "User is not a participant in this transaction." },
+        });
+      }
+
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot send messages for archived transactions." },
         });
       }
 
@@ -84,6 +94,20 @@ export const messagingRouter = {
           incomingMessage: messagePayload,
         });
 
+        const otherParticipantId = transaction.buyer.userId === context.user.id ? transaction.seller.userId : transaction.buyer.userId;
+        const senderName = transaction.buyer.userId === context.user.id ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
+
+        const isRecipientViewing = activeChatStore.isActive(otherParticipantId, input.transactionId);
+        if (!isRecipientViewing) {
+          await insertNotification({
+            recipientId: otherParticipantId,
+            type: "new_message",
+            transactionId: input.transactionId,
+            actorName: senderName,
+            messagePreview: input.message.slice(0, MESSAGE_PREVIEW_MAX_LENGTH),
+          });
+        }
+
         return { success: true, message: messagePayload };
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({
@@ -95,7 +119,7 @@ export const messagingRouter = {
 
   publishMessageEdit: protectedWebSocketProcedure.messaging.publishMessageEdit.handler(
     async ({ input, context, errors: { FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
-      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
+      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller status").lean();
 
       if (!transaction) {
         throw NOT_FOUND({
@@ -109,6 +133,11 @@ export const messagingRouter = {
         });
       }
 
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot edit messages for archived transactions." },
+        });
+      }
       const existingMessage = await MessageService.findOne({
         _id: input.messageId,
         transactionId: input.transactionId,
@@ -178,7 +207,7 @@ export const messagingRouter = {
     lastEventId,
     errors: { FORBIDDEN, NOT_FOUND },
   }) {
-    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
+    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller status").lean();
 
     if (!transaction) {
       throw NOT_FOUND({
@@ -192,20 +221,31 @@ export const messagingRouter = {
       });
     }
 
+    if (transaction.status !== "ongoing") {
+      throw FORBIDDEN({
+        data: { message: "Cannot subscribe to messages for archived transactions." },
+      });
+    }
+
     const iterator = transactionChatPublisher.subscribe(input.transactionId, {
       signal,
       lastEventId,
     });
 
-    for await (const payload of iterator) {
-      yield payload;
+    activeChatStore.setActive(context.user.id, input.transactionId);
+    try {
+      for await (const payload of iterator) {
+        yield payload;
+      }
+    } finally {
+      activeChatStore.clearActive(context.user.id, input.transactionId);
     }
   }),
 
   // Transaction Data (maybe move to different router)
   publishTransactionDataChange: protectedWebSocketProcedure.messaging.publishTransactionDataChange.handler(
     async ({ input, context, errors: { FORBIDDEN, NOT_FOUND } }) => {
-      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
+      const transaction = await TransactionService.findById(input.transactionId).select("buyer seller status").lean();
 
       if (!transaction) {
         throw NOT_FOUND({
@@ -216,6 +256,12 @@ export const messagingRouter = {
       if (!isTransactionParticipant(transaction, context.user.id)) {
         throw FORBIDDEN({
           data: { message: "User is not a participant in this transaction." },
+        });
+      }
+
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot publish transaction data changes for archived transactions." },
         });
       }
 
@@ -234,7 +280,7 @@ export const messagingRouter = {
     lastEventId,
     errors: { FORBIDDEN, NOT_FOUND },
   }) {
-    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
+    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller status").lean();
 
     if (!transaction) {
       throw NOT_FOUND({
@@ -245,6 +291,12 @@ export const messagingRouter = {
     if (!isTransactionParticipant(transaction, context.user.id)) {
       throw FORBIDDEN({
         data: { message: "User is not a participant in this transaction." },
+      });
+    }
+
+    if (transaction.status !== "ongoing") {
+      throw FORBIDDEN({
+        data: { message: "Cannot subscribe to transaction data changes for archived transactions." },
       });
     }
 

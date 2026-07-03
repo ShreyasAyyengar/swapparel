@@ -3,12 +3,17 @@ import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight, MessagesSquare } from "lucide-react";
+import { authClient } from "../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 import SelectedTrade from "../selected-trade";
 import TradeCard, { TradeCardSkeleton } from "../trade-card";
+import TradeCompletionButton from "../trade-completion-button";
 
-export default function SelectedConversation({ userId }: { userId: string }) {
+export default function SelectedConversation({ userId, selectedTradeId }: { userId: string; selectedTradeId?: string }) {
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user.id;
+
   const { data: user } = useQuery(
     webClientORPC.users.getUser.queryOptions({
       input: { id: userId },
@@ -21,7 +26,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   const activeTransactions = transactions?.filter(({ status }) => status === "ongoing");
   const archivedTransactions = transactions?.filter(({ status }) => status !== "ongoing");
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
-  const selectedTrade = transactions?.find(({ _id }) => _id === activeTradeId);
+  const selectedTrade = transactions?.find(({ _id }) => _id === selectedTradeId) ?? transactions?.find(({ _id }) => _id === activeTradeId);
   const initials =
     user?.name
       .split(" ")
@@ -62,8 +67,8 @@ export default function SelectedConversation({ userId }: { userId: string }) {
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          <Tabs defaultValue="active">
+        <div className="flex min-h-0 flex-1 flex-col p-3">
+          <Tabs defaultValue="active" className="flex min-h-0 flex-1 flex-col">
             <TabsList>
               <TabsTrigger value="active" className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
                 Active trades
@@ -72,7 +77,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
                 Archived trades
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="active">
+            <TabsContent value="active" className="min-h-0 overflow-y-auto">
               <div className="flex flex-col gap-2">
                 {isPending ? (
                   <>
@@ -90,7 +95,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
                 )}
               </div>
             </TabsContent>
-            <TabsContent value="archived">
+            <TabsContent value="archived" className="min-h-0 overflow-y-auto">
               <div className="flex flex-col gap-2">
                 {isPending ? (
                   <>
@@ -111,6 +116,10 @@ export default function SelectedConversation({ userId }: { userId: string }) {
               </div>
             </TabsContent>
           </Tabs>
+
+          {selectedTrade && currentUserId && (
+            <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
+          )}
         </div>
       </aside>
     </div>

@@ -14,16 +14,18 @@ const updateTransactionInputSchema = z
     scheduledFor: z.coerce.date().optional(),
     location: z.string().trim().min(1).optional().nullable(),
     status: transactionSchema.shape.status.optional(),
+    toggleCompletion: z.literal(true).optional(),
     updatedBuyerPosts: z.array(transactionItemSchema).optional(),
     updatedSellerPosts: z.array(transactionItemSchema).optional(),
   })
   .refine(
-    ({ scheduledFor, location, status, updatedBuyerPosts, updatedSellerPosts }) =>
+    ({ scheduledFor, location, status, updatedBuyerPosts, updatedSellerPosts, toggleCompletion }) =>
       scheduledFor !== undefined ||
       location !== undefined ||
       status !== undefined ||
       updatedBuyerPosts !== undefined ||
-      updatedSellerPosts !== undefined,
+      updatedSellerPosts !== undefined ||
+      toggleCompletion !== undefined,
     {
       message: "At least one transaction field must be provided.",
     }

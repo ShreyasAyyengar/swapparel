@@ -8,7 +8,7 @@ export const ratingRouter = {
   submitRating: protectedProcedure.ratings.submitRating.handler(
     async ({ input, context, errors: { NOT_FOUND, BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR } }) => {
       const raterEmail = context.user.email;
-      const { ratedUserEmail, value, comment } = input;
+      const { ratedUserEmail, value, comment, transactionId } = input;
 
       if (raterEmail === ratedUserEmail) {
         throw BAD_REQUEST({ data: { message: "Cannot rate yourself" } });
@@ -26,7 +26,7 @@ export const ratingRouter = {
 
       const _id = uuidv7();
       const createdAt = new Date();
-      const ratingData = { _id, raterEmail, ratedUserEmail, value, comment, createdAt };
+      const ratingData = { _id, raterEmail, ratedUserEmail, transactionId, value, comment, createdAt };
 
       const tryParse = ratingSchema.safeParse(ratingData);
       if (!tryParse.success) {
@@ -46,7 +46,7 @@ export const ratingRouter = {
   getMyRatingForTransaction: protectedProcedure.ratings.getMyRatingForTransaction.handler(
     async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
       try {
-        const rating = await RatingService.findOne({ _id: input._id, raterEmail: context.user.email });
+        const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });
         if (!rating) return null;
 
         const json = rating.toJSON({ flattenObjectIds: true });

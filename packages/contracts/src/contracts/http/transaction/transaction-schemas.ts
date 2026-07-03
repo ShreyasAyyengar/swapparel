@@ -65,6 +65,9 @@ export const transactionSchema = z.object({
   scheduledFor: z.date(),
   location: z.string().trim().min(1).optional(),
 
+  buyerCompletionRequestedAt: z.date().optional(),
+  sellerCompletionRequestedAt: z.date().optional(),
+
   status: transactionStatusSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
