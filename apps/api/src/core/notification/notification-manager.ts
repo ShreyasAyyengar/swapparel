@@ -1,5 +1,5 @@
 import { MemoryPublisher } from "@orpc/experimental-publisher/memory";
-import type { notificationSchema } from "@swapparel/contracts";
+import { notificationSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { logger } from "../../libs/logger";
