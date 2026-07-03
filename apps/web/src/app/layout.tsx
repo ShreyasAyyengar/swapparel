@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    default: "Swapparel — Swap, Don't Shop",
     template: "%s | Swapparel",
   },
   description:
@@ -40,14 +40,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://swapparel.app",
-    title: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    title: "Swapparel — Swap, Don't Shop",
     description:
       "Transform your wardrobe sustainably with Swapparel. Exchange clothes with others, refresh your style, and reduce fashion waste.",
     siteName: "Swapparel",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Swapparel - Sustainable Fashion Through Clothes Swapping",
+    title: "Swapparel — Swap, Don't Shop",
     description:
       "Transform your wardrobe sustainably with Swapparel. Exchange clothes with others, refresh your style, and reduce fashion waste.",
     creator: "@swapparel",
