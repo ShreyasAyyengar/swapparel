@@ -1,5 +1,5 @@
 import { protectedProcedure } from "../../libs/orpc-procedures";
-import { cleanupOldReadNotifications, notificationPublisher } from "./notification-manager";
+import { cleanupOldReadNotifications } from "./notification-manager";
 import { NotificationService } from "./notification-service";
 
 const DEFAULT_NOTIFICATION_LIMIT = 20;
@@ -20,7 +20,7 @@ export const notificationRouter = {
         NotificationService.countDocuments({ recipientId: userId, read: false }),
       ]);
 
-      const nextCursor = notifications.length === limit ? notifications[notifications.length - 1]._id : undefined;
+      const nextCursor = notifications.length === limit ? notifications.at(-1)?._id : undefined;
 
       return { notifications, unreadCount, nextCursor };
     } catch (error) {
@@ -49,10 +49,7 @@ export const notificationRouter = {
       const userId = context.user.id;
 
       try {
-        await NotificationService.updateMany(
-          { recipientId: userId, transactionId: input.transactionId, read: false },
-          { $set: { read: true } }
-        );
+        await NotificationService.updateMany({ recipientId: userId, transactionId: input.transactionId, read: false }, { $set: { read: true } });
         await cleanupOldReadNotifications(userId);
         return { success: true };
       } catch (error) {
@@ -74,16 +71,6 @@ export const notificationRouter = {
       throw INTERNAL_SERVER_ERROR({
         data: { message: `Failed to mark all notifications as read. ${error}` },
       });
-    }
-  }),
-
-  subscribeNotifications: protectedProcedure.notifications.subscribeNotifications.handler(async function* ({ context, signal }) {
-    const iterator = notificationPublisher.subscribe(context.user.id, {
-      signal,
-    });
-
-    for await (const payload of iterator) {
-      yield payload;
     }
   }),
 };

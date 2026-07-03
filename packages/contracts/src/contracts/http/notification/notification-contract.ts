@@ -1,6 +1,10 @@
-import { eventIterator, oc } from "@orpc/contract";
+import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { notificationSchema } from "./notification-schemas";
+
+const MIN_NOTIFICATIONS_LIMIT = 1;
+const MAX_NOTIFICATIONS_LIMIT = 200;
+const DEFAULT_NOTIFICATIONS_LIMIT = 20;
 
 const getNotificationsOutputSchema = z.object({
   notifications: z.array(notificationSchema),
@@ -16,7 +20,7 @@ export const notificationContract = {
     .input(
       z
         .object({
-          limit: z.coerce.number().min(1).max(200).default(20).optional(),
+          limit: z.coerce.number().min(MIN_NOTIFICATIONS_LIMIT).max(MAX_NOTIFICATIONS_LIMIT).default(DEFAULT_NOTIFICATIONS_LIMIT).optional(),
           cursor: z.string().optional(),
         })
         .optional()
@@ -82,22 +86,6 @@ export const notificationContract = {
       z.object({
         success: z.boolean(),
       })
-    )
-    .errors({
-      INTERNAL_SERVER_ERROR: {
-        data: z.object({
-          message: z.string(),
-        }),
-      },
-    }),
-
-  subscribeNotifications: oc
-    .output(
-      eventIterator(
-        z.object({
-          notification: notificationSchema,
-        })
-      )
     )
     .errors({
       INTERNAL_SERVER_ERROR: {

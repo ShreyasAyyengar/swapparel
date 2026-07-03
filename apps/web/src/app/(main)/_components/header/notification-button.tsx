@@ -4,26 +4,34 @@ import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
 import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, ChevronDown, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { env } from "../../../../env";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 
 type Notification = ReturnType<typeof formatNotification>;
 
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+const DAYS_PER_WEEK = 7;
+const MAX_UNREAD_BADGE_COUNT = 9;
+const MILLISECONDS_PER_SECOND = 1000;
+
 function formatRelativeTime(date: Date) {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
+  const diffSecs = Math.floor(diffMs / MILLISECONDS_PER_SECOND);
+  const diffMins = Math.floor(diffSecs / SECONDS_PER_MINUTE);
+  const diffHours = Math.floor(diffMins / MINUTES_PER_HOUR);
+  const diffDays = Math.floor(diffHours / HOURS_PER_DAY);
 
-  if (diffSecs < 60) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffSecs < SECONDS_PER_MINUTE) return "just now";
+  if (diffMins < MINUTES_PER_HOUR) return `${diffMins}m ago`;
+  if (diffHours < HOURS_PER_DAY) return `${diffHours}h ago`;
+  if (diffDays < DAYS_PER_WEEK) return `${diffDays}d ago`;
   return date.toLocaleDateString();
 }
 
@@ -76,6 +84,9 @@ const notificationsInfiniteOptions = webClientORPC.notifications.getNotification
   initialPageParam: undefined as string | undefined,
 });
 
+const apiPath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api" : "";
+const notificationStreamUrl = `${env.NEXT_PUBLIC_API_URL}${apiPath}/notifications/stream`;
+
 export default function NotificationButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -106,13 +117,24 @@ export default function NotificationButton() {
     })
   );
 
-  const { data: notificationData = [] } = useQuery(webClientORPC.notifications.subscribeNotifications.experimental_streamedOptions());
-
   useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: notificationsInfiniteOptions.queryKey,
+    const eventSource = new EventSource(notificationStreamUrl, {
+      withCredentials: true,
     });
-  }, [notificationData]);
+
+    const handleNotification = () => {
+      queryClient.invalidateQueries({
+        queryKey: notificationsInfiniteOptions.queryKey,
+      });
+    };
+
+    eventSource.addEventListener("notification", handleNotification);
+
+    return () => {
+      eventSource.removeEventListener("notification", handleNotification);
+      eventSource.close();
+    };
+  }, [queryClient]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read && notification.transactionId) {
@@ -151,7 +173,7 @@ export default function NotificationButton() {
                 className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px] leading-none"
                 variant="destructive"
               >
-                {unreadCount > 9 ? "9+" : unreadCount}
+                {unreadCount > MAX_UNREAD_BADGE_COUNT ? "9+" : unreadCount}
               </Badge>
             </>
           ) : (
