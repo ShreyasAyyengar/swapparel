@@ -17,6 +17,7 @@ export const postRouter = {
         });
       }
 
+      // convert images to jpeg if necessary
       const fileBuffers: Buffer[] = [];
       for (const image of input.images) {
         const fileBuffer = Buffer.from(await image.arrayBuffer());
@@ -26,6 +27,7 @@ export const postRouter = {
         else fileBuffers.push(await convertToJpeg(fileBuffer));
       }
 
+      // moderate images
       const imageURLs: string[] = [];
       for (const fileBuffer of fileBuffers) {
         const moderationLabels = await moderateImage(fileBuffer);
