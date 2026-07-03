@@ -215,35 +215,13 @@ export const messagingRouter = {
       lastEventId,
     });
 
+    activeChatStore.setActive(context.user.id, input.transactionId);
     try {
       for await (const payload of iterator) {
         yield payload;
       }
     } finally {
       activeChatStore.clearActive(context.user.id, input.transactionId);
-    }
-  }),
-
-  setActiveChat: protectedWebSocketProcedure.messaging.setActiveChat.handler(async ({ input, context, errors: { FORBIDDEN, NOT_FOUND } }) => {
-    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
-
-    if (!transaction) throw NOT_FOUND({ data: { message: `Transaction ${input.transactionId} not found.` } });
-
-    if (!isTransactionParticipant(transaction, context.user.id))
-      throw FORBIDDEN({ data: { message: "User is not a participant in this transaction." } });
-
-    activeChatStore.setActive(context.user.id, input.transactionId);
-    return { success: true };
-  }),
-
-  clearActiveChat: protectedWebSocketProcedure.messaging.clearActiveChat.handler(({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
-    try {
-      activeChatStore.clearActive(context.user.id, input.transactionId);
-      return { success: true };
-    } catch (error) {
-      throw INTERNAL_SERVER_ERROR({
-        data: { message: `Failed to clear active chat. ${error}` },
-      });
     }
   }),
 
