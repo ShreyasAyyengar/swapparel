@@ -2,13 +2,13 @@
 
 import type { transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, LoaderCircle, Undo2 } from "lucide-react";
 import { useState } from "react";
 import type { z } from "zod";
 import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
+import TradeCompletionDialog from "./dialogs/trade-completion-dialog";
 
 export default function TradeCompletionButton({
   transaction,
@@ -21,7 +21,6 @@ export default function TradeCompletionButton({
 }) {
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
-  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   const isBuyer = transaction.buyer.userId === currentUserId;
   const iConfirmed = isBuyer ? !!transaction.buyerCompletionRequestedAt : !!transaction.sellerCompletionRequestedAt;
@@ -55,7 +54,7 @@ export default function TradeCompletionButton({
 
   if (iConfirmed && otherConfirmed) return null;
 
-  const handleClick = () => {
+  const handleToggleCompletion = () => {
     toggleMutation.mutate({
       _id: transaction._id,
       toggleCompletion: true,
@@ -67,40 +66,16 @@ export default function TradeCompletionButton({
       {error && <p className="mb-2 text-destructive text-sm">{error}</p>}
 
       {iConfirmed && !otherConfirmed && (
-        <>
-          <Button type="button" variant="outline" onClick={() => setConfirmCancelOpen(true)} disabled={toggleMutation.isPending}>
+        <TradeCompletionDialog onConfirm={handleToggleCompletion}>
+          <Button type="button" variant="outline" disabled={toggleMutation.isPending}>
             {toggleMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Undo2 className="size-4" />}
             Cancel request
           </Button>
-
-          <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Cancel completion request?</DialogTitle>
-                <DialogDescription>The other party will be notified that you have withdrawn your confirmation.</DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setConfirmCancelOpen(false)}>
-                  Go back
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    setConfirmCancelOpen(false);
-                    handleClick();
-                  }}
-                >
-                  Yes, cancel
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
+        </TradeCompletionDialog>
       )}
 
       {!iConfirmed && (
-        <Button type="button" variant="default" onClick={handleClick} disabled={toggleMutation.isPending}>
+        <Button type="button" variant="default" onClick={handleToggleCompletion} disabled={toggleMutation.isPending}>
           {toggleMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Check className="size-4" />}
           Complete trade
         </Button>
