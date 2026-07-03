@@ -43,6 +43,7 @@ export default function SelectedTrade({
 
   useEffect(() => {
     let cancelled = false;
+    if (transaction.status !== "ongoing") return;
 
     const watchUpdates = async () => {
       try {
