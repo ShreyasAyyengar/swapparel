@@ -98,9 +98,7 @@ export default function Page() {
           <div className="flex max-h-56 flex-col gap-1 overflow-y-auto p-2 lg:max-h-none">
             {!showSkeletons ? (
               interlocutors && interlocutors.length > 0 ? (
-                interlocutors.map(({ interlocutorId, count }) => (
-                  <ConversationCard key={interlocutorId} userId={interlocutorId} transactionCount={count} />
-                ))
+                interlocutors.map(({ interlocutorId, count }) => <ConversationCard key={interlocutorId} interlocutorId={interlocutorId} />)
               ) : (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-12 text-center text-muted-foreground">
                   <MessageCircleMore className="size-8" />
