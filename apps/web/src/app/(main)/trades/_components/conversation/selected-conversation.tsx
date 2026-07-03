@@ -117,7 +117,9 @@ export default function SelectedConversation({ userId }: { userId: string }) {
             </TabsContent>
           </Tabs>
 
-          {selectedTrade && <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />}
+          {selectedTrade && currentUserId && (
+            <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
+          )}
         </div>
       </aside>
     </div>
