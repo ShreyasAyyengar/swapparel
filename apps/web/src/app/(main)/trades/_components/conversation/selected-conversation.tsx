@@ -6,6 +6,7 @@ import { ArrowLeftRight, MessagesSquare } from "lucide-react";
 import { authClient } from "../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
+import TradeCancelButton from "../buttons/trade-cancel-button";
 import SelectedTrade from "../selected-trade";
 import TradeCard, { TradeCardSkeleton } from "../trade-card";
 import TradeCompletionButton from "../trade-completion-button";
@@ -69,7 +70,7 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
 
         <div className="flex min-h-0 flex-1 flex-col p-3">
           <Tabs defaultValue="active" className="flex min-h-0 flex-1 flex-col">
-            <TabsList>
+            <TabsList className="w-full">
               <TabsTrigger value="active" className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
                 Active trades
               </TabsTrigger>
@@ -118,7 +119,11 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
           </Tabs>
 
           {selectedTrade && currentUserId && (
-            <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
+            // border-border border-t px-4 py-3
+            <div className="flex gap-2 pt-2">
+              <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
+              <TradeCancelButton transaction={selectedTrade} />
+            </div>
           )}
         </div>
       </aside>

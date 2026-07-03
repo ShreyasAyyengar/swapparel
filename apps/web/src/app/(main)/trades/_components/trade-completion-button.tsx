@@ -1,6 +1,6 @@
 "use client";
 
-import { type transactionSchema } from "@swapparel/contracts";
+import type { transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,12 +24,8 @@ export default function TradeCompletionButton({
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   const isBuyer = transaction.buyer.userId === currentUserId;
-  const iConfirmed = isBuyer
-    ? !!transaction.buyerCompletionRequestedAt
-    : !!transaction.sellerCompletionRequestedAt;
-  const otherConfirmed = isBuyer
-    ? !!transaction.sellerCompletionRequestedAt
-    : !!transaction.buyerCompletionRequestedAt;
+  const iConfirmed = isBuyer ? !!transaction.buyerCompletionRequestedAt : !!transaction.sellerCompletionRequestedAt;
+  const otherConfirmed = isBuyer ? !!transaction.sellerCompletionRequestedAt : !!transaction.buyerCompletionRequestedAt;
 
   const toggleMutation = useMutation(
     webClientORPC.transaction.updateTransaction.mutationOptions({
@@ -67,23 +63,13 @@ export default function TradeCompletionButton({
   };
 
   return (
-    <div className="border-border border-t px-4 py-3">
-      {error && <p className="text-destructive mb-2 text-sm">{error}</p>}
+    <>
+      {error && <p className="mb-2 text-destructive text-sm">{error}</p>}
 
       {iConfirmed && !otherConfirmed && (
         <>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setConfirmCancelOpen(true)}
-            disabled={toggleMutation.isPending}
-          >
-            {toggleMutation.isPending ? (
-              <LoaderCircle className="size-4 animate-spin" />
-            ) : (
-              <Undo2 className="size-4" />
-            )}
+          <Button type="button" variant="outline" onClick={() => setConfirmCancelOpen(true)} disabled={toggleMutation.isPending}>
+            {toggleMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Undo2 className="size-4" />}
             Cancel request
           </Button>
 
@@ -91,9 +77,7 @@ export default function TradeCompletionButton({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Cancel completion request?</DialogTitle>
-                <DialogDescription>
-                  The other party will be notified that you have withdrawn your confirmation.
-                </DialogDescription>
+                <DialogDescription>The other party will be notified that you have withdrawn your confirmation.</DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setConfirmCancelOpen(false)}>
@@ -116,27 +100,15 @@ export default function TradeCompletionButton({
       )}
 
       {!iConfirmed && (
-        <Button
-          type="button"
-          variant="default"
-          className="w-full"
-          onClick={handleClick}
-          disabled={toggleMutation.isPending}
-        >
-          {toggleMutation.isPending ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Check className="size-4" />
-          )}
+        <Button type="button" variant="default" onClick={handleClick} disabled={toggleMutation.isPending}>
+          {toggleMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Check className="size-4" />}
           Complete trade
         </Button>
       )}
 
       {!iConfirmed && otherConfirmed && (
-        <p className="text-muted-foreground mt-2 text-center text-xs">
-          The other party has confirmed completion.
-        </p>
+        <p className="mt-2 text-center text-muted-foreground text-xs">The other party has confirmed completion.</p>
       )}
-    </div>
+    </>
   );
 }

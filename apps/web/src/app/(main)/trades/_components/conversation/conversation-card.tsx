@@ -9,18 +9,27 @@ import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveConversationStore } from "../../_hooks/use-active-conversation-store";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 
-export default function ConversationCard({ userId, transactionCount }: { userId: string; transactionCount: number }) {
+export default function ConversationCard({ interlocutorId }: { interlocutorId: string }) {
   const { data, isPending } = useQuery(
     webClientORPC.users.getUser.queryOptions({
-      input: { id: userId },
-      enabled: !!userId,
+      input: { id: interlocutorId },
+      enabled: !!interlocutorId,
     })
   );
+
+  const { data: interlocutorTransactions } = useQuery(
+    webClientORPC.transaction.getTransactionsByInterlocutor.queryOptions({
+      input: { interlocutorId },
+      enabled: !!interlocutorId,
+    })
+  );
+
+  const activeCount = interlocutorTransactions?.filter(({ status }) => status === "ongoing").length ?? 0;
 
   const { activeConversation, setActiveConversation } = useActiveConversationStore();
   const setActiveTradeId = useActiveTradeStore((state) => state.setActiveTradeId);
   const [, setTransactionIdURL] = useQueryState("trade", parseAsString);
-  const isActive = activeConversation === userId;
+  const isActive = activeConversation === interlocutorId;
   const initials =
     data?.name
       .split(" ")
@@ -42,7 +51,7 @@ export default function ConversationCard({ userId, transactionCount }: { userId:
       type="button"
       onClick={() => {
         if (isActive) return;
-        setActiveConversation(userId);
+        setActiveConversation(interlocutorId);
         setActiveTradeId(undefined);
         setTransactionIdURL(null);
       }}
@@ -53,9 +62,11 @@ export default function ConversationCard({ userId, transactionCount }: { userId:
       </Avatar>
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium">{data?.name}</div>
-        <Badge variant="secondary" className="mt-1 h-5 rounded-full px-2 font-medium text-xs">
-          {transactionCount} active
-        </Badge>
+        {activeCount > 0 && (
+          <Badge variant="secondary" className="mt-1 h-5 rounded-full px-2 font-medium text-xs">
+            {activeCount} active
+          </Badge>
+        )}
       </div>
       <ChevronRight className={cn("size-4 text-muted-foreground transition-transform", isActive && "translate-x-0.5 text-primary")} />
     </button>
