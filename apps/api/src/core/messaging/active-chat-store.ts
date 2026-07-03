@@ -1,7 +1,6 @@
-import { z } from "zod";
+import type { z } from "zod";
 
-const _uuid = z.uuidv7();
-type uuidv7 = z.infer<typeof _uuid>;
+type uuidv7 = z.infer<typeof z.uuidv7>;
 
 const activeChats = new Map<uuidv7, Set<uuidv7>>();
 
