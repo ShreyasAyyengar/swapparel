@@ -1,4 +1,4 @@
-import { oc } from "@orpc/contract";
+import { eventIterator, oc } from "@orpc/contract";
 import { z } from "zod";
 import { notificationSchema } from "./notification-schemas";
 
@@ -26,6 +26,25 @@ export const notificationContract = {
         .optional()
     )
     .output(getNotificationsOutputSchema)
+    .errors({
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  streamNotifications: oc
+    .route({
+      method: "GET",
+    })
+    .output(
+      eventIterator(
+        z.object({
+          notification: notificationSchema,
+        })
+      )
+    )
     .errors({
       INTERNAL_SERVER_ERROR: {
         data: z.object({
