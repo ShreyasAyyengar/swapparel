@@ -85,6 +85,7 @@ export default function TradeDialog({ postData, canSeeButton, onTradeSuccess }: 
   const queryClient = useQueryClient();
 
   const createTradeMutation = useMutation(
+    // TODO look at fetchOnRemount for trade query to prevent doing all this
     webClientORPC.transaction.createTransaction.mutationOptions({
       onSuccess: async ({ _id }) => {
         await Promise.all([
