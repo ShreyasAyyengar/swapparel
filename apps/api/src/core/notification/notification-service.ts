@@ -16,6 +16,8 @@ const NotificationSchemaMongoose = toMongooseSchema(
 
 export interface INotificationSchemaMongoose extends z.infer<typeof NotificationSchema> {}
 
+NotificationSchemaMongoose.index({ recipientId: 1, _id: -1 });
+NotificationSchemaMongoose.index({ recipientId: 1, transactionId: 1, read: 1 });
 NotificationSchemaMongoose.index({ recipientId: 1, read: 1, createdAt: -1 });
 
 export const NotificationService = databaseConnection.model<INotificationSchemaMongoose>(
