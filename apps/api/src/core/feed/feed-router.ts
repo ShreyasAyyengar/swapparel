@@ -1,7 +1,7 @@
 import { filterPosts, postSchema } from "@swapparel/contracts";
 import { z } from "zod";
 import { publicProcedure } from "../../libs/orpc-procedures";
-import { R2 } from "../../libs/r2-client";
+import { hydrateR2Keys } from "../post/image-processing";
 import { PostService } from "../post/post-service";
 
 export const feedRouter = {
@@ -31,12 +31,7 @@ export const feedRouter = {
     if (input.filters !== undefined) posts = filterPosts(posts, input.filters);
 
     // hydrate images
-    for (const post of posts) {
-      post.images = post.images.map((key) => {
-        const fileRef = R2.file(key);
-        return fileRef.presign({ method: "GET", expiresIn: 60 * 60 });
-      });
-    }
+    for (const post of posts) post.images = await hydrateR2Keys(post.images);
 
     return {
       posts,
