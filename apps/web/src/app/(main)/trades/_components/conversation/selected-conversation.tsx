@@ -10,8 +10,8 @@ import SelectedTrade from "../selected-trade";
 import TradeCard, { TradeCardSkeleton } from "../trade-card";
 import TradeCompletionButton from "../trade-completion-button";
 
-export default function SelectedConversation({ userId }: { userId: string }) {
-  const { data: session, isPending: isAuthPending } = authClient.useSession();
+export default function SelectedConversation({ userId, selectedTradeId }: { userId: string; selectedTradeId?: string }) {
+  const { data: session } = authClient.useSession();
   const currentUserId = session?.user.id;
 
   const { data: user } = useQuery(
@@ -26,7 +26,7 @@ export default function SelectedConversation({ userId }: { userId: string }) {
   const activeTransactions = transactions?.filter(({ status }) => status === "ongoing");
   const archivedTransactions = transactions?.filter(({ status }) => status !== "ongoing");
   const activeTradeId = useActiveTradeStore((state) => state.activeTradeId);
-  const selectedTrade = transactions?.find(({ _id }) => _id === activeTradeId);
+  const selectedTrade = transactions?.find(({ _id }) => _id === selectedTradeId) ?? transactions?.find(({ _id }) => _id === activeTradeId);
   const initials =
     user?.name
       .split(" ")

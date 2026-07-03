@@ -1,4 +1,4 @@
-import { env } from "@swapparel/web/src/env.ts";
+import { env } from "./src/env.ts";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

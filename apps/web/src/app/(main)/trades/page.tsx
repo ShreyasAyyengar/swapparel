@@ -89,7 +89,7 @@ export default function Page() {
 
   return (
     <main className="mx-auto max-w-[1600px] py-2">
-      <div className="grid h-[calc(100dvh-85px)] min-h-[620px] overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid h-[calc(100dvh-85px)] min-h-155 overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="min-h-0 border-border border-b bg-muted/30 lg:border-r lg:border-b-0">
           <div className="border-border border-b px-4 py-4">
             <p className="font-semibold text-lg">Trades</p>
@@ -115,7 +115,7 @@ export default function Page() {
 
         <section className="min-h-0 bg-background">
           {activeConversation && authData ? (
-            <SelectedConversation key={activeConversation} userId={activeConversation} />
+            <SelectedConversation key={activeConversation} userId={activeConversation} selectedTradeId={transactionIdURL ?? undefined} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
               <div className="rounded-full bg-muted p-4">
