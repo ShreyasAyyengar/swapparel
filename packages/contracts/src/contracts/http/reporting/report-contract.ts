@@ -75,3 +75,40 @@ export const postReportContract = {
       },
     }),
 };
+
+export const createPostReport = {
+  createReport: oc
+    .route({
+      method: "POST",
+    })
+    .input(
+      postReportSchema.pick({
+        reportedPostId: true,
+        reason: true,
+        description: true,
+      })
+    )
+    .output(
+      z.object({
+        id: z.uuidv7(),
+      })
+    )
+    .errors({
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      BAD_REQUEST: {
+        data: z.object({
+          message: z.string(),
+          issues: z.array(z.any()).optional(),
+        }),
+      },
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+};
