@@ -92,12 +92,14 @@ export const postRouter = {
     }
   }),
 
-  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const posts = PostService.find({ createdBy: input.createdBy });
-    return posts.then(async (posts) => {
-      for (const post of posts) post.images = await hydrateR2Keys(post.images);
-      return posts;
-    });
+  getPosts: publicProcedure.posts.getPosts.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    const posts = await PostService.find({ createdBy: input.createdBy });
+    await Promise.all(
+      posts.map(async (post) => {
+        post.images = await hydrateR2Keys(post.images);
+      })
+    );
+    return posts;
   }),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
