@@ -28,7 +28,7 @@ export const postRouter = {
       }
 
       // moderate images
-      const imageURLs: string[] = [];
+      const imageKeys: string[] = [];
       for (const fileBuffer of fileBuffers) {
         const moderationLabels = await moderateImage(fileBuffer);
         const blockingLabel = getBlockingLabel(moderationLabels);
@@ -40,13 +40,13 @@ export const postRouter = {
       const id = uuidv7();
       for (let i = 0; i < fileBuffers.length; i++) {
         // biome-ignore lint/style/noNonNullAssertion: flow control
-        imageURLs.push(await uploadToR2(id, fileBuffers[i]!, i));
+        imageKeys.push(await uploadToR2(id, fileBuffers[i]!, i));
       }
 
       const postData = {
         _id: id,
         createdBy: context.user.email,
-        images: imageURLs,
+        images: imageKeys,
         ...input.postData,
       };
 
