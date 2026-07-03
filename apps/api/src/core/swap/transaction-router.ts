@@ -3,6 +3,7 @@ import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
+import { isTransactionParticipant } from "../messaging/messaging-router";
 import { MessageService } from "../messaging/messaging-service";
 import { insertNotification } from "../notification/notification-manager";
 import { PostService } from "../post/post-service";
@@ -201,17 +202,15 @@ export const transactionRouter = {
         });
       }
 
-      const isAuthorized = transaction.buyer.userId === context.user.id || transaction.seller.userId === context.user.id;
-
-      if (!isAuthorized) {
+      if (!isTransactionParticipant(transaction, context.user.id)) {
         throw FORBIDDEN({
           data: { message: "User not authorized to update this transaction." },
         });
       }
 
-      if (transaction.status === "completed" || transaction.status === "cancelled") {
+      if (transaction.status !== "ongoing") {
         throw UNPROCESSABLE_CONTENT({
-          data: { message: `A ${transaction.status} transaction cannot be updated.` },
+          data: { message: "An archived transaction cannot be updated." },
         });
       }
 
