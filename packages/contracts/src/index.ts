@@ -6,6 +6,8 @@ export * from "./contracts/http/post/post-contract";
 export * from "./contracts/http/post/post-schemas";
 export * from "./contracts/http/rating/rating-contract";
 export * from "./contracts/http/rating/rating-schemas";
+export * from "./contracts/http/reporting/report-contract";
+export * from "./contracts/http/reporting/report-schemas";
 export * from "./contracts/http/s3/s3-contract";
 export * from "./contracts/http/transaction/transaction-contract";
 export * from "./contracts/http/transaction/transaction-schemas";
