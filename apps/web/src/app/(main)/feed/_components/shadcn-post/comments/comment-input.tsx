@@ -11,7 +11,15 @@ import type z from "zod";
 import { authClient } from "../../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 
-export default function CommentInput({ postId }: { postId: z.infer<typeof postSchema.shape._id> }) {
+export default function CommentInput({
+  postId,
+  parentCommentId,
+  autoFocus,
+}: {
+  postId: z.infer<typeof postSchema.shape._id>;
+  parentCommentId?: z.infer<typeof postSchema.shape._id>;
+  autoFocus?: boolean;
+}) {
   const { data } = authClient.useSession();
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
@@ -36,7 +44,7 @@ export default function CommentInput({ postId }: { postId: z.infer<typeof postSc
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim() || addCommentMutation.isPending) return;
-    addCommentMutation.mutate({ parentPostId: postId, content: text.trim() });
+    addCommentMutation.mutate({ parentPostId: postId, content: text.trim(), parentCommentId });
   };
 
   return (
@@ -49,6 +57,7 @@ export default function CommentInput({ postId }: { postId: z.infer<typeof postSc
         placeholder="Add a comment..."
         value={text}
         onChange={(e) => setText(e.target.value)}
+        autoFocus={autoFocus}
       />
       <Button
         type="submit"
