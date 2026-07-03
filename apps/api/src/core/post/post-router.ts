@@ -3,7 +3,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserService } from "../users/user-service";
-import { convertToJpeg, getBlockingLabel, moderateImage, uploadToR2 } from "./image-processing";
+import { convertToJpeg, getBlockingLabel, hydrateR2Keys, moderateImage, uploadToR2 } from "./image-processing";
 import { PostService } from "./post-service";
 
 export const postRouter = {
@@ -17,6 +17,7 @@ export const postRouter = {
         });
       }
 
+      // convert images to jpeg if necessary
       const fileBuffers: Buffer[] = [];
       for (const image of input.images) {
         const fileBuffer = Buffer.from(await image.arrayBuffer());
@@ -26,7 +27,8 @@ export const postRouter = {
         else fileBuffers.push(await convertToJpeg(fileBuffer));
       }
 
-      const imageURLs: string[] = [];
+      // moderate images
+      const imageKeys: string[] = [];
       for (const fileBuffer of fileBuffers) {
         const moderationLabels = await moderateImage(fileBuffer);
         const blockingLabel = getBlockingLabel(moderationLabels);
@@ -38,13 +40,13 @@ export const postRouter = {
       const id = uuidv7();
       for (let i = 0; i < fileBuffers.length; i++) {
         // biome-ignore lint/style/noNonNullAssertion: flow control
-        imageURLs.push(await uploadToR2(id, fileBuffers[i]!, i));
+        imageKeys.push(await uploadToR2(id, fileBuffers[i]!, i));
       }
 
       const postData = {
         _id: id,
         createdBy: context.user.email,
-        images: imageURLs,
+        images: imageKeys,
         ...input.postData,
       };
 
@@ -90,13 +92,22 @@ export const postRouter = {
     }
   }),
 
-  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
-    PostService.find({ createdBy: input.createdBy })
-  ),
+  getPosts: publicProcedure.posts.getPosts.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    const posts = await PostService.find({ createdBy: input.createdBy });
+    await Promise.all(
+      posts.map(async (post) => {
+        post.images = await hydrateR2Keys(post.images);
+      })
+    );
+    return posts;
+  }),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostService.findOne({ _id: input._id }).lean();
     if (!post) throw NOT_FOUND({ message: `Post not found with id ${input._id}` });
+
+    // hydrate images
+    post.images = await hydrateR2Keys(post.images);
 
     return post;
   }),

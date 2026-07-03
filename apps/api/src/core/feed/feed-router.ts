@@ -1,6 +1,7 @@
 import { filterPosts, postSchema } from "@swapparel/contracts";
 import { z } from "zod";
 import { publicProcedure } from "../../libs/orpc-procedures";
+import { hydrateR2Keys } from "../post/image-processing";
 import { PostService } from "../post/post-service";
 
 export const feedRouter = {
@@ -29,6 +30,12 @@ export const feedRouter = {
 
     if (input.filters !== undefined) posts = filterPosts(posts, input.filters);
 
+    // hydrate images
+    await Promise.all(
+      posts.map(async (post) => {
+        post.images = await hydrateR2Keys(post.images);
+      })
+    );
     return {
       posts,
       nextAvailablePost: nextDoc?._id, // undefined if no more docs exist
