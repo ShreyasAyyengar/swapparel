@@ -34,6 +34,12 @@ export const messagingRouter = {
         });
       }
 
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot send messages for archived transactions." },
+        });
+      }
+
       const message: z.infer<typeof messageSchema> = {
         _id: uuidv7(),
         content: [input.message],
