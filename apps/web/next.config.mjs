@@ -1,3 +1,5 @@
+import { env } from "@swapparel/web/src/env.ts";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -7,6 +9,7 @@ const nextConfig = {
       { protocol: "https", hostname: "cdn.swapparel.app" },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: `${env.NEXT_PUBLIC_CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com` },
     ],
   },
 
