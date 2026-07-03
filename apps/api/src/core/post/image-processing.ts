@@ -27,7 +27,7 @@ export const uploadToR2 = async (postId: string, fileBuffer: Buffer, index: numb
 };
 
 export const hydrateR2Keys = async (keys: string[]) =>
-  Promise.all(keys.map(async (key) => R2.file(key).presign({ method: "GET", expiresIn: 60 * 60 })));
+  Promise.all(keys.map((key) => R2.file(key).presign({ method: "GET", expiresIn: 60 * 60 })));
 
 const rekognition = new RekognitionClient({
   region: "us-west-1",
