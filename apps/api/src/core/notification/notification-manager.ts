@@ -1,5 +1,5 @@
 import { MemoryPublisher } from "@orpc/experimental-publisher/memory";
-import type { notificationSchema } from "@swapparel/contracts";
+import { notificationSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { logger } from "../../libs/logger";
@@ -36,7 +36,7 @@ export async function insertNotification(params: {
   actorName?: string;
   actorAvatarUrl?: string;
   messagePreview?: string;
-}): Promise<void> {
+}) {
   const notification: z.infer<typeof notificationSchema> = {
     _id: uuidv7(),
     recipientId: params.recipientId,
@@ -48,6 +48,12 @@ export async function insertNotification(params: {
     read: false,
     createdAt: new Date(),
   };
+
+  const tryParse = notificationSchema.safeParse(notification);
+  if (!tryParse.success) {
+    logger.error({ error: tryParse.error, recipientId: params.recipientId }, "Failed to parse notification");
+    return;
+  }
 
   try {
     await NotificationService.insertOne(notification);
