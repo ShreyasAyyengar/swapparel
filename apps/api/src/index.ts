@@ -77,14 +77,14 @@ new Elysia()
           headers: ws.data.headers,
         });
 
-        await wsHandler.message(ws, msg, { context: session ?? { session: null, user: null } });
+        await wsHandler.message(ws.raw, msg, { context: session ?? { session: null, user: null } });
       } catch (error) {
         logger.error({ error }, "WebSocket message error");
       }
     },
 
     close(ws) {
-      wsHandler.close(ws);
+      wsHandler.close(ws.raw);
     },
   })
   .listen(
