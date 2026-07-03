@@ -17,24 +17,18 @@ export const transactionRouter = {
 
       const [sellerPost, buyerPosts] = await Promise.all([
         PostService.findById(input.sellerPostId).select("_id title createdBy").lean(),
-        PostService.find({ _id: { $in: input.buyerPostIds }, createdBy: buyer.email })
-          .select("_id title")
+
+        PostService.find({
+          _id: { $in: input.buyerPostIds },
+          createdBy: buyer.email,
+        })
+          .select("_id title createdBy")
           .lean(),
       ]);
 
       if (!sellerPost) {
         throw NOT_FOUND({
           data: { message: `Seller post ${input.sellerPostId} not found.` },
-        });
-      }
-      if (buyerPosts.length !== input.buyerPostIds.length) {
-        throw UNPROCESSABLE_CONTENT({
-          data: { message: "One or more buyer post IDs do not exist." },
-        });
-      }
-      if (buyerPosts.some((p) => p.createdBy !== buyer.email)) {
-        throw UNPROCESSABLE_CONTENT({
-          data: { message: "Buyer post must belong to the authenticated user." },
         });
       }
 
@@ -44,16 +38,16 @@ export const transactionRouter = {
         });
       }
 
+      if (buyerPosts.length !== input.buyerPostIds.length) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "One or more buyer post IDs do not exist or do not belong to the authenticated user." },
+        });
+      }
+
       const sellerUser = await UserService.findOne({ email: sellerPost.createdBy }).lean();
       if (!sellerUser) {
         throw NOT_FOUND({
           data: { message: "Seller user not found." },
-        });
-      }
-
-      if (buyerPosts.some((p) => p.createdBy !== buyer.email)) {
-        throw UNPROCESSABLE_CONTENT({
-          data: { message: "Buyer post must belong to the authenticated user." },
         });
       }
 
