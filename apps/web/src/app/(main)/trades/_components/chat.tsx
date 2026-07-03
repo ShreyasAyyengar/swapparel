@@ -47,7 +47,10 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   );
 
   useEffect(() => {
+    if (!transaction._id) return;
+
     refetch();
+    markAsReadMutation.mutate({ transactionId: transaction._id });
   }, [transaction._id]);
 
   useEffect(() => {
