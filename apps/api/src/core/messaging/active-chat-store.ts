@@ -18,6 +18,10 @@ export const activeChatStore = {
     if (chats.size === 0) activeChats.delete(userId);
   },
 
+  clearAllForUser(userId: uuidv7) {
+    activeChats.delete(userId);
+  },
+
   isActive(userId: uuidv7, transactionId: uuidv7): boolean {
     return activeChats.get(userId)?.has(transactionId) ?? false;
   },

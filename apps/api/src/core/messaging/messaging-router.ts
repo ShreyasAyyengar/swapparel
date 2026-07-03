@@ -215,8 +215,12 @@ export const messagingRouter = {
       lastEventId,
     });
 
-    for await (const payload of iterator) {
-      yield payload;
+    try {
+      for await (const payload of iterator) {
+        yield payload;
+      }
+    } finally {
+      activeChatStore.clearActive(context.user.id, input.transactionId);
     }
   }),
 
