@@ -337,6 +337,32 @@ export const transactionRouter = {
     }
   ),
 
+  cancelTransaction: protectedProcedure.transaction.cancelTransaction.handler(
+    async ({ input, context, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR, FORBIDDEN } }) => {
+      const transaction = await TransactionService.findById(input._id);
+      if (!transaction) {
+        throw NOT_FOUND({
+          data: { message: `Transaction ${input._id} not found.` },
+        });
+      }
+
+      if (!isTransactionParticipant(transaction, context.user.id)) {
+        throw FORBIDDEN({
+          data: { message: "User not authorized to cancel this transaction." },
+        });
+      }
+
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot cancel an archived transaction." },
+        });
+      }
+
+      await TransactionService.updateOne({ _id: input._id }, { $set: { status: "cancelled", updatedAt: new Date() } });
+      return { success: true };
+    }
+  ),
+
   getMessageHistory: protectedProcedure.transaction.getMessageHistory.handler(
     async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
       const transaction = await TransactionService.findById(input.transactionId);
