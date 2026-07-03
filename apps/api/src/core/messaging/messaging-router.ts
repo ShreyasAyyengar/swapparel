@@ -133,6 +133,11 @@ export const messagingRouter = {
         });
       }
 
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot send messages for archived transactions." },
+        });
+      }
       const existingMessage = await MessageService.findOne({
         _id: input.messageId,
         transactionId: input.transactionId,
