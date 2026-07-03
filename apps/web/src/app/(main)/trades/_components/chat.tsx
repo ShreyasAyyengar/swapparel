@@ -40,7 +40,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     webClientORPC.notifications.markAsReadByTransactionId.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: webClientORPC.notifications.getNotifications.queryOptions().queryKey,
+          queryKey: webClientORPC.notifications.key(),
         });
       },
     })
