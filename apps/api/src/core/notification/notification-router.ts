@@ -1,5 +1,5 @@
 import { protectedProcedure } from "../../libs/orpc-procedures";
-import { cleanupOldReadNotifications } from "./notification-manager";
+import { cleanupOldReadNotifications, notificationPublisher } from "./notification-manager";
 import { NotificationService } from "./notification-service";
 
 const DEFAULT_NOTIFICATION_LIMIT = 20;
@@ -26,6 +26,26 @@ export const notificationRouter = {
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         data: { message: `Failed to fetch notifications. ${error}` },
+      });
+    }
+  }),
+
+  streamNotifications: protectedProcedure.notifications.streamNotifications.handler(async function* ({
+    context,
+    signal,
+    errors: { INTERNAL_SERVER_ERROR },
+  }) {
+    const userId = context.user.id;
+
+    try {
+      const iterator = notificationPublisher.subscribe(userId, { signal });
+
+      for await (const payload of iterator) {
+        yield payload;
+      }
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: { message: `Failed to stream notifications. ${error}` },
       });
     }
   }),
