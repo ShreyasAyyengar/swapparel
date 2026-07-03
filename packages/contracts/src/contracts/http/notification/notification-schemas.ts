@@ -4,7 +4,7 @@ export const notificationTypeSchema = z.enum(["trade_request", "trade_completed"
 
 export const notificationSchema = z.object({
   _id: z.uuidv7(),
-  recipientId: z.string(),
+  recipientId: z.uuidv7(),
   type: notificationTypeSchema,
   transactionId: z.uuidv7().optional(),
   actorName: z.string().optional(),
