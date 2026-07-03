@@ -221,6 +221,12 @@ export const messagingRouter = {
       });
     }
 
+    if (transaction.status !== "ongoing") {
+      throw FORBIDDEN({
+        data: { message: "Cannot subscribe to messages for archived transactions." },
+      });
+    }
+
     const iterator = transactionChatPublisher.subscribe(input.transactionId, {
       signal,
       lastEventId,
@@ -253,6 +259,12 @@ export const messagingRouter = {
         });
       }
 
+      if (transaction.status !== "ongoing") {
+        throw FORBIDDEN({
+          data: { message: "Cannot subscribe to transaction data changes for archived transactions." },
+        });
+      }
+
       await transactionDataPublisher.publish(input.transactionId, {
         initiatedBy: context.user.id,
       });
@@ -279,6 +291,12 @@ export const messagingRouter = {
     if (!isTransactionParticipant(transaction, context.user.id)) {
       throw FORBIDDEN({
         data: { message: "User is not a participant in this transaction." },
+      });
+    }
+
+    if (transaction.status !== "ongoing") {
+      throw FORBIDDEN({
+        data: { message: "Cannot subscribe to transaction data changes for archived transactions." },
       });
     }
 
