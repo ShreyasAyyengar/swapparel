@@ -3,7 +3,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserService } from "../users/user-service";
-import { convertToJpeg, getBlockingLabel, moderateImage, uploadToR2 } from "./image-processing";
+import { convertToJpeg, getBlockingLabel, hydrateR2Keys, moderateImage, uploadToR2 } from "./image-processing";
 import { PostService } from "./post-service";
 
 export const postRouter = {
@@ -92,13 +92,20 @@ export const postRouter = {
     }
   }),
 
-  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) =>
-    PostService.find({ createdBy: input.createdBy })
-  ),
+  getPosts: publicProcedure.posts.getPosts.handler(({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
+    const posts = PostService.find({ createdBy: input.createdBy });
+    return posts.then(async (posts) => {
+      for (const post of posts) post.images = await hydrateR2Keys(post.images);
+      return posts;
+    });
+  }),
 
   getPost: publicProcedure.posts.getPost.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
     const post = await PostService.findOne({ _id: input._id }).lean();
     if (!post) throw NOT_FOUND({ message: `Post not found with id ${input._id}` });
+
+    // hydrate images
+    post.images = await hydrateR2Keys(post.images);
 
     return post;
   }),
