@@ -4,11 +4,10 @@ import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
 import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, ChevronDown, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { env } from "../../../../env";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 
 type Notification = ReturnType<typeof formatNotification>;
@@ -84,9 +83,6 @@ const notificationsInfiniteOptions = webClientORPC.notifications.getNotification
   initialPageParam: undefined as string | undefined,
 });
 
-const apiPath = env.NEXT_PUBLIC_NODE_ENV === "development" ? "/api" : "";
-const notificationStreamUrl = `${env.NEXT_PUBLIC_API_URL}${apiPath}/notifications/stream`;
-
 export default function NotificationButton() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -117,24 +113,13 @@ export default function NotificationButton() {
     })
   );
 
+  const { data: notificationData = [] } = useQuery(webClientORPC.notifications.streamNotifications.experimental_streamedOptions());
+
   useEffect(() => {
-    const eventSource = new EventSource(notificationStreamUrl, {
-      withCredentials: true,
+    queryClient.invalidateQueries({
+      queryKey: notificationsInfiniteOptions.queryKey,
     });
-
-    const handleNotification = () => {
-      queryClient.invalidateQueries({
-        queryKey: notificationsInfiniteOptions.queryKey,
-      });
-    };
-
-    eventSource.addEventListener("notification", handleNotification);
-
-    return () => {
-      eventSource.removeEventListener("notification", handleNotification);
-      eventSource.close();
-    };
-  }, [queryClient]);
+  }, [notificationData]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read && notification.transactionId) {
@@ -158,7 +143,7 @@ export default function NotificationButton() {
   };
 
   const handleMarkAllRead = async () => {
-    await markAllReadMutation.mutateAsync();
+    await markAllReadMutation.mutateAsync({});
   };
 
   // TODO: clicking on a "trade completed" notification should take the user to the exact trade conversation, not just the trades page.
