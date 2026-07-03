@@ -120,7 +120,7 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
 
           {selectedTrade && currentUserId && (
             // border-border border-t px-4 py-3
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2">
               <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
               <TradeCancelButton transaction={selectedTrade} />
             </div>
