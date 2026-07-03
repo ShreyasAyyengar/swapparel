@@ -89,8 +89,7 @@ export const messagingRouter = {
         });
 
         const otherParticipantId = transaction.buyer.userId === context.user.id ? transaction.seller.userId : transaction.buyer.userId;
-        const senderName =
-          transaction.buyer.userId === context.user.id ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
+        const senderName = transaction.buyer.userId === context.user.id ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
 
         const isRecipientViewing = activeChatStore.isActive(otherParticipantId, input.transactionId);
         if (!isRecipientViewing) {
@@ -221,31 +220,28 @@ export const messagingRouter = {
     }
   }),
 
-  setActiveChat: protectedWebSocketProcedure.messaging.setActiveChat.handler(
-    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
-      try {
-        activeChatStore.setActive(context.user.id, input.transactionId);
-        return { success: true };
-      } catch (error) {
-        throw INTERNAL_SERVER_ERROR({
-          data: { message: `Failed to set active chat. ${error}` },
-        });
-      }
-    }
-  ),
+  setActiveChat: protectedWebSocketProcedure.messaging.setActiveChat.handler(async ({ input, context, errors: { FORBIDDEN, NOT_FOUND } }) => {
+    const transaction = await TransactionService.findById(input.transactionId).select("buyer seller").lean();
 
-  clearActiveChat: protectedWebSocketProcedure.messaging.clearActiveChat.handler(
-    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
-      try {
-        activeChatStore.clearActive(context.user.id, input.transactionId);
-        return { success: true };
-      } catch (error) {
-        throw INTERNAL_SERVER_ERROR({
-          data: { message: `Failed to clear active chat. ${error}` },
-        });
-      }
+    if (!transaction) throw NOT_FOUND({ data: { message: `Transaction ${input.transactionId} not found.` } });
+
+    if (!isTransactionParticipant(transaction, context.user.id))
+      throw FORBIDDEN({ data: { message: "User is not a participant in this transaction." } });
+
+    activeChatStore.setActive(context.user.id, input.transactionId);
+    return { success: true };
+  }),
+
+  clearActiveChat: protectedWebSocketProcedure.messaging.clearActiveChat.handler(({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
+    try {
+      activeChatStore.clearActive(context.user.id, input.transactionId);
+      return { success: true };
+    } catch (error) {
+      throw INTERNAL_SERVER_ERROR({
+        data: { message: `Failed to clear active chat. ${error}` },
+      });
     }
-  ),
+  }),
 
   // Transaction Data (maybe move to different router)
   publishTransactionDataChange: protectedWebSocketProcedure.messaging.publishTransactionDataChange.handler(

@@ -81,7 +81,12 @@ export const messagingContract = {
     )
     .output(z.object({ success: z.boolean() }))
     .errors({
-      INTERNAL_SERVER_ERROR: {
+      FORBIDDEN: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      NOT_FOUND: {
         data: z.object({
           message: z.string(),
         }),
