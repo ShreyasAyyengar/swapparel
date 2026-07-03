@@ -1,5 +1,5 @@
 import { MemoryPublisher } from "@orpc/experimental-publisher/memory";
-import { notificationSchema } from "@swapparel/contracts";
+import type { notificationSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { logger } from "../../libs/logger";
@@ -16,18 +16,8 @@ export const notificationPublisher = new MemoryPublisher<Record<string, Notifica
   resumeRetentionSeconds: RESUME_RETENTION_SECONDS,
 });
 
-type InsertNotificationParams = {
-  recipientId: string;
-  type: z.infer<typeof notificationSchema.shape.type>;
-  transactionId?: string;
-  actorName?: string;
-  actorAvatarUrl?: string;
-  messagePreview?: string;
-};
-
 export async function cleanupOldReadNotifications(userId: string): Promise<void> {
-  const excessReadNotifications = await NotificationService
-    .find({ recipientId: userId, read: true })
+  const excessReadNotifications = await NotificationService.find({ recipientId: userId, read: true })
     .sort({ createdAt: -1 })
     .skip(20)
     .lean()
@@ -39,7 +29,14 @@ export async function cleanupOldReadNotifications(userId: string): Promise<void>
   }
 }
 
-export async function insertNotification(params: InsertNotificationParams): Promise<void> {
+export async function insertNotification(params: {
+  recipientId: string;
+  type: z.infer<typeof notificationSchema.shape.type>;
+  transactionId?: string;
+  actorName?: string;
+  actorAvatarUrl?: string;
+  messagePreview?: string;
+}): Promise<void> {
   const notification: z.infer<typeof notificationSchema> = {
     _id: uuidv7(),
     recipientId: params.recipientId,
