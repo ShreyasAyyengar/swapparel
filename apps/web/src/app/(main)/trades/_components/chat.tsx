@@ -1,8 +1,8 @@
 import { ATTACHMENT_MAX_IMAGE_SIZE_MB, BYTES_PER_MB, type messageSchema, type transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import {
-  Dropzone,
   DropZoneArea,
+  Dropzone,
   DropzoneFileList,
   DropzoneFileListItem,
   DropzoneMessage,
@@ -56,12 +56,16 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
   }, [chatHistory?.messages]);
 
   useEffect(() => {
-    let aborted = false;
+    const controller = new AbortController();
 
     const watchTransaction = async () => {
       try {
-        for await (const msg of await socketClientORPC.messaging.subscribeTransactionChat({ transactionId: transaction._id })) {
-          if (aborted) break;
+        const iterator = await socketClientORPC.messaging.subscribeTransactionChat(
+          { transactionId: transaction._id },
+          { signal: controller.signal }
+        );
+
+        for await (const msg of iterator) {
           setMessages((prevState) => [...prevState, msg.incomingMessage]);
         }
       } catch {
@@ -72,7 +76,7 @@ export default function Chat({ transaction }: { transaction: z.infer<typeof tran
     watchTransaction();
 
     return () => {
-      aborted = true;
+      controller.abort();
     };
   }, [transaction._id]);
 
