@@ -23,7 +23,7 @@ export const uploadToR2 = async (postId: string, fileBuffer: Buffer, index: numb
     })
   );
 
-  return `https://cdn.swapparel.app/${key}`;
+  return key;
 };
 
 const rekognition = new RekognitionClient({
