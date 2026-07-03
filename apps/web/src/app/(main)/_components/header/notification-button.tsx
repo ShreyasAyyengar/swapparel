@@ -155,7 +155,7 @@ export default function NotificationButton() {
             <>
               <BellRing width={37.5} height={37.5} />
               <Badge
-                className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px] leading-none"
+                className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-destructive! p-0 text-[12px] leading-none tracking-tighter"
                 variant="destructive"
               >
                 {unreadCount > MAX_UNREAD_BADGE_COUNT ? "9+" : unreadCount}
