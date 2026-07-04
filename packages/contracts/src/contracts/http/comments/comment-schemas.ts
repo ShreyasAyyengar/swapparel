@@ -12,6 +12,7 @@ export const commentSchema = z.object({
     "Author snapshot must be provided."
   ),
   parentCommentId: z.uuidv7().optional(),
+  replyCount: z.number().int().nonnegative().default(0),
   content: z.string().min(1, "Comment must be at least 1 character."),
   createdAt: z.coerce.date(),
 });

@@ -3,8 +3,11 @@
 import type { commentSchema } from "@swapparel/contracts";
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
 import { Button } from "@swapparel/shad-ui/components/button";
-import { useEffect, useState } from "react";
+import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import type z from "zod";
+import { webClientORPC } from "../../../../../../lib/orpc-web-client";
 import CommentInput from "./comment-input";
 
 type Comment = z.infer<typeof commentSchema>;
@@ -22,20 +25,10 @@ function relativeTime(date: Date | string): string {
 
 export default function CommentItem({
   comment,
-  replies,
-  isRepliesExpanded,
-  onToggleReplies,
-  isReplyInputActive,
-  onToggleReplyInput,
   postId,
   isReply = false,
 }: {
   comment: Comment;
-  replies: Comment[];
-  isRepliesExpanded: boolean;
-  onToggleReplies: () => void;
-  isReplyInputActive: boolean;
-  onToggleReplyInput: () => void;
   postId: string;
   isReply?: boolean;
 }) {
@@ -46,13 +39,19 @@ export default function CommentItem({
     .slice(0, 2)
     .toUpperCase();
 
-  const [visibleReplyCount, setVisibleReplyCount] = useState(5);
+  const [isRepliesExpanded, setIsRepliesExpanded] = useState(false);
+  const [isReplyInputActive, setIsReplyInputActive] = useState(false);
 
-  useEffect(() => {
-    if (!isRepliesExpanded) {
-      setVisibleReplyCount(5);
-    }
-  }, [isRepliesExpanded]);
+  const repliesQuery = useInfiniteQuery({
+    ...webClientORPC.comments.getReplies.infiniteOptions({
+      input: (pageParam) => ({ commentId: comment._id, limit: 5, cursor: pageParam ?? undefined }),
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      initialPageParam: undefined as string | undefined,
+    }),
+    enabled: isRepliesExpanded,
+  });
+
+  const replies = repliesQuery.data?.pages.flatMap((p) => p.replies) ?? [];
 
   return (
     <div className="flex gap-2">
@@ -66,13 +65,13 @@ export default function CommentItem({
         <div className="flex items-center gap-3 text-muted-foreground text-xs">
           <span>{relativeTime(comment.createdAt)}</span>
           {!isReply && (
-            <Button type="button" variant="link" onClick={onToggleReplyInput} className="h-auto cursor-pointer p-0 font-medium">
+            <Button type="button" variant="link" onClick={() => setIsReplyInputActive((v) => !v)} className="h-auto cursor-pointer p-0 font-medium">
               Reply
             </Button>
           )}
-          {replies.length > 0 && !isReply && (
-            <Button type="button" variant="link" onClick={onToggleReplies} className="h-auto cursor-pointer p-0 font-medium">
-              {isRepliesExpanded ? "Hide replies" : `Show ${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
+          {comment.replyCount > 0 && !isReply && (
+            <Button type="button" variant="link" onClick={() => setIsRepliesExpanded((v) => !v)} className="h-auto cursor-pointer p-0 font-medium">
+              {isRepliesExpanded ? "Hide replies" : `Show ${comment.replyCount} ${comment.replyCount === 1 ? "reply" : "replies"}`}
             </Button>
           )}
         </div>
@@ -83,35 +82,37 @@ export default function CommentItem({
               parentCommentId={comment._id}
               autoFocus
               onSuccess={() => {
-                if (!isRepliesExpanded) onToggleReplies();
-                onToggleReplyInput();
+                if (!isRepliesExpanded) setIsRepliesExpanded(true);
+                setIsReplyInputActive(false);
               }}
             />
           </div>
         )}
-        {isRepliesExpanded && replies.length > 0 && (
+        {isRepliesExpanded && (
           <div className="mt-2 ml-8 flex flex-col gap-3 border-l-2 pl-4">
-            {replies.slice(0, visibleReplyCount).map((reply) => (
+            {repliesQuery.isPending && (
+              <div className="flex flex-col gap-3">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-3/4" />
+              </div>
+            )}
+            {replies.map((reply) => (
               <CommentItem
                 key={reply._id}
                 comment={reply}
-                replies={[]}
-                isRepliesExpanded={false}
-                onToggleReplies={() => {}}
-                isReplyInputActive={false}
-                onToggleReplyInput={() => {}}
                 postId={postId}
                 isReply
               />
             ))}
-            {replies.length > visibleReplyCount && (
+            {repliesQuery.hasNextPage && (
               <Button
                 type="button"
                 variant="link"
                 className="h-auto cursor-pointer p-0 font-medium text-muted-foreground text-xs"
-                onClick={() => setVisibleReplyCount((prev) => prev + 5)}
+                onClick={() => repliesQuery.fetchNextPage()}
+                disabled={repliesQuery.isFetchingNextPage}
               >
-                Load more replies...
+                {repliesQuery.isFetchingNextPage ? "Loading..." : "Load more replies..."}
               </Button>
             )}
           </div>

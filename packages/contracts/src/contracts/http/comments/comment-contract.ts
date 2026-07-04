@@ -6,7 +6,6 @@ const DEFAULT_PAGINATION_LIMIT = 15;
 const MAX_PAGINATION_LIMIT = 25;
 
 export const commentContract = {
-  // TODO: add a parentCommentId filter to the getComments endpoint + use useInfiniteQuery to lazy-load replies separately.
   getComments: oc
     .route({
       method: "GET",
@@ -22,6 +21,42 @@ export const commentContract = {
     .output(
       z.object({
         comments: z.array(commentSchema),
+        nextCursor: z.uuidv7().optional(),
+      })
+    )
+    .errors({
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      FORBIDDEN: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+
+  getReplies: oc
+    .route({
+      method: "GET",
+      description: "Get replies for a comment",
+    })
+    .input(
+      z.object({
+        commentId: commentSchema.shape._id,
+        limit: z.coerce.number().min(1).max(MAX_PAGINATION_LIMIT).default(DEFAULT_PAGINATION_LIMIT),
+        cursor: z.uuidv7().optional(),
+      })
+    )
+    .output(
+      z.object({
+        replies: z.array(commentSchema),
         nextCursor: z.uuidv7().optional(),
       })
     )

@@ -7,7 +7,7 @@ import { CommentService } from "./comment-service";
 
 export const commentRouter = {
   getComments: publicProcedure.comments.getComments.handler(async ({ input, errors: { INTERNAL_SERVER_ERROR } }) => {
-    const query: Record<string, unknown> = { parentPostId: input.postId };
+    const query: Record<string, unknown> = { parentPostId: input.postId, parentCommentId: { $exists: false } };
 
     if (input.cursor) {
       query._id = { $lt: input.cursor };
@@ -30,6 +30,33 @@ export const commentRouter = {
     return {
       comments,
       nextCursor: hasMore ? comments.at(-1)?._id : undefined,
+    };
+  }),
+
+  getReplies: publicProcedure.comments.getReplies.handler(async ({ input, errors: { INTERNAL_SERVER_ERROR } }) => {
+    const query: Record<string, unknown> = { parentCommentId: input.commentId };
+
+    if (input.cursor) {
+      query._id = { $lt: input.cursor };
+    }
+
+    const replyDocs = await CommentService.find(query)
+      .sort({ createdAt: -1 })
+      .limit(input.limit + 1)
+      .lean();
+
+    if (!replyDocs) {
+      throw INTERNAL_SERVER_ERROR({
+        data: { message: `Failed to fetch replies for comment ${input.commentId}` },
+      });
+    }
+
+    const hasMore = replyDocs.length > input.limit;
+    const replies = hasMore ? replyDocs.slice(0, input.limit) : replyDocs;
+
+    return {
+      replies,
+      nextCursor: hasMore ? replies.at(-1)?._id : undefined,
     };
   }),
 
@@ -67,6 +94,10 @@ export const commentRouter = {
 
     try {
       await CommentService.insertOne(commentDoc);
+
+      if (input.parentCommentId) {
+        await CommentService.updateOne({ _id: input.parentCommentId }, { $inc: { replyCount: 1 } });
+      }
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         data: {

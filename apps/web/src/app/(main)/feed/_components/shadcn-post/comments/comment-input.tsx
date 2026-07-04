@@ -31,6 +31,7 @@ export default function CommentInput({
       onSuccess: () => {
         setText("");
         queryClient.invalidateQueries({ queryKey: [["comments", "getComments"]] });
+        queryClient.invalidateQueries({ queryKey: [["comments", "getReplies"]] });
         onSuccess?.();
       },
     })
