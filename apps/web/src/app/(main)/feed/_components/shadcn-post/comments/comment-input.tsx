@@ -26,6 +26,7 @@ export default function CommentInput({
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
 
+  // TODO: after adding comment, send a notification to post author and parent comment author (if applicable) that a new comment has been added
   const addCommentMutation = useMutation(
     webClientORPC.comments.addComment.mutationOptions({
       onSuccess: () => {
