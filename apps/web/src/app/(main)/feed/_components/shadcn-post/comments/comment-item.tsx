@@ -78,7 +78,15 @@ export default function CommentItem({
         </div>
         {isReplyInputActive && !isReply && (
           <div className="mt-2">
-            <CommentInput postId={postId} parentCommentId={comment._id} autoFocus />
+            <CommentInput
+              postId={postId}
+              parentCommentId={comment._id}
+              autoFocus
+              onSuccess={() => {
+                if (!isRepliesExpanded) onToggleReplies();
+                onToggleReplyInput();
+              }}
+            />
           </div>
         )}
         {isRepliesExpanded && replies.length > 0 && (

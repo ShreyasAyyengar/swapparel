@@ -1,10 +1,10 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { postSchema } from "@swapparel/contracts";
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Input } from "@swapparel/shad-ui/components/input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import type z from "zod";
@@ -15,10 +15,12 @@ export default function CommentInput({
   postId,
   parentCommentId,
   autoFocus,
+  onSuccess,
 }: {
   postId: z.infer<typeof postSchema.shape._id>;
   parentCommentId?: z.infer<typeof postSchema.shape._id>;
   autoFocus?: boolean;
+  onSuccess?: () => void;
 }) {
   const { data } = authClient.useSession();
   const [text, setText] = useState("");
@@ -29,8 +31,9 @@ export default function CommentInput({
       onSuccess: () => {
         setText("");
         queryClient.invalidateQueries({ queryKey: [["comments", "getComments"]] });
+        onSuccess?.();
       },
-    }),
+    })
   );
 
   const initials =
@@ -53,16 +56,11 @@ export default function CommentInput({
         <AvatarImage src={data?.user.image ?? undefined} />
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
-      <Input
-        placeholder="Add a comment..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        autoFocus={autoFocus}
-      />
+      <Input placeholder="Add a comment..." value={text} onChange={(e) => setText(e.target.value)} autoFocus={autoFocus} />
       <Button
         type="submit"
         size="icon"
-        className="size-8 shrink-0 rounded-lg cursor-pointer"
+        className="size-8 shrink-0 cursor-pointer rounded-lg"
         aria-label="Send comment"
         disabled={!text.trim() || addCommentMutation.isPending}
       >
