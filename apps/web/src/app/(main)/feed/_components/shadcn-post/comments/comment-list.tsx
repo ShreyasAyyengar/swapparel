@@ -12,14 +12,15 @@ import CommentItem from "./comment-item";
 type Comment = z.infer<typeof commentSchema>;
 
 export default function CommentList({ postId }: { postId: z.infer<typeof postSchema.shape._id> }) {
+  // TODO: Implement pagination for comments when there are more than 25 comments. For now, we just fetch the first 25 comments and display them.
   const { data, isPending, isError } = useQuery(
     webClientORPC.comments.getComments.queryOptions({
       input: { postId, limit: 25 },
     })
   );
 
-  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
-  const [activeReplyInput, setActiveReplyInput] = useState<string | null>(null);
+  const [expandedReplies, setExpandedReplies] = useState<Set<z.infer<typeof commentSchema.shape._id>>>(new Set());
+  const [activeReplyInput, setActiveReplyInput] = useState<z.infer<typeof commentSchema.shape._id> | null>(null);
 
   if (isPending) {
     return (
@@ -44,7 +45,7 @@ export default function CommentList({ postId }: { postId: z.infer<typeof postSch
 
   const allComments = data?.comments ?? [];
   const topLevelComments = allComments.filter((c) => !c.parentCommentId);
-  const replyMap = new Map<string, Comment[]>();
+  const replyMap = new Map<z.infer<typeof commentSchema.shape._id>, Comment[]>();
   for (const c of allComments) {
     if (c.parentCommentId) {
       const existing = replyMap.get(c.parentCommentId) ?? [];

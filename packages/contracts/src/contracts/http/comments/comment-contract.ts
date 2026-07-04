@@ -6,6 +6,7 @@ const DEFAULT_PAGINATION_LIMIT = 15;
 const MAX_PAGINATION_LIMIT = 25;
 
 export const commentContract = {
+  // TODO: add a parentCommentId filter to the getComments endpoint + use useInfiniteQuery to lazy-load replies separately.
   getComments: oc
     .route({
       method: "GET",
