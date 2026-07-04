@@ -4,10 +4,13 @@ import type { commentSchema } from "@swapparel/contracts";
 import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/components/avatar";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoaderCircle, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import type z from "zod";
+import { authClient } from "../../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import CommentDeleteDialog from "./comment-delete-dialog";
 import CommentInput from "./comment-input";
 
 type Comment = z.infer<typeof commentSchema>;
@@ -42,6 +45,18 @@ export default function CommentItem({
   const [isRepliesExpanded, setIsRepliesExpanded] = useState(false);
   const [isReplyInputActive, setIsReplyInputActive] = useState(false);
 
+  const { data: authData } = authClient.useSession();
+  const queryClient = useQueryClient();
+
+  const deleteCommentMutation = useMutation(
+    webClientORPC.comments.deleteComment.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [["comments", "getComments"]] });
+        queryClient.invalidateQueries({ queryKey: [["comments", "getReplies"]] });
+      },
+    })
+  );
+
   const repliesQuery = useInfiniteQuery({
     ...webClientORPC.comments.getReplies.infiniteOptions({
       input: (pageParam) => ({ commentId: comment._id, limit: 5, cursor: pageParam ?? undefined }),
@@ -59,7 +74,7 @@ export default function CommentItem({
         <AvatarImage src={comment.authorSnapshot.image} />
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
-      <div className="flex min-w-0 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="font-semibold text-sm">{comment.authorSnapshot.name}</p>
         <p className="text-sm">{comment.content}</p>
         <div className="flex items-center gap-3 text-muted-foreground text-xs">
@@ -118,6 +133,25 @@ export default function CommentItem({
           </div>
         )}
       </div>
+      {comment.authorId === authData?.user.id && (
+        <CommentDeleteDialog
+          onConfirm={() => deleteCommentMutation.mutate({ id: comment._id })}
+        >
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            className="size-7 self-center shrink-0 cursor-pointer"
+            disabled={deleteCommentMutation.isPending}
+          >
+            {deleteCommentMutation.isPending ? (
+              <LoaderCircle className="size-3.5 animate-spin" />
+            ) : (
+              <Trash2Icon className="size-3.5" />
+            )}
+          </Button>
+        </CommentDeleteDialog>
+      )}
     </div>
   );
 }
