@@ -15,7 +15,7 @@ import { cn } from "@swapparel/shad-ui/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../lib/auth-client";
 import sendToProfilePage from "../../../profile/_components/helper-functions";
@@ -36,6 +36,24 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
   const [canSeeButton, setCanSeeButton] = useState(false);
   const { data, isPending } = authClient.useSession();
+  const [descriptionHeight, setDescriptionHeight] = useState<number | undefined>(undefined);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const imageCallbackRef = (el: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = entry.contentRect.height;
+        console.log("image container height:", h);
+        setDescriptionHeight(h);
+      }
+    });
+    observer.observe(el);
+    observerRef.current = observer;
+  };
   const MAX_DESCRIPTION = 1000;
 
   useEffect(() => {
@@ -142,7 +160,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
 
                     return (
                       <CarouselItem key={`${postURL}-${index}`} className="basis-full">
-                        <div className="relative aspect-square w-full overflow-hidden rounded-md border border-border">
+                        <div ref={index === 0 ? imageCallbackRef : undefined} className="relative aspect-square w-full overflow-hidden rounded-md border border-border">
                           {!isLoaded && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="h-full w-full animate-pulse bg-muted" />
@@ -175,7 +193,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
                 </div>
               </Carousel>
             </div>
-            <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-accent p-2">
+            <div className="relative flex min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-accent p-2" style={{ height: descriptionHeight, maxHeight: "calc(90vh - 220px)" }}>
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
@@ -242,7 +260,13 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               )} */}
             </div>
           </div>
-          <TradeDialog postData={postData} canSeeButton={canSeeButton} onTradeSuccess={async () => { await setPostId(null); }} />
+          <TradeDialog
+            postData={postData}
+            canSeeButton={canSeeButton}
+            onTradeSuccess={async () => {
+              await setPostId(null);
+            }}
+          />
         </div>
       </DialogContent>
     </Dialog>
