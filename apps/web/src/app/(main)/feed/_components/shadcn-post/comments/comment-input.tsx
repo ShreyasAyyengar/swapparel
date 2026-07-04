@@ -28,7 +28,7 @@ export default function CommentInput({
     webClientORPC.comments.addComment.mutationOptions({
       onSuccess: () => {
         setText("");
-        queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+        queryClient.invalidateQueries({ queryKey: [["comments", "getComments"]] });
       },
     }),
   );
