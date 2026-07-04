@@ -110,7 +110,7 @@ export const commentRouter = {
   }),
 
   deleteComment: protectedProcedure.comments.deleteComment.handler(async ({ input, context, errors: { INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
-    const comment = await CommentService.findById(input.id).select({ _id: 1 });
+    const comment = await CommentService.findById(input.id).select({ _id: 1, parentPostId: 1, authorId: 1 });
 
     if (!comment) {
       throw NOT_FOUND({
