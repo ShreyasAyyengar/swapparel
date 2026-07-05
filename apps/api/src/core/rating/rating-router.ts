@@ -2,6 +2,7 @@ import { ratingSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { UserService } from "../users/user-service";
+import { TransactionService } from "../swap/transaction-service";
 import { RatingService } from "./rating-service";
 
 export const ratingRouter = {
@@ -19,9 +20,20 @@ export const ratingRouter = {
         throw NOT_FOUND({ data: { message: `User not found with email: ${ratedUserEmail}` } });
       }
 
-      const existingRating = await RatingService.findOne({ raterEmail, ratedUserEmail });
+      const transaction = await TransactionService.findOne({
+        _id: transactionId,
+        $or: [
+          { "buyer.emailSnapshot": raterEmail, "seller.emailSnapshot": ratedUserEmail },
+          { "buyer.emailSnapshot": ratedUserEmail, "seller.emailSnapshot": raterEmail },
+        ],
+      });
+      if (!transaction) {
+        throw NOT_FOUND({ data: { message: "No transaction found between you and this user" } });
+      }
+
+      const existingRating = await RatingService.findOne({ raterEmail, transactionId });
       if (existingRating) {
-        throw CONFLICT({ data: { message: "You have already rated this user" } });
+        throw CONFLICT({ data: { message: "You have already rated this transaction" } });
       }
 
       const _id = uuidv7();

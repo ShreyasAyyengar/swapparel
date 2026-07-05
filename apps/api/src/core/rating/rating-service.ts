@@ -15,6 +15,9 @@ const RatingSchemaMongoose = toMongooseSchema(
   })
 );
 
+// Index for per-transaction duplicate prevention
+RatingSchemaMongoose.index({ raterEmail: 1, transactionId: 1 }, { unique: true });
+
 // Infer the bland TypeScript type from Zod
 export interface IRatingSchemaMongoose extends z.infer<typeof RatingSchema> {}
 
