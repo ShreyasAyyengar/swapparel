@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@swapparel/shad-ui/componen
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Input } from "@swapparel/shad-ui/components/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Send } from "lucide-react";
+import { MessageSquarePlus } from "lucide-react";
 import { useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../../lib/auth-client";
@@ -66,7 +66,7 @@ export default function CommentInput({
         aria-label="Send comment"
         disabled={!text.trim() || addCommentMutation.isPending}
       >
-        <Send className="size-4" />
+        <MessageSquarePlus className="size-4" />
       </Button>
     </form>
   );
