@@ -75,8 +75,26 @@ export default function CommentItem({
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="font-semibold text-sm">{comment.authorSnapshot.name}</p>
-        <p className="text-sm">{comment.content}</p>
+        <div className="flex justify-between">
+          <div className="flex flex-col gap-0.5">
+            <p className="font-semibold text-sm">{comment.authorSnapshot.name}</p>
+            <p className="text-sm">{comment.content}</p>
+          </div>
+
+          {comment.authorId === authData?.user.id && (
+            <CommentDeleteDialog onConfirm={() => deleteCommentMutation.mutate({ id: comment._id })}>
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="size-7 shrink-0 cursor-pointer self-center"
+                disabled={deleteCommentMutation.isPending}
+              >
+                {deleteCommentMutation.isPending ? <LoaderCircle className="size-3.5 animate-spin" /> : <Trash2Icon className="size-3.5" />}
+              </Button>
+            </CommentDeleteDialog>
+          )}
+        </div>
         <div className="flex items-center gap-3 text-muted-foreground text-xs">
           <span>{relativeTime(comment.createdAt)}</span>
           {!isReply && (
@@ -133,25 +151,6 @@ export default function CommentItem({
           </div>
         )}
       </div>
-      {comment.authorId === authData?.user.id && (
-        <CommentDeleteDialog
-          onConfirm={() => deleteCommentMutation.mutate({ id: comment._id })}
-        >
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="size-7 self-center shrink-0 cursor-pointer"
-            disabled={deleteCommentMutation.isPending}
-          >
-            {deleteCommentMutation.isPending ? (
-              <LoaderCircle className="size-3.5 animate-spin" />
-            ) : (
-              <Trash2Icon className="size-3.5" />
-            )}
-          </Button>
-        </CommentDeleteDialog>
-      )}
     </div>
   );
 }
