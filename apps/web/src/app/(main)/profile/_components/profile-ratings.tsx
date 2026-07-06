@@ -40,7 +40,7 @@ export default function ProfileRatings({ userEmail }: { userEmail: string }) {
 
   return (
     <>
-      <button type="button" onClick={() => setDrawerOpen(true)} className="flex items-center gap-1.5 text-sm hover:underline">
+      <button type="button" onClick={() => setDrawerOpen(true)} className="flex cursor-pointer items-center gap-1.5 text-sm hover:underline">
         <Stars value={average} />
         <span className="font-medium">{average.toFixed(1)}</span>
         <span className="text-foreground">({ratingsData.totalRatings})</span>
