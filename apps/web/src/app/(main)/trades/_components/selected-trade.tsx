@@ -145,8 +145,10 @@ export default function SelectedTrade({
               <Pencil />
               Edit meetup
             </Button>
-          ) : (
+          ) : transaction.status === "completed" ? (
             <RatingDialog transaction={transaction} />
+          ) : (
+            <p className="text-muted-foreground text-sm">Trade was cancelled</p>
           )}
         </div>
         <div className="mt-3 grid gap-2 rounded-xl border border-border bg-muted/30 p-3 sm:grid-cols-2">

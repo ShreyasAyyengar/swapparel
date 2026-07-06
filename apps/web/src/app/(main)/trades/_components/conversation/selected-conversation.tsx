@@ -126,10 +126,18 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
           </Tabs>
 
           {selectedTrade && currentUserId && (
-            // border-border border-t px-4 py-3
-            <div className="flex gap-2">
-              <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
-              <TradeCancelButton transaction={selectedTrade} />
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <TradeCompletionButton transaction={selectedTrade} currentUserId={currentUserId} interlocutorId={userId} />
+                <TradeCancelButton transaction={selectedTrade} />
+              </div>
+              {(() => {
+                const isBuyer = selectedTrade.buyer.userId === currentUserId;
+                const otherConfirmed = isBuyer ? !!selectedTrade.sellerCompletionRequestedAt : !!selectedTrade.buyerCompletionRequestedAt;
+                return selectedTrade.status === "ongoing" && otherConfirmed ? (
+                  <p className="text-center text-muted-foreground text-xs">The other party has confirmed completion.</p>
+                ) : null;
+              })()}
             </div>
           )}
         </div>

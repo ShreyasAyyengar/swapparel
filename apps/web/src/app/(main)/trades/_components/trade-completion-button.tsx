@@ -62,9 +62,7 @@ export default function TradeCompletionButton({
   };
 
   return (
-    <>
-      {error && <p className="mb-2 text-destructive text-sm">{error}</p>}
-
+    <div className="flex flex-col gap-2">
       {iConfirmed && !otherConfirmed && (
         <TradeCompletionDialog onConfirm={handleToggleCompletion}>
           <Button type="button" variant="outline" disabled={toggleMutation.isPending}>
@@ -81,9 +79,7 @@ export default function TradeCompletionButton({
         </Button>
       )}
 
-      {!iConfirmed && otherConfirmed && (
-        <p className="mt-2 text-center text-muted-foreground text-xs">The other party has confirmed completion.</p>
-      )}
-    </>
+      {error && <p className="text-destructive text-sm">{error}</p>}
+    </div>
   );
 }
