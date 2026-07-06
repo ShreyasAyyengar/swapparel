@@ -10,6 +10,7 @@ import { useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import { useCommentContext } from "./comment-context";
 import CommentDeleteDialog from "./comment-delete-dialog";
 import CommentInput from "./comment-input";
 
@@ -27,6 +28,8 @@ function relativeTime(date: Date | string): string {
 }
 
 export default function CommentItem({ comment, postId, isReply = false }: { comment: Comment; postId: string; isReply?: boolean }) {
+  const { post } = useCommentContext();
+
   const initials = comment.authorSnapshot.name
     .split(" ")
     .map((p) => p[0])
@@ -59,7 +62,7 @@ export default function CommentItem({ comment, postId, isReply = false }: { comm
   });
 
   const replies = repliesQuery.data?.pages.flatMap((p) => p.replies) ?? [];
-  const canDelete = comment.authorId === authData?.user.id; // TODo
+  const canDelete = comment.authorId === authData?.user.id || post.createdBy === authData?.user?.email;
 
   return (
     <div className="flex gap-2">
@@ -74,13 +77,13 @@ export default function CommentItem({ comment, postId, isReply = false }: { comm
             <p className="text-sm">{comment.content}</p>
           </div>
 
-          {comment.authorId === authData?.user.id && (
+          {canDelete && (
             <CommentDeleteDialog onConfirm={() => deleteCommentMutation.mutate({ id: comment._id })}>
               <Button
                 type="button"
                 variant="destructive"
                 size="icon"
-                className="size-7 shrink-0 cursor-pointer self-center"
+                className="size-7 shrink-0 cursor-pointer self-center not-[&:hover]:bg-transparent!"
                 disabled={deleteCommentMutation.isPending}
               >
                 {deleteCommentMutation.isPending ? <LoaderCircle className="size-3.5 animate-spin" /> : <Trash2Icon className="size-3.5" />}
@@ -114,7 +117,6 @@ export default function CommentItem({ comment, postId, isReply = false }: { comm
         {isReplyInputActive && !isReply && (
           <div className="mt-2">
             <CommentInput
-              postId={postId}
               parentCommentId={comment._id}
               autoFocus
               onSuccess={() => {
