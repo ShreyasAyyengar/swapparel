@@ -139,7 +139,7 @@ export const commentRouter = {
     }
 
     // For security reasons this masks the FORBIDDEN error
-    if (comment.authorId !== context.user.id || post.createdBy !== context.user.id) {
+    if (comment.authorId !== context.user.id && post.createdBy !== context.user.email) {
       throw NOT_FOUND({
         data: {
           message: `Comment with id ${input.id} not found.`,
