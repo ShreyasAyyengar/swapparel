@@ -45,7 +45,9 @@ export default function ProfileRatings({ userEmail }: { userEmail: string }) {
     })
   );
 
-  if (!ratingsData || ratingsData.totalRatings === 0) return null;
+  if (!ratingsData || ratingsData.totalRatings === 0) {
+    return <p className="text-foreground text-xs">No ratings yet</p>;
+  }
 
   const average = ratingsData.averageRating!;
 
@@ -58,7 +60,7 @@ export default function ProfileRatings({ userEmail }: { userEmail: string }) {
       >
         <Stars value={average} />
         <span className="font-medium">{average.toFixed(1)}</span>
-        <span className="text-muted-foreground">({ratingsData.totalRatings})</span>
+        <span className="text-foreground">({ratingsData.totalRatings})</span>
       </button>
 
       <Drawer direction="right" open={drawerOpen} onOpenChange={setDrawerOpen}>
