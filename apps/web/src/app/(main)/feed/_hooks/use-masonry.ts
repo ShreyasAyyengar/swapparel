@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export function useMasonry({ gap = 16 }: { gap: number }) {
-  // TODO<Alex>: store latest children's position in a column and then place every new children under old children. Once that specific child is placed, fade in the new child. This prevents group fade ins and prolonged opacity-0's
+  // TODO<Alex>: store latest children's position in a column and incrementally place only new children, skipping already-positioned children entirely. This prevents O(n) re-layout on every image load as the feed grows long.
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
   const layoutRequestRef = useRef<number | null>(null);
