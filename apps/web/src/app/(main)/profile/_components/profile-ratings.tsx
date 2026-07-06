@@ -1,34 +1,21 @@
 "use client";
 
+import { Button } from "@swapparel/shad-ui/components/button";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@swapparel/shad-ui/components/drawer";
+import { cn } from "@swapparel/shad-ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import sendToProfilePage from "./helper-functions";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@swapparel/shad-ui/components/drawer";
-import { Button } from "@swapparel/shad-ui/components/button";
-import { cn } from "@swapparel/shad-ui/lib/utils";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
+import sendToProfilePage from "./helper-functions";
 
 function Stars({ value, size = "sm" }: { value: number; size?: "sm" | "xs" }) {
   const sizeClass = size === "xs" ? "size-3" : "size-5";
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={cn(
-            sizeClass,
-            star <= Math.round(value) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
-          )}
-        />
+        <Star key={star} className={cn(sizeClass, star <= Math.round(value) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
       ))}
     </div>
   );
@@ -53,11 +40,7 @@ export default function ProfileRatings({ userEmail }: { userEmail: string }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setDrawerOpen(true)}
-        className="flex items-center gap-1.5 text-sm hover:underline"
-      >
+      <button type="button" onClick={() => setDrawerOpen(true)} className="flex items-center gap-1.5 text-sm hover:underline">
         <Stars value={average} />
         <span className="font-medium">{average.toFixed(1)}</span>
         <span className="text-foreground">({ratingsData.totalRatings})</span>
@@ -80,16 +63,14 @@ export default function ProfileRatings({ userEmail }: { userEmail: string }) {
                   <Stars value={rating.value} size="xs" />
                   <button
                     type="button"
-                    className="cursor-pointer text-xs text-muted-foreground hover:underline"
+                    className="cursor-pointer text-muted-foreground text-xs hover:underline"
                     onClick={() => sendToProfilePage(rating.raterEmail, router)}
                   >
                     {rating.raterEmail}
                   </button>
                 </div>
                 {rating.comment && <p className="mt-1 text-sm">{rating.comment}</p>}
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {new Date(rating.createdAt).toLocaleDateString()}
-                </p>
+                <p className="mt-0.5 text-muted-foreground text-xs">{new Date(rating.createdAt).toLocaleDateString()}</p>
               </div>
             ))}
           </div>
