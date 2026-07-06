@@ -94,4 +94,54 @@ export const ratingRouter = {
       throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to fetch ratings. ${error}` } });
     }
   }),
+
+  deleteRating: protectedProcedure.ratings.deleteRating.handler(
+    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, INTERNAL_SERVER_ERROR } }) => {
+      const rating = await RatingService.findOne({ _id: input.id });
+      if (!rating) {
+        throw NOT_FOUND({ data: { message: `Rating not found with id ${input.id}` } });
+      }
+      if ((rating as any).raterEmail !== context.user.email) {
+        throw FORBIDDEN({ data: { message: "You can only delete your own rating" } });
+      }
+
+      try {
+        await RatingService.deleteOne({ _id: input.id });
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to delete rating. ${error}` } });
+      }
+    }
+  ),
+
+  editRating: protectedProcedure.ratings.editRating.handler(
+    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
+      const rating = await RatingService.findOne({ _id: input._id });
+      if (!rating) {
+        throw NOT_FOUND({ data: { message: `Rating not found with id ${input._id}` } });
+      }
+      if ((rating as any).raterEmail !== context.user.email) {
+        throw FORBIDDEN({ data: { message: "You can only edit your own rating" } });
+      }
+
+      try {
+        const $set: Record<string, unknown> = {};
+        if (input.value !== undefined) $set.value = input.value;
+        if (input.comment !== undefined && input.comment !== null) $set.comment = input.comment;
+
+        if (input.comment === null) {
+          await RatingService.updateOne(
+            { _id: input._id },
+            { $set, $unset: { comment: "" } }
+          );
+        } else {
+          await RatingService.updateOne({ _id: input._id }, { $set });
+        }
+
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to edit rating. ${error}` } });
+      }
+    }
+  ),
 };
