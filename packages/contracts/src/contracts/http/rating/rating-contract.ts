@@ -122,10 +122,7 @@ export const ratingContract = {
           value: z.number().min(1).max(5).optional(),
           comment: z.string().max(500).optional().nullable(),
         })
-        .refine(
-          ({ value, comment }) => value !== undefined || comment !== undefined,
-          { message: "At least one field must be provided." }
-        )
+        .refine(({ value, comment }) => value !== undefined || comment !== undefined, { message: "At least one field must be provided." })
     )
     .output(z.object({ success: z.boolean() }))
     .errors({
@@ -150,4 +147,69 @@ export const ratingContract = {
         }),
       },
     }),
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
