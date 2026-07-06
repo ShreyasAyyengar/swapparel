@@ -3,7 +3,7 @@ import { z } from "zod";
 export const commentSchema = z.object({
   _id: z.uuidv7(),
   parentPostId: z.uuidv7(),
-  authorId: z.string(),
+  authorId: z.uuidv7(),
   authorSnapshot: z.object(
     {
       name: z.string().min(1, "Author name must be provided."),
@@ -12,6 +12,7 @@ export const commentSchema = z.object({
     "Author snapshot must be provided."
   ),
   parentCommentId: z.uuidv7().optional(),
+  replyCount: z.number().int().nonnegative().default(0),
   content: z.string().min(1, "Comment must be at least 1 character."),
   createdAt: z.coerce.date(),
 });

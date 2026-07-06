@@ -15,10 +15,12 @@ import { cn } from "@swapparel/shad-ui/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../lib/auth-client";
 import sendToProfilePage from "../../../profile/_components/helper-functions";
+import CommentBox from "./comments/comment-box";
+import { CommentContext } from "./comments/comment-context";
 import TradeDialog from "./trade-dialog";
 
 type PostDialogProps = {
@@ -35,6 +37,23 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
   const [canSeeButton, setCanSeeButton] = useState(false);
   const { data, isPending } = authClient.useSession();
+  const [descriptionHeight, setDescriptionHeight] = useState<number | undefined>(undefined);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const imageCallbackRef = (el: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = entry.contentRect.height;
+        setDescriptionHeight(h);
+      }
+    });
+    observer.observe(el);
+    observerRef.current = observer;
+  };
   const MAX_DESCRIPTION = 1000;
 
   useEffect(() => {
@@ -141,7 +160,10 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
 
                     return (
                       <CarouselItem key={`${postURL}-${index}`} className="basis-full">
-                        <div className="relative aspect-square w-full overflow-hidden rounded-md border border-border">
+                        <div
+                          ref={index === 0 ? imageCallbackRef : undefined}
+                          className="relative aspect-square w-full overflow-hidden rounded-md border border-border"
+                        >
                           {!isLoaded && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="h-full w-full animate-pulse bg-muted" />
@@ -174,7 +196,10 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
                 </div>
               </Carousel>
             </div>
-            <div className="relative flex max-h-[calc(90vh-220px)] min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-accent p-2">
+            <div
+              className="relative flex min-h-0 flex-col overflow-auto rounded-md border-2 border-border bg-accent p-2"
+              style={{ height: descriptionHeight, maxHeight: "calc(90vh - 220px)" }}
+            >
               <button
                 type="button"
                 className="cursor-pointer text-left font-bold hover:underline"
@@ -231,16 +256,18 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
                 ))}
               </p>
               <hr className="my-2 border-border border-t-2" />
-              {/* <p className="font-bold">Comments:</p>
-              {postData.comments.length > 0 && <CommentInput sentence="Add a new comment!" post={postData} />}
-              {postData.comments.length < 1 ? (
-                <CommentInput sentence="Be the first to comment!" post={postData} />
-              ) : (
-                <Comments post={postData} />
-              )} */}
+              <CommentContext.Provider value={{ post: postData }}>
+                <CommentBox />
+              </CommentContext.Provider>
             </div>
           </div>
-          <TradeDialog postData={postData} canSeeButton={canSeeButton} onTradeSuccess={async () => { await setPostId(null); }} />
+          <TradeDialog
+            postData={postData}
+            canSeeButton={canSeeButton}
+            onTradeSuccess={async () => {
+              await setPostId(null);
+            }}
+          />
         </div>
       </DialogContent>
     </Dialog>
