@@ -26,15 +26,7 @@ function relativeTime(date: Date | string): string {
   return `${days}d ago`;
 }
 
-export default function CommentItem({
-  comment,
-  postId,
-  isReply = false,
-}: {
-  comment: Comment;
-  postId: string;
-  isReply?: boolean;
-}) {
+export default function CommentItem({ comment, postId, isReply = false }: { comment: Comment; postId: string; isReply?: boolean }) {
   const initials = comment.authorSnapshot.name
     .split(" ")
     .map((p) => p[0])
@@ -98,12 +90,22 @@ export default function CommentItem({
         <div className="flex items-center gap-3 text-muted-foreground text-xs">
           <span>{relativeTime(comment.createdAt)}</span>
           {!isReply && (
-            <Button type="button" variant="link" onClick={() => setIsReplyInputActive((v) => !v)} className="h-auto cursor-pointer p-0 font-medium">
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => setIsReplyInputActive((v) => !v)}
+              className="h-auto cursor-pointer p-0 font-medium"
+            >
               Reply
             </Button>
           )}
           {comment.replyCount > 0 && !isReply && (
-            <Button type="button" variant="link" onClick={() => setIsRepliesExpanded((v) => !v)} className="h-auto cursor-pointer p-0 font-medium">
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => setIsRepliesExpanded((v) => !v)}
+              className="h-auto cursor-pointer p-0 font-medium"
+            >
               {isRepliesExpanded ? "Hide replies" : `Show ${comment.replyCount} ${comment.replyCount === 1 ? "reply" : "replies"}`}
             </Button>
           )}
@@ -130,12 +132,7 @@ export default function CommentItem({
               </div>
             )}
             {replies.map((reply) => (
-              <CommentItem
-                key={reply._id}
-                comment={reply}
-                postId={postId}
-                isReply
-              />
+              <CommentItem key={reply._id} comment={reply} postId={postId} isReply />
             ))}
             {repliesQuery.hasNextPage && (
               <Button
