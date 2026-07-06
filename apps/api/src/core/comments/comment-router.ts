@@ -3,6 +3,7 @@ import { v7 as uuidv7 } from "uuid";
 import type { z } from "zod";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { PostService } from "../post/post-service";
+import { UserService } from "../users/user-service";
 import { CommentService } from "./comment-service";
 
 export const commentRouter = {
@@ -110,8 +111,16 @@ export const commentRouter = {
   }),
 
   deleteComment: protectedProcedure.comments.deleteComment.handler(async ({ input, context, errors: { INTERNAL_SERVER_ERROR, NOT_FOUND } }) => {
-    const comment = await CommentService.findById(input.id).select({ _id: 1, parentPostId: 1, authorId: 1 });
+    const contextUser = await UserService.findById(context.user.id).select({ email: 1 });
+    if (!contextUser) {
+      throw NOT_FOUND({
+        data: {
+          message: `User with id ${context.user.id} not found.`,
+        },
+      });
+    }
 
+    const comment = await CommentService.findById(input.id).select({ _id: 1, parentPostId: 1, authorId: 1 });
     if (!comment) {
       throw NOT_FOUND({
         data: {
@@ -120,8 +129,7 @@ export const commentRouter = {
       });
     }
 
-    const post = await PostService.findById(comment.parentPostId).select({ _id: 1 });
-
+    const post = await PostService.findById(comment.parentPostId).select({ _id: 1, createdBy: 1 });
     if (!post) {
       throw NOT_FOUND({
         data: {
@@ -130,8 +138,8 @@ export const commentRouter = {
       });
     }
 
-    //For security reason this masks the FORBIDDEN error
-    if (comment.authorId !== context.user.id) {
+    // For security reasons this masks the FORBIDDEN error
+    if (comment.authorId !== context.user.id || post.createdBy !== context.user.id) {
       throw NOT_FOUND({
         data: {
           message: `Comment with id ${input.id} not found.`,
@@ -140,8 +148,8 @@ export const commentRouter = {
     }
 
     try {
-      const deleteResult = await CommentService.deleteOne({ _id: input.id });
-      return { success: deleteResult.deletedCount === 1 };
+      const deleteResult = await CommentService.deleteMany({ $or: [{ _id: input.id }, { parentCommentId: input.id }] });
+      return { success: deleteResult.deletedCount > 0 };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         data: {
