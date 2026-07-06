@@ -3,6 +3,17 @@
 import type { transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@swapparel/shad-ui/components/alert-dialog";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -15,8 +26,8 @@ import {
 import { Textarea } from "@swapparel/shad-ui/components/textarea";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LoaderCircle, Star } from "lucide-react";
-import { useState } from "react";
+import { LoaderCircle, Star, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { z } from "zod";
 import { authClient } from "../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
@@ -53,20 +64,41 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
   const { data: existingRating, isLoading: isCheckingRating } = useQuery(
     webClientORPC.ratings.getMyRatingForTransaction.queryOptions({
       input: { transactionId: transaction._id },
-      enabled: open && !!myEmail,
+      enabled: !!myEmail,
     })
   );
+
+  const isAlreadyRated = !!existingRating;
+
+  useEffect(() => {
+    if (existingRating) {
+      setRating(existingRating.value);
+      setComment(existingRating.comment ?? "");
+    } else {
+      setRating(0);
+      setComment("");
+    }
+  }, [existingRating]);
+
+  const invalidateRatingQueries = () => {
+    const queryKey = webClientORPC.ratings.getMyRatingForTransaction.queryOptions({
+      input: { transactionId: transaction._id },
+    }).queryKey;
+    queryClient.invalidateQueries({ queryKey });
+    if (ratedUserEmail) {
+      const userRatingsKey = webClientORPC.ratings.getRatingsForUser.queryOptions({
+        input: { ratedUserEmail },
+      }).queryKey;
+      queryClient.invalidateQueries({ queryKey: userRatingsKey });
+    }
+  };
 
   const submitMutation = useMutation(
     webClientORPC.ratings.submitRating.mutationOptions({
       onSuccess: () => {
         setErrorMessage("");
         setOpen(false);
-        queryClient.invalidateQueries({
-          queryKey: webClientORPC.ratings.getMyRatingForTransaction.queryOptions({
-            input: { transactionId: transaction._id },
-          }).queryKey,
-        });
+        invalidateRatingQueries();
       },
       onError: (err) => {
         setErrorMessage(
@@ -78,10 +110,41 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
     })
   );
 
+  const editMutation = useMutation(
+    webClientORPC.ratings.editRating.mutationOptions({
+      onSuccess: () => {
+        setErrorMessage("");
+        setOpen(false);
+        invalidateRatingQueries();
+      },
+      onError: () => {
+        setErrorMessage("The rating could not be saved. Please try again.");
+      },
+    })
+  );
+
+  const deleteMutation = useMutation(
+    webClientORPC.ratings.deleteRating.mutationOptions({
+      onSuccess: () => {
+        setErrorMessage("");
+        setOpen(false);
+        invalidateRatingQueries();
+      },
+      onError: () => {
+        setErrorMessage("The rating could not be deleted. Please try again.");
+      },
+    })
+  );
+
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen && !submitMutation.isPending) {
-      setRating(0);
-      setComment("");
+    if (!nextOpen && !submitMutation.isPending && !editMutation.isPending && !deleteMutation.isPending) {
+      if (existingRating) {
+        setRating(existingRating.value);
+        setComment(existingRating.comment ?? "");
+      } else {
+        setRating(0);
+        setComment("");
+      }
       setErrorMessage("");
     }
     setOpen(nextOpen);
@@ -97,22 +160,38 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
     });
   };
 
-  const isAlreadyRated = !!existingRating;
+  const handleSave = () => {
+    if (!existingRating) return;
+    editMutation.mutate({
+      _id: existingRating._id,
+      value: rating,
+      comment: comment.trim() || null,
+    });
+  };
+
+  const handleDelete = () => {
+    if (!existingRating) return;
+    deleteMutation.mutate({ id: existingRating._id });
+  };
+
   const canSubmit = rating > 0 && !isAlreadyRated;
+  const isPending = submitMutation.isPending || editMutation.isPending || deleteMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm">
           <Star />
-          Rate trade
+          {isAlreadyRated ? "Edit rating" : "Rate trade"}
         </Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Rate your trade</DialogTitle>
-          <DialogDescription>Share your experience trading with the other party.</DialogDescription>
+          <DialogTitle>{isAlreadyRated ? "Edit your rating" : "Rate your trade"}</DialogTitle>
+          <DialogDescription>
+            {isAlreadyRated ? "Update your rating and feedback." : "Share your experience trading with the other party."}
+          </DialogDescription>
         </DialogHeader>
 
         {isCheckingRating ? (
@@ -124,11 +203,10 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
             <div className="space-y-2">
               <p className="font-medium text-sm">Rating</p>
               <StarRating
-                value={isAlreadyRated ? existingRating.value : rating}
-                onChange={isAlreadyRated ? undefined : setRating}
-                readOnly={isAlreadyRated}
+                value={rating}
+                onChange={setRating}
+                readOnly={false}
               />
-              {isAlreadyRated && <p className="text-muted-foreground text-xs">You already rated this trade.</p>}
             </div>
 
             <div className="space-y-2">
@@ -139,10 +217,8 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
                 id="rating-comment"
                 placeholder="Tell others about your experience..."
                 maxLength={500}
-                value={isAlreadyRated ? (existingRating.comment ?? "") : comment}
+                value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                readOnly={isAlreadyRated}
-                disabled={isAlreadyRated}
               />
               <p className="text-right text-muted-foreground text-xs">{comment.length}/500</p>
             </div>
@@ -151,18 +227,50 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
           </div>
         )}
 
-        <DialogFooter>
-          <DialogClose>
-            <Button type="button" variant="outline" disabled={submitMutation.isPending}>
-              {isAlreadyRated ? "Close" : "Cancel"}
+        <DialogFooter className="sm:justify-between">
+          <DialogClose asChild>
+            <Button type="button" variant="outline" disabled={isPending}>
+              Close
             </Button>
           </DialogClose>
-          {!isAlreadyRated && (
-            <Button type="button" onClick={handleSubmit} disabled={!canSubmit || submitMutation.isPending}>
-              {submitMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Star />}
-              Submit rating
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {isAlreadyRated && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" disabled={isPending}>
+                    <Trash2 />
+                    Delete rating
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete rating</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete your rating? This cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>
+                      {deleteMutation.isPending ? <LoaderCircle className="animate-spin" /> : null}
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {isAlreadyRated ? (
+              <Button type="button" onClick={handleSave} disabled={isPending || !rating}>
+                {editMutation.isPending ? <LoaderCircle className="animate-spin" /> : null}
+                Save
+              </Button>
+            ) : (
+              <Button type="button" onClick={handleSubmit} disabled={!canSubmit || isPending}>
+                {submitMutation.isPending ? <LoaderCircle className="animate-spin" /> : <Star />}
+                Submit rating
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
