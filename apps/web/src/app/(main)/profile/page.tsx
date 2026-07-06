@@ -12,6 +12,7 @@ import PostDialog from "../feed/_components/shadcn-post/post-dialog";
 import CreatePostLayer from "../feed/_create/create-post-layer";
 import LoadingProfile from "./_components/loading-profile";
 import NoProfile from "./_components/no-profile";
+import ProfileRatings from "./_components/profile-ratings";
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);
@@ -73,6 +74,7 @@ export default function Page() {
             <div className="flex flex-col items-center gap-2 md:items-end">
               <p className="text-center font-bold text-2xl md:text-end">{profileData?.email ?? profileQuery}</p>
               <p>{posts?.length ?? "No"} posts</p>
+              {profileData?.email && <ProfileRatings userEmail={profileData.email} />}
             </div>
           </>
         )}

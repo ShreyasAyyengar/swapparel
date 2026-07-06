@@ -3,7 +3,9 @@ import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@swapparel/shad-ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight, MessagesSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { authClient } from "../../../../../lib/auth-client";
+import sendToProfilePage from "../../../profile/_components/helper-functions";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import { useActiveTradeStore } from "../../_hooks/use-active-trade-store";
 import TradeCancelButton from "../buttons/trade-cancel-button";
@@ -14,6 +16,7 @@ import TradeCompletionButton from "../trade-completion-button";
 export default function SelectedConversation({ userId, selectedTradeId }: { userId: string; selectedTradeId?: string }) {
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user.id;
+  const router = useRouter();
 
   const { data: user } = useQuery(
     webClientORPC.users.getUser.queryOptions({
@@ -55,7 +58,11 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
       </div>
 
       <aside className="flex min-h-0 flex-col border-border border-t bg-muted/10 lg:border-t-0 lg:border-l">
-        <div className="flex items-center gap-3 border-border border-b px-4 py-4">
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center gap-3 border-border border-b px-4 py-4 text-left hover:bg-muted/30"
+          onClick={() => user?.email && sendToProfilePage(user.email, router)}
+        >
           <Avatar className="size-10">
             <AvatarImage src={user?.image} />
             <AvatarFallback>{initials}</AvatarFallback>
@@ -66,7 +73,7 @@ export default function SelectedConversation({ userId, selectedTradeId }: { user
               {activeTransactions?.length ?? 0} active {(activeTransactions?.length ?? 0) === 1 ? "trade" : "trades"}
             </p>
           </div>
-        </div>
+        </button>
 
         <div className="flex min-h-0 flex-1 flex-col p-3">
           <Tabs defaultValue="active" className="flex min-h-0 flex-1 flex-col">
