@@ -10,18 +10,18 @@ import { useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import { useCommentContext } from "./comment-context";
 
 export default function CommentInput({
-  postId,
   parentCommentId,
   autoFocus,
   onSuccess,
 }: {
-  postId: z.infer<typeof postSchema.shape._id>;
   parentCommentId?: z.infer<typeof postSchema.shape._id>;
   autoFocus?: boolean;
   onSuccess?: () => void;
 }) {
+  const { post } = useCommentContext();
   const { data } = authClient.useSession();
   const [text, setText] = useState("");
   const queryClient = useQueryClient();
@@ -49,7 +49,7 @@ export default function CommentInput({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim() || addCommentMutation.isPending) return;
-    addCommentMutation.mutate({ parentPostId: postId, content: text.trim(), parentCommentId });
+    addCommentMutation.mutate({ parentPostId: post._id, content: text.trim(), parentCommentId });
   };
 
   return (

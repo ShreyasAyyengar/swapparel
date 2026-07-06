@@ -59,6 +59,7 @@ export default function CommentItem({ comment, postId, isReply = false }: { comm
   });
 
   const replies = repliesQuery.data?.pages.flatMap((p) => p.replies) ?? [];
+  const canDelete = comment.authorId === authData?.user.id; // TODo
 
   return (
     <div className="flex gap-2">

@@ -1,19 +1,20 @@
 "use client";
 
-import type { postSchema } from "@swapparel/contracts";
 import { Skeleton } from "@swapparel/shad-ui/components/skeleton";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
 import { MessageCircle } from "lucide-react";
 import { useEffect } from "react";
-import type z from "zod";
+import { useInView } from "react-intersection-observer";
 import { webClientORPC } from "../../../../../../lib/orpc-web-client";
+import { useCommentContext } from "./comment-context";
 import CommentItem from "./comment-item";
 
-export default function CommentList({ postId }: { postId: z.infer<typeof postSchema.shape._id> }) {
+export default function CommentList() {
+  const { post } = useCommentContext();
+
   const { data, isPending, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     ...webClientORPC.comments.getComments.infiniteOptions({
-      input: (pageParam) => ({ postId, limit: 25, cursor: pageParam ?? undefined }),
+      input: (pageParam) => ({ postId: post._id, limit: 25, cursor: pageParam ?? undefined }),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialPageParam: undefined as string | undefined,
     }),
@@ -61,11 +62,7 @@ export default function CommentList({ postId }: { postId: z.infer<typeof postSch
   return (
     <div className="mt-3 flex flex-col gap-4">
       {comments.map((comment) => (
-        <CommentItem
-          key={comment._id}
-          comment={comment}
-          postId={postId}
-        />
+        <CommentItem key={comment._id} comment={comment} postId={post._id} />
       ))}
       {isFetchingNextPage && (
         <div className="flex flex-col gap-3">
