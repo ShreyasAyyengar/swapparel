@@ -1,7 +1,19 @@
 "use client";
 
 import type { postSchema } from "@swapparel/contracts";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@swapparel/shad-ui/components/alert-dialog";
 import { Badge } from "@swapparel/shad-ui/components/badge";
+import { Button } from "@swapparel/shad-ui/components/button";
 import {
   Carousel,
   type CarouselApi,
@@ -12,13 +24,16 @@ import {
 } from "@swapparel/shad-ui/components/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@swapparel/shad-ui/components/dialog";
 import { cn } from "@swapparel/shad-ui/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
 import type z from "zod";
 import { authClient } from "../../../../../lib/auth-client";
+import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import sendToProfilePage from "../../../profile/_components/helper-functions";
+import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
 import CommentBox from "./comments/comment-box";
 import { CommentContext } from "./comments/comment-context";
 import TradeDialog from "./trade-dialog";
@@ -36,6 +51,8 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(1);
   const [loadedImages, setLoadedImages] = useState(() => new Set<number>());
   const [canSeeButton, setCanSeeButton] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
   const { data, isPending } = authClient.useSession();
   const [descriptionHeight, setDescriptionHeight] = useState<number | undefined>(undefined);
   const observerRef = useRef<ResizeObserver | null>(null);
@@ -60,6 +77,28 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
     if (isPending) return;
     if (data?.user.email !== postData.createdBy) setCanSeeButton(true);
   }, [data, isPending, postData.createdBy]);
+
+  const canSeeDeleteButton = data?.user.email === postData.createdBy;
+
+  const deletePostMutation = useMutation(
+    webClientORPC.posts.deletePost.mutationOptions({
+      onSuccess: async () => {
+        useFetchedPostsStore.setState((state) => ({
+          fetchedPosts: state.fetchedPosts.filter((p) => p._id !== postData._id),
+        }));
+        queryClient.removeQueries({ queryKey: [["feed", "getFeed"]] });
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: [["posts", "getPosts"]] }),
+          queryClient.invalidateQueries({ queryKey: [["transaction", "getTransactions"]] }),
+          queryClient.invalidateQueries({ queryKey: [["transaction", "getInterlocutors"]] }),
+          queryClient.invalidateQueries({ queryKey: [["transaction", "getTransactionsByInterlocutor"]] }),
+        ]);
+        await setPostId(null);
+        setDialogOpen(false);
+        setDeleteDialogOpen(false);
+      },
+    }),
+  );
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -261,6 +300,39 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
               </CommentContext.Provider>
             </div>
           </div>
+          {canSeeDeleteButton && (
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full cursor-pointer font-bold">
+                  Delete post
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete this post, its comments, and cancel any ongoing trades. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    disabled={deletePostMutation.isPending}
+                    className="cursor-pointer bg-destructive text-destructive-foreground"
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={deletePostMutation.isPending}
+                    onClick={() => deletePostMutation.mutate({ id: postData._id })}
+                    className="cursor-pointer bg-destructive text-destructive-foreground"
+                  >
+                    {deletePostMutation.isPending ? "Deleting..." : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
           <TradeDialog
             postData={postData}
             canSeeButton={canSeeButton}
