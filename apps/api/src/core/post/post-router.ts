@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
 import { CommentService } from "../comments/comment-service";
+import { TransactionService } from "../swap/transaction-service";
 import { UserService } from "../users/user-service";
 import { convertToJpeg, getBlockingLabel, hydrateR2Keys, moderateImage, uploadToR2 } from "./image-processing";
 import { PostService } from "./post-service";
@@ -84,12 +85,23 @@ export const postRouter = {
     if (post.createdBy !== context.user.email) throw NOT_FOUND({ message: `Post not found from ${context.user.email} with id ${input.id}` });
 
     try {
-      const postDeleteRes = await PostService.deleteOne({ _id: input.id });
-      if (postDeleteRes.deletedCount === 1) return { success: true };
       await CommentService.deleteMany({ parentPostId: input.id });
+
+      await TransactionService.updateMany(
+        {
+          $or: [
+            { "sellerPosts.postId": input.id },
+            { "buyerPosts.postId": input.id },
+          ],
+          status: "ongoing",
+        },
+        { $set: { status: "cancelled" } },
+      );
+
       await Promise.all(post.images.map((imageKey) => R2.delete(imageKey)));
 
-      return { success: false };
+      const postDeleteRes = await PostService.deleteOne({ _id: input.id });
+      return { success: postDeleteRes.deletedCount === 1 };
     } catch (error) {
       throw INTERNAL_SERVER_ERROR({
         message: `DB failed to delete post with id ${input.id}. ${error}`,
