@@ -1,7 +1,6 @@
 {
   "extends": "@swapparel/typescript-config/react-library.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@swapparel/shad-ui/*": ["./src/*"]
     }
