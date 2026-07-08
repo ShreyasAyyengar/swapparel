@@ -1,4 +1,4 @@
-import { env } from "src/env";
+import { env } from "../../../../env";
 
 export default function Privacy() {
   return (
