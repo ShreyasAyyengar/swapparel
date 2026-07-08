@@ -1,7 +1,6 @@
 "use client";
 
 import type { transactionSchema } from "@swapparel/contracts";
-import { Button } from "@swapparel/shad-ui/components/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@swapparel/shad-ui/components/alert-dialog";
+import { Button } from "@swapparel/shad-ui/components/button";
 import {
   Dialog,
   DialogClose,
@@ -202,11 +202,7 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
           <div className="space-y-5">
             <div className="space-y-2">
               <p className="font-medium text-sm">Rating</p>
-              <StarRating
-                value={rating}
-                onChange={setRating}
-                readOnly={false}
-              />
+              <StarRating value={rating} onChange={setRating} readOnly={false} />
             </div>
 
             <div className="space-y-2">
@@ -245,9 +241,7 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete rating</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete your rating? This cannot be undone.
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>Are you sure you want to delete your rating? This cannot be undone.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
