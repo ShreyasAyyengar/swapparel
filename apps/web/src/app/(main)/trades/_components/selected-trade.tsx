@@ -12,6 +12,7 @@ import type { z } from "zod";
 import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import Chat from "./chat";
+import RatingDialog from "./dialogs/rating-dialog";
 
 const publicLocationNames = Object.values(PUBLIC_LOCATIONS).map(({ name }) => name);
 
@@ -131,7 +132,7 @@ export default function SelectedTrade({
             <p className="font-semibold">Trade conversation</p>
             <p className="text-muted-foreground text-xs">Messages and meetup details are specific to this trade.</p>
           </div>
-          {transaction.status === "ongoing" && (
+          {transaction.status === "ongoing" ? (
             <Button
               type="button"
               variant="outline"
@@ -144,6 +145,10 @@ export default function SelectedTrade({
               <Pencil />
               Edit meetup
             </Button>
+          ) : transaction.status === "completed" ? (
+            <RatingDialog transaction={transaction} />
+          ) : (
+            <p className="text-muted-foreground text-sm">Trade was cancelled</p>
           )}
         </div>
         <div className="mt-3 grid gap-2 rounded-xl border border-border bg-muted/30 p-3 sm:grid-cols-2">

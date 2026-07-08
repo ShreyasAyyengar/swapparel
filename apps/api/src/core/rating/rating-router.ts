@@ -1,6 +1,7 @@
 import { ratingSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
+import { TransactionService } from "../swap/transaction-service";
 import { UserService } from "../users/user-service";
 import { RatingService } from "./rating-service";
 
@@ -19,9 +20,20 @@ export const ratingRouter = {
         throw NOT_FOUND({ data: { message: `User not found with email: ${ratedUserEmail}` } });
       }
 
-      const existingRating = await RatingService.findOne({ raterEmail, ratedUserEmail });
+      const transaction = await TransactionService.findOne({
+        _id: transactionId,
+        $or: [
+          { "buyer.emailSnapshot": raterEmail, "seller.emailSnapshot": ratedUserEmail },
+          { "buyer.emailSnapshot": ratedUserEmail, "seller.emailSnapshot": raterEmail },
+        ],
+      });
+      if (!transaction) {
+        throw NOT_FOUND({ data: { message: "No transaction found between you and this user" } });
+      }
+
+      const existingRating = await RatingService.findOne({ raterEmail, transactionId });
       if (existingRating) {
-        throw CONFLICT({ data: { message: "You have already rated this user" } });
+        throw CONFLICT({ data: { message: "You have already rated this transaction" } });
       }
 
       const _id = uuidv7();
@@ -43,43 +55,67 @@ export const ratingRouter = {
     }
   ),
 
-  getMyRatingForTransaction: protectedProcedure.ratings.getMyRatingForTransaction.handler(
-    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
-      try {
-        const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });
-        if (!rating) return null;
+  getRatingForTransaction: protectedProcedure.ratings.getRatingForTransaction.handler(async ({ input, context }) => {
+    const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });
+    if (!rating) return null;
 
-        const json = rating.toJSON({ flattenObjectIds: true });
-        const tryParse = ratingSchema.safeParse(json);
-        if (!tryParse.success) {
-          throw INTERNAL_SERVER_ERROR({ data: { message: "Failed to parse rating data" } });
-        }
-        return tryParse.data;
+    return rating;
+  }),
+
+  getRatingsForUser: publicProcedure.ratings.getRatingsForUser.handler(async ({ input, errors: { BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
+    const ratingDocs = await RatingService.find({ ratedUserEmail: input.ratedUserEmail });
+
+    const totalRatings = ratingDocs.length;
+    const averageRating = totalRatings > 0 ? ratingDocs.reduce((sum, r) => sum + r.value, 0) / totalRatings : null;
+
+    return { ratings: ratingDocs, averageRating, totalRatings };
+  }),
+
+  deleteRating: protectedProcedure.ratings.deleteRating.handler(
+    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, INTERNAL_SERVER_ERROR } }) => {
+      const rating = await RatingService.findOne({ _id: input.id });
+      if (!rating) {
+        throw NOT_FOUND({ data: { message: `Rating not found with id ${input.id}` } });
+      }
+      if ((rating as any).raterEmail !== context.user.email) {
+        throw FORBIDDEN({ data: { message: "You can only delete your own rating" } });
+      }
+
+      try {
+        await RatingService.deleteOne({ _id: input.id });
+        return { success: true };
       } catch (error) {
-        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to fetch rating. ${error}` } });
+        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to delete rating. ${error}` } });
       }
     }
   ),
 
-  getRatingsForUser: publicProcedure.ratings.getRatingsForUser.handler(async ({ input, errors: { BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
-    try {
-      const ratingDocs = await RatingService.find({ ratedUserEmail: input.ratedUserEmail });
+  editRating: protectedProcedure.ratings.editRating.handler(
+    async ({ input, context, errors: { NOT_FOUND, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
+      const rating = await RatingService.findOne({ _id: input._id });
+      if (!rating) {
+        throw NOT_FOUND({ data: { message: `Rating not found with id ${input._id}` } });
+      }
 
-      const ratings = ratingDocs.map((doc) => {
-        const json = doc.toJSON({ flattenObjectIds: true });
-        const tryParse = ratingSchema.safeParse(json);
-        if (!tryParse.success) {
-          throw BAD_REQUEST({ data: { issues: tryParse.error.issues, message: "Failed to parse rating data" } });
+      if (rating.raterEmail !== context.user.email) {
+        throw FORBIDDEN({ data: { message: "You can only edit your own rating" } });
+      }
+
+      try {
+        const $set: Record<string, unknown> = {};
+        if (input.value !== undefined) $set.value = input.value;
+        if (input.comment !== undefined && input.comment !== null) $set.comment = input.comment;
+
+        if (input.comment === null) {
+          await RatingService.updateOne({ _id: input._id }, { $set, $unset: { comment: "" } });
+        } else {
+          await RatingService.updateOne({ _id: input._id }, { $set });
         }
-        return tryParse.data;
-      });
 
-      const totalRatings = ratings.length;
-      const averageRating = totalRatings > 0 ? ratings.reduce((sum, r) => sum + r.value, 0) / totalRatings : null;
-
-      return { ratings, averageRating, totalRatings };
-    } catch (error) {
-      throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to fetch ratings. ${error}` } });
+        return { success: true };
+      } catch (error) {
+        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to edit rating. ${error}` } });
+      }
     }
-  }),
+  ),
 };

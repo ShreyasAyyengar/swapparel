@@ -1,5 +1,6 @@
 import { ratingSchema } from "@swapparel/contracts";
 import { toMongooseSchema } from "mongoose-zod";
+import type { z } from "zod";
 import { databaseConnection } from "../../database/database";
 
 // Mongoose Schema Definitions for MongoDB
@@ -14,6 +15,9 @@ const RatingSchemaMongoose = toMongooseSchema(
     },
   })
 );
+
+// Index for per-transaction duplicate prevention
+RatingSchemaMongoose.index({ raterEmail: 1, transactionId: 1 }, { unique: true });
 
 // Infer the bland TypeScript type from Zod
 export interface IRatingSchemaMongoose extends z.infer<typeof RatingSchema> {}
