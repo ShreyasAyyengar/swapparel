@@ -43,7 +43,7 @@ export const ratingContract = {
       },
     }),
 
-  getMyRatingForTransaction: oc
+  getRatingForTransaction: oc
     .route({
       method: "GET",
     })

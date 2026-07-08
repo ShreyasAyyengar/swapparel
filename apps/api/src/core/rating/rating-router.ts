@@ -55,7 +55,7 @@ export const ratingRouter = {
     }
   ),
 
-  getMyRatingForTransaction: protectedProcedure.ratings.getMyRatingForTransaction.handler(
+  getRatingForTransaction: protectedProcedure.ratings.getRatingForTransaction.handler(
     async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
       try {
         const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });

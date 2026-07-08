@@ -62,7 +62,7 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
   const ratedUserEmail = myEmail === transaction.seller.emailSnapshot ? transaction.buyer.emailSnapshot : transaction.seller.emailSnapshot;
 
   const { data: existingRating, isLoading: isCheckingRating } = useQuery(
-    webClientORPC.ratings.getMyRatingForTransaction.queryOptions({
+    webClientORPC.ratings.getRatingForTransaction.queryOptions({
       input: { transactionId: transaction._id },
       enabled: !!myEmail,
     })
@@ -81,7 +81,7 @@ export default function RatingDialog({ transaction }: { transaction: z.infer<typ
   }, [existingRating]);
 
   const invalidateRatingQueries = () => {
-    const queryKey = webClientORPC.ratings.getMyRatingForTransaction.queryOptions({
+    const queryKey = webClientORPC.ratings.getRatingForTransaction.queryOptions({
       input: { transactionId: transaction._id },
     }).queryKey;
     queryClient.invalidateQueries({ queryKey });
