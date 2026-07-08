@@ -20,13 +20,13 @@ export default function Page() {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
-  const { data: authData, isPending } = authClient.useSession();
+  const { data: authData, isPending: isAuthPending } = authClient.useSession();
   const [profileQuery] = useQueryState("email");
 
   useEffect(() => {
     if (!profileQuery) {
       // user wants to see their own profile, but must be authed
-      if (isPending) return;
+      if (isAuthPending) return;
       if (!authData) {
         authClient.signIn.social({
           provider: "google",
@@ -36,24 +36,25 @@ export default function Page() {
         return;
       }
     }
-  }, [profileQuery, isPending, authData]);
+  }, [profileQuery, isAuthPending, authData]);
 
   const { data: profileData, isPending: isProfilePending } = useQuery(
     webClientORPC.users.getUser.queryOptions({
       input: { email: profileQuery ?? authData?.user.email ?? undefined },
-      enabled: profileQuery !== null || (!isPending && authData !== null),
+      enabled: profileQuery !== null || (!isAuthPending && authData !== null),
       retry: false,
     })
   );
 
   const { data: posts } = useQuery(
     webClientORPC.posts.getPosts.queryOptions({
-      enabled: !isPending,
-      input: { createdBy: profileQuery ? profileQuery : authData?.user.email },
+      enabled: !isAuthPending,
+      // biome-ignore lint/style/noNonNullAssertion: only runs if authData is not null
+      input: { createdBy: profileQuery ? profileQuery : authData!.user.email },
     })
   );
 
-  if (isPending || isProfilePending) return <LoadingProfile />;
+  if (isAuthPending || isProfilePending) return <LoadingProfile />;
   if (!profileData) return <NoProfile />;
 
   return (
