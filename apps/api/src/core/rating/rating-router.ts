@@ -1,8 +1,8 @@
 import { ratingSchema } from "@swapparel/contracts";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
-import { UserService } from "../users/user-service";
 import { TransactionService } from "../swap/transaction-service";
+import { UserService } from "../users/user-service";
 import { RatingService } from "./rating-service";
 
 export const ratingRouter = {
@@ -55,44 +55,20 @@ export const ratingRouter = {
     }
   ),
 
-  getRatingForTransaction: protectedProcedure.ratings.getRatingForTransaction.handler(
-    async ({ input, context, errors: { INTERNAL_SERVER_ERROR } }) => {
-      try {
-        const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });
-        if (!rating) return null;
+  getRatingForTransaction: protectedProcedure.ratings.getRatingForTransaction.handler(async ({ input, context }) => {
+    const rating = await RatingService.findOne({ transactionId: input.transactionId, raterEmail: context.user.email });
+    if (!rating) return null;
 
-        const json = rating.toJSON({ flattenObjectIds: true });
-        const tryParse = ratingSchema.safeParse(json);
-        if (!tryParse.success) {
-          throw INTERNAL_SERVER_ERROR({ data: { message: "Failed to parse rating data" } });
-        }
-        return tryParse.data;
-      } catch (error) {
-        throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to fetch rating. ${error}` } });
-      }
-    }
-  ),
+    return rating;
+  }),
 
   getRatingsForUser: publicProcedure.ratings.getRatingsForUser.handler(async ({ input, errors: { BAD_REQUEST, INTERNAL_SERVER_ERROR } }) => {
-    try {
-      const ratingDocs = await RatingService.find({ ratedUserEmail: input.ratedUserEmail });
+    const ratingDocs = await RatingService.find({ ratedUserEmail: input.ratedUserEmail });
 
-      const ratings = ratingDocs.map((doc) => {
-        const json = doc.toJSON({ flattenObjectIds: true });
-        const tryParse = ratingSchema.safeParse(json);
-        if (!tryParse.success) {
-          throw BAD_REQUEST({ data: { issues: tryParse.error.issues, message: "Failed to parse rating data" } });
-        }
-        return tryParse.data;
-      });
+    const totalRatings = ratingDocs.length;
+    const averageRating = totalRatings > 0 ? ratingDocs.reduce((sum, r) => sum + r.value, 0) / totalRatings : null;
 
-      const totalRatings = ratings.length;
-      const averageRating = totalRatings > 0 ? ratings.reduce((sum, r) => sum + r.value, 0) / totalRatings : null;
-
-      return { ratings, averageRating, totalRatings };
-    } catch (error) {
-      throw INTERNAL_SERVER_ERROR({ data: { message: `Failed to fetch ratings. ${error}` } });
-    }
+    return { ratings: ratingDocs, averageRating, totalRatings };
   }),
 
   deleteRating: protectedProcedure.ratings.deleteRating.handler(
@@ -120,7 +96,8 @@ export const ratingRouter = {
       if (!rating) {
         throw NOT_FOUND({ data: { message: `Rating not found with id ${input._id}` } });
       }
-      if ((rating as any).raterEmail !== context.user.email) {
+
+      if (rating.raterEmail !== context.user.email) {
         throw FORBIDDEN({ data: { message: "You can only edit your own rating" } });
       }
 
@@ -130,10 +107,7 @@ export const ratingRouter = {
         if (input.comment !== undefined && input.comment !== null) $set.comment = input.comment;
 
         if (input.comment === null) {
-          await RatingService.updateOne(
-            { _id: input._id },
-            { $set, $unset: { comment: "" } }
-          );
+          await RatingService.updateOne({ _id: input._id }, { $set, $unset: { comment: "" } });
         } else {
           await RatingService.updateOne({ _id: input._id }, { $set });
         }
