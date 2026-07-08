@@ -31,11 +31,6 @@ export const ratingContract = {
           message: z.string(),
         }),
       },
-      UNAUTHORIZED: {
-        data: z.object({
-          message: z.string(),
-        }),
-      },
       CONFLICT: {
         data: z.object({
           message: z.string(),
