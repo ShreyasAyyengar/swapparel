@@ -212,11 +212,10 @@ export const transactionRouter = {
       if (input.toggleCompletion !== undefined) {
         const isBuyer = transaction.buyer.userId === context.user.id;
         const myField = isBuyer ? "buyerCompletionRequestedAt" : "sellerCompletionRequestedAt";
-        const otherField = isBuyer ? "sellerCompletionRequestedAt" : "buyerCompletionRequestedAt";
+
         const now = new Date();
 
-        const raw = transaction.toObject?.() ?? transaction;
-        const alreadyConfirmed = !!(raw as Record<string, unknown>)[myField];
+        const alreadyConfirmed = isBuyer ? transaction.buyerCompletionRequestedAt : transaction.sellerCompletionRequestedAt;
 
         const updateFields: Record<string, unknown> = {
           updatedAt: now,
@@ -231,10 +230,8 @@ export const transactionRouter = {
           // Confirm completion request
           updateFields[myField] = now;
 
-          const otherConfirmed = !!(raw as Record<string, unknown>)[otherField];
-          if (otherConfirmed) {
-            updateFields.status = "completed";
-          }
+          const otherConfirmed = isBuyer ? transaction.sellerCompletionRequestedAt : transaction.buyerCompletionRequestedAt;
+          if (otherConfirmed) updateFields.status = "completed";
 
           await TransactionService.updateOne({ _id: input._id }, { $set: updateFields });
 
