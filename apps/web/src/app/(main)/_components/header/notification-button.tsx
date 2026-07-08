@@ -1,5 +1,6 @@
 "use client";
 
+import type { notificationSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
@@ -8,9 +9,10 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, ChevronDown, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 
-type Notification = ReturnType<typeof formatNotification>;
+type Notification = z.infer<typeof notificationSchema>;
 
 const SECONDS_PER_MINUTE = 60;
 const MINUTES_PER_HOUR = 60;
@@ -60,23 +62,6 @@ function getNotificationPreview(notification: Notification) {
   }
 }
 
-function formatNotification(raw: {
-  _id: string;
-  recipientId: string;
-  type: "trade_request" | "trade_completed" | "new_message";
-  transactionId?: string;
-  actorName?: string;
-  actorAvatarUrl?: string;
-  messagePreview?: string;
-  read: boolean;
-  createdAt: string;
-}) {
-  return {
-    ...raw,
-    createdAt: new Date(raw.createdAt),
-  };
-}
-
 const notificationsInfiniteOptions = webClientORPC.notifications.getNotifications.infiniteOptions({
   input: (cursor) => ({ limit: 20, cursor: cursor ?? undefined }),
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -90,7 +75,7 @@ export default function NotificationButton() {
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(notificationsInfiniteOptions);
 
-  const notifications = data?.pages.flatMap((page) => page.notifications.map(formatNotification)) ?? [];
+  const notifications = data?.pages.flatMap((page) => page.notifications) ?? [];
   const unreadCount = data?.pages[0]?.unreadCount ?? 0;
 
   const markAsReadByTransactionIdMutation = useMutation(
