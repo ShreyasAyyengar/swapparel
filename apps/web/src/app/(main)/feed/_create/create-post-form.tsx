@@ -2,6 +2,7 @@
 
 import { userFormPostSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
+import { DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
 import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
@@ -86,79 +87,83 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
 
   return (
     <>
-      <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
-      <Separator className="mt-3" />
+      <DialogHeader>
+        <DialogTitle className={"pt-5 text-center font-semibold text-2xl"}>
+          {form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}
+        </DialogTitle>
+        <Separator className="mt-3" />
+      </DialogHeader>
       <form
-            className="w-full"
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-          >
-            <div className="flex">
-              {/*region fields*/}
-              <FieldGroup className="mt-3 w-1/2 pr-5 pb-10 pl-5">
-                <form.AppField name="postData.title">{(field) => <field.TitleField />}</form.AppField>
+        className="w-full"
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <div className="flex">
+          {/*region fields*/}
+          <FieldGroup className="mt-3 w-1/2 pr-5 pb-10 pl-5">
+            <form.AppField name="postData.title">{(field) => <field.TitleField />}</form.AppField>
 
-                <form.AppField name="postData.description">{(field) => <field.DescriptionField />}</form.AppField>
+            <form.AppField name="postData.description">{(field) => <field.DescriptionField />}</form.AppField>
 
-                <div className="justify-evenly max-md:space-y-5 md:grid md:grid-cols-2 md:gap-5">
-                  <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
-                  <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
-                  <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
-                  <form.AppField name="postData.garmentType">{(field) => <field.GarmentField />}</form.AppField>
-                  <form.AppField name="postData.price">{(field) => <field.PriceField />}</form.AppField>
-                  <form.AppField
-                    name="postData.hashtags"
-                    validators={{
-                      onBlur: ({ value }) => {
-                        // Extract just the hashtags validation from schema
-                        const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
-                        if (!result.success) return result.error.issues[0]?.message;
-                        return;
-                      },
-                    }}
-                  >
-                    {(field) => <field.HashtagsField />}
-                  </form.AppField>
-                </div>
-              </FieldGroup>
-              {/*endregion fields*/}
-
-              <div className="h-auto border" />
-
-              {/*region photo upload*/}
-              <div className="w-1/2 pt-4 pr-5 pb-5 pl-5">
-                <FieldGroup className="h-full w-full">
-                  <form.AppField name="images">{(field) => <field.ImagesField />}</form.AppField>
-                </FieldGroup>
-              </div>
-              {/*endregion photo upload*/}
+            <div className="justify-evenly max-md:space-y-5 md:grid md:grid-cols-2 md:gap-5">
+              <form.AppField name="postData.size">{(field) => <field.SizeField />}</form.AppField>
+              <form.AppField name="postData.colour">{(field) => <field.ColorField />}</form.AppField>
+              <form.AppField name="postData.material">{(field) => <field.MaterialField />}</form.AppField>
+              <form.AppField name="postData.garmentType">{(field) => <field.GarmentField />}</form.AppField>
+              <form.AppField name="postData.price">{(field) => <field.PriceField />}</form.AppField>
+              <form.AppField
+                name="postData.hashtags"
+                validators={{
+                  onBlur: ({ value }) => {
+                    // Extract just the hashtags validation from schema
+                    const result = userFormPostSchema.shape.postData.shape.hashtags.safeParse(value);
+                    if (!result.success) return result.error.issues[0]?.message;
+                    return;
+                  },
+                }}
+              >
+                {(field) => <field.HashtagsField />}
+              </form.AppField>
             </div>
-          </form>
-          <div className="w-auto border" />
-          <div className="flex justify-between">
-            <Button className="m-3 mr-5 w-1/8 cursor-pointer" onClick={closeAction}>
-              Cancel
-            </Button>
+          </FieldGroup>
+          {/*endregion fields*/}
 
-            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => (
-                <Button
-                  className={cn(
-                    "m-3 mr-5 w-1/8",
-                    `${canSubmit ? "bg-primary text-primary-foreground hover:cursor-pointer hover:bg-primary/85" : "bg-muted text-muted-foreground"}`,
-                    `${isSubmitting ? "cursor-wait" : "cursor-default"}`
-                  )}
-                  onClick={form.handleSubmit}
-                  disabled={!canSubmit || isSubmitting}
-                >
-                  {isSubmitting ? "Creating..." : "Create"}
-                </Button>
-              )}
-            </form.Subscribe>
+          <div className="h-auto border" />
+
+          {/*region photo upload*/}
+          <div className="w-1/2 pt-4 pr-5 pb-5 pl-5">
+            <FieldGroup className="h-full w-full">
+              <form.AppField name="images">{(field) => <field.ImagesField />}</form.AppField>
+            </FieldGroup>
           </div>
-        </>
+          {/*endregion photo upload*/}
+        </div>
+      </form>
+      <div className="w-auto border" />
+      <DialogFooter className="justify-between sm:justify-between">
+        <Button className="m-3 mr-5 w-1/8 cursor-pointer" onClick={closeAction}>
+          Cancel
+        </Button>
+
+        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <Button
+              className={cn(
+                "m-3 mr-5 w-1/8",
+                `${canSubmit ? "bg-primary text-primary-foreground hover:cursor-pointer hover:bg-primary/85" : "bg-muted text-muted-foreground"}`,
+                `${isSubmitting ? "cursor-wait" : "cursor-default"}`
+              )}
+              onClick={form.handleSubmit}
+              disabled={!canSubmit || isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Create"}
+            </Button>
+          )}
+        </form.Subscribe>
+      </DialogFooter>
+    </>
   );
 }
 

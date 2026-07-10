@@ -9,7 +9,7 @@ import { authClient } from "../../../lib/auth-client";
 import { webClientORPC } from "../../../lib/orpc-web-client";
 import MasonryLayout from "../feed/_components/post/masonry-layout";
 import PostDialog from "../feed/_components/shadcn-post/post-dialog";
-import CreatePostLayer from "../feed/_create/create-post-layer";
+import CreatePostDialog from "../feed/_create/create-post-dialog";
 import LoadingProfile from "./_components/loading-profile";
 import NoProfile from "./_components/no-profile";
 import ProfileRatings from "./_components/profile-ratings";
@@ -59,7 +59,7 @@ export default function Page() {
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
-      <CreatePostLayer />
+      <CreatePostDialog />
       <div
         className={`mt-5 grid grid-cols-1 justify-items-center overflow-hidden rounded-full border border-secondary bg-primary p-5 px-10 text-background transition-[width] duration-700 ease-out ${mounted ? "w-1/2" : "w-0"} md:grid-cols-2 md:justify-between md:justify-items-stretch`}
       >

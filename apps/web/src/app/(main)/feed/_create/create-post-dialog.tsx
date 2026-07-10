@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from "@swapparel/shad-ui/components/dialog";
 import { useQueryState } from "nuqs";
 import CreatePostForm from "./create-post-form";
 
-export default function CreatePostLayer() {
+export default function CreatePostDialog() {
   const [isCreating, setIsCreating] = useQueryState("create");
 
   return (
