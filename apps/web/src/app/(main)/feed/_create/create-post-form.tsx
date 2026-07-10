@@ -7,7 +7,6 @@ import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
 import ColorField from "./_fields/colour-field";
@@ -85,20 +84,11 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
     },
   });
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
   return (
-    <div className="inset fixed z-50 mx-10 my-8 w-full max-w-300 backdrop-blur-2xl">
-      <div className="rounded-2xl border border-border">
-        <div className="rounded-2xl bg-card">
-          <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
-          <Separator className="mt-3" />
-          <form
+    <>
+      <p className={"pt-5 text-center font-semibold text-2xl"}>{form.state.isSubmitting ? "Creating new post..." : "Create New Post!"}</p>
+      <Separator className="mt-3" />
+      <form
             className="w-full"
             onSubmit={(e) => {
               e.preventDefault();
@@ -168,9 +158,7 @@ export default function CreatePostForm({ closeAction }: { closeAction: () => voi
               )}
             </form.Subscribe>
           </div>
-        </div>
-      </div>
-    </div>
+        </>
   );
 }
 
