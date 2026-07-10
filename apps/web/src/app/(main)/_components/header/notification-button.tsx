@@ -4,7 +4,6 @@ import type { notificationSchema } from "@swapparel/contracts";
 import { Badge } from "@swapparel/shad-ui/components/badge";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@swapparel/shad-ui/components/popover";
-import { ScrollArea } from "@swapparel/shad-ui/components/scroll-area";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftRight, Bell, BellRing, Check, CheckCheck, ChevronDown, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,9 +20,9 @@ const DAYS_PER_WEEK = 7;
 const MAX_UNREAD_BADGE_COUNT = 9;
 const MILLISECONDS_PER_SECOND = 1000;
 
-function formatRelativeTime(date: Date) {
+function formatRelativeTime(date: Date | string) {
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = now.getTime() - new Date(date).getTime();
   const diffSecs = Math.floor(diffMs / MILLISECONDS_PER_SECOND);
   const diffMins = Math.floor(diffSecs / SECONDS_PER_MINUTE);
   const diffHours = Math.floor(diffMins / MINUTES_PER_HOUR);
@@ -172,40 +171,40 @@ export default function NotificationButton() {
             <p className="text-muted-foreground text-sm">No notifications yet</p>
           </div>
         ) : (
-          <ScrollArea className="h-80">
-            <div className="flex flex-col">
-              {notifications.map((notification) => (
-                <button
-                  key={notification._id}
-                  type="button"
-                  className={`flex items-start gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-accent/50 ${
-                    !notification.read ? "bg-accent/20" : ""
-                  }`}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>
-                  <div className="min-w-0 flex-1">
-                    <p className={`line-clamp-2 leading-tight ${!notification.read ? "font-medium" : ""}`}>
-                      {getNotificationPreview(notification)}
-                    </p>
-                    <p className="mt-1 text-muted-foreground text-xs">{formatRelativeTime(notification.createdAt)}</p>
-                  </div>
-                  {!notification.read && <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />}
-                </button>
-              ))}
-              {hasNextPage && (
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-center gap-1 px-4 py-3 text-muted-foreground text-sm transition-colors hover:bg-accent/50"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  <ChevronDown className="size-4" />
-                  {isFetchingNextPage ? "Loading..." : "Load more"}
-                </button>
-              )}
-            </div>
-          </ScrollArea>
+          // <ScrollArea className="h-80">
+          <div className="flex h-80 flex-col overflow-y-auto">
+            {notifications.map((notification) => (
+              <button
+                key={notification._id}
+                type="button"
+                className={`flex items-start gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-accent/50 ${
+                  !notification.read ? "bg-accent/20" : ""
+                }`}
+                onClick={() => handleNotificationClick(notification)}
+              >
+                <div className="mt-0.5">{getNotificationIcon(notification.type)}</div>
+                <div className="min-w-0 flex-1">
+                  <p className={`line-clamp-2 break-words leading-tight ${!notification.read ? "font-medium" : ""}`}>
+                    {getNotificationPreview(notification)}
+                  </p>
+                  <p className="mt-1 text-muted-foreground text-xs">{formatRelativeTime(notification.createdAt)}</p>
+                </div>
+                {!notification.read && <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />}
+              </button>
+            ))}
+            {hasNextPage && (
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-1 px-4 py-3 text-muted-foreground text-sm transition-colors hover:bg-accent/50"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                <ChevronDown className="size-4" />
+                {isFetchingNextPage ? "Loading..." : "Load more"}
+              </button>
+            )}
+          </div>
+          // </ScrollArea>
         )}
       </PopoverContent>
     </Popover>
