@@ -45,7 +45,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           const w = parseInt(attrW, 10);
           const h = parseInt(attrH, 10);
           if (w > 0 && h > 0) {
-            const expectedImgHeight = columnWidth * (h / w);
+            const imgWidth = img.getBoundingClientRect().width || columnWidth;
+            const expectedImgHeight = imgWidth * (h / w);
             predictedHeightsRef.current.set(img, expectedImgHeight);
             itemHeight = itemHeight - img.offsetHeight + expectedImgHeight;
           }
@@ -75,7 +76,10 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       const predicted = predictedHeightsRef.current.get(img);
       if (predicted !== undefined) {
         predictedHeightsRef.current.delete(img);
-        const actual = img.offsetHeight;
+        const actual = img.getBoundingClientRect().height;
+        console.log(
+          `img [w=${img.getAttribute("width")}, h=${img.getAttribute("height")}] predicted=${predicted}px, actual=${actual}px, natural=${img.naturalWidth}x${img.naturalHeight}`
+        );
         if (Math.abs(actual - predicted) > 1) {
           console.log("rescheduling layout due to wrong predicted values");
           scheduleLayout();
