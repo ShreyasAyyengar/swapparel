@@ -80,7 +80,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         console.log(
           `img [w=${img.getAttribute("width")}, h=${img.getAttribute("height")}] predicted=${predicted}px, actual=${actual}px, natural=${img.naturalWidth}x${img.naturalHeight}`
         );
-        if (Math.abs(actual - predicted) > 1) {
+        if (Math.abs(Math.round(actual) - Math.round(predicted)) > 2) {
           console.log("rescheduling layout due to wrong predicted values");
           scheduleLayout();
         }
