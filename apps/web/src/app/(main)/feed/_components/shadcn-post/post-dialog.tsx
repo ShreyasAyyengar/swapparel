@@ -142,8 +142,8 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
         </span>
         <Image
           src={postData.images[0] ?? ""}
-          width={200}
-          height={200}
+          width={postData.thumbnailWidth ?? 200}
+          height={postData.thumbnailHeight ?? 200}
           alt="thumbnail"
           className="w-full rounded-md border-2 border-border"
           loading="eager"
