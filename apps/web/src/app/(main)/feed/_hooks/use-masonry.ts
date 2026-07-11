@@ -4,6 +4,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   // TODO<Alex>: store latest children's position in a column and incrementally place only new children, skipping already-positioned children entirely. This prevents O(n) re-layout on every image load as the feed grows long.
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
+  const predictedHeightsRef = useRef(new Map<HTMLImageElement, number>());
   const layoutRequestRef = useRef<number | null>(null);
   const newChildrenRef = useRef<Set<HTMLElement>>(new Set());
   const [loadedImages, setLoadedImages] = useState(0);
@@ -45,6 +46,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
           const h = parseInt(attrH, 10);
           if (w > 0 && h > 0) {
             const expectedImgHeight = columnWidth * (h / w);
+            predictedHeightsRef.current.set(img, expectedImgHeight);
             itemHeight = itemHeight - img.offsetHeight + expectedImgHeight;
           }
         }
@@ -69,7 +71,18 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
-      scheduleLayout();
+
+      const predicted = predictedHeightsRef.current.get(img);
+      if (predicted !== undefined) {
+        predictedHeightsRef.current.delete(img);
+        const actual = img.offsetHeight;
+        if (Math.abs(actual - predicted) > 1) {
+          console.log("rescheduling layout due to wrong predicted values");
+          scheduleLayout();
+        }
+      } else {
+        scheduleLayout();
+      }
 
       const container = containerRef.current;
       if (container) {
@@ -176,6 +189,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
               img.removeEventListener("error", handler);
               loadingImagesRef.current.delete(img);
             }
+            predictedHeightsRef.current.delete(img);
           });
         });
       }

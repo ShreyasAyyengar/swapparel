@@ -1,5 +1,6 @@
 import { COLOURS, GARMENT_TYPES, MATERIALS, postSchema, SIZES } from "@swapparel/contracts";
 import { fileTypeFromBuffer } from "file-type";
+import sharp from "sharp";
 import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
@@ -46,10 +47,18 @@ export const postRouter = {
         imageKeys.push(await uploadToR2(id, fileBuffers[i]!, i));
       }
 
+      // biome-ignore lint/style/noNonNullAssertion: flow control
+      const firstBuffer = fileBuffers[0]!;
+      const { width, height } = await sharp(firstBuffer).metadata();
+
       const postData = {
         _id: id,
         createdBy: context.user.email,
         images: imageKeys,
+        // biome-ignore lint/style/noMagicNumbers: fallback default
+        thumbnailWidth: width ?? 200,
+        // biome-ignore lint/style/noMagicNumbers: fallback default
+        thumbnailHeight: height ?? 200,
         ...input.postData,
       };
 
@@ -89,13 +98,10 @@ export const postRouter = {
 
       await TransactionService.updateMany(
         {
-          $or: [
-            { "sellerPosts.postId": input.id },
-            { "buyerPosts.postId": input.id },
-          ],
+          $or: [{ "sellerPosts.postId": input.id }, { "buyerPosts.postId": input.id }],
           status: "ongoing",
         },
-        { $set: { status: "cancelled" } },
+        { $set: { status: "cancelled" } }
       );
 
       await Promise.all(post.images.map((imageKey) => R2.delete(imageKey)));
