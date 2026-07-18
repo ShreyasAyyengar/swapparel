@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CreatePostHeaderButton from "./create-post-header-button";
+import CreatePostDialog from "../../feed/_create/create-post-dialog";
 import NotificationButton from "./notification-button";
 import ProfileButton from "./profile-button";
 import SlimBanner from "./simple-banner-slim.svg";
@@ -25,7 +25,7 @@ export default function Header() {
 
       <div className="ml-auto flex items-center gap-6">
         <ThemeChanger />
-        <CreatePostHeaderButton />
+        <CreatePostDialog />
         <SwapsHeaderButton />
       </div>
     </header>

@@ -2,7 +2,6 @@ import { safe } from "@orpc/client";
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import FilterLayer from "./_components/filters/filter-layer";
-import CreatePostDialog from "./_create/create-post-dialog";
 
 export default async function Page() {
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
@@ -32,7 +31,6 @@ export default async function Page() {
   // TODO: customize scroll bar
   return (
     <>
-      <CreatePostDialog />
       <div className="absolute z-1 m-3">
         <FilterButton className="fixed" />
       </div>
