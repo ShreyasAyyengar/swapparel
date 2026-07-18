@@ -42,8 +42,8 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
         const attrW = img.getAttribute("width");
         const attrH = img.getAttribute("height");
         if (attrW && attrH) {
-          const w = parseInt(attrW, 10);
-          const h = parseInt(attrH, 10);
+          const w = Number.parseInt(attrW, 10);
+          const h = Number.parseInt(attrH, 10);
           if (w > 0 && h > 0) {
             const imgWidth = img.getBoundingClientRect().width || columnWidth;
             const expectedImgHeight = imgWidth * (h / w);
@@ -72,18 +72,16 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
-
+      if (loadingImagesRef.current.size === 0) {
+        scheduleLayout();
+      }
       const predicted = predictedHeightsRef.current.get(img);
       if (predicted !== undefined) {
         predictedHeightsRef.current.delete(img);
-        const actual = img.getBoundingClientRect().height;
-        console.log(
-          `img [w=${img.getAttribute("width")}, h=${img.getAttribute("height")}] predicted=${predicted}px, actual=${actual}px, natural=${img.naturalWidth}x${img.naturalHeight}`
-        );
-        if (Math.abs(Math.round(actual) - Math.round(predicted)) > 2) {
-          console.log("rescheduling layout due to wrong predicted values");
-          scheduleLayout();
-        }
+        // const actual = img.getBoundingClientRect().height;
+        // if (Math.abs(Math.round(actual) - Math.round(predicted)) > 2) {
+        //   scheduleLayout();
+        // }
       } else {
         scheduleLayout();
       }
@@ -91,10 +89,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       const container = containerRef.current;
       if (container) {
         for (const child of container.children) {
-          if (
-            (child as HTMLElement).contains(img) &&
-            newChildrenRef.current.has(child as HTMLElement)
-          ) {
+          if ((child as HTMLElement).contains(img) && newChildrenRef.current.has(child as HTMLElement)) {
             requestAnimationFrame(() => {
               (child as HTMLElement).classList.remove("opacity-0");
               (child as HTMLElement).classList.add("opacity-100");
@@ -146,7 +141,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     const container = containerRef.current;
     if (!container) return;
 
-    // 🔥 Force layout when returning to route
     requestAnimationFrame(() => {
       setupImageListeners(container);
       scheduleLayout();
