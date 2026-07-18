@@ -2,7 +2,6 @@ import { safe } from "@orpc/client";
 import { webServerORPC } from "../../../lib/orpc-web-server";
 import FilterButton from "./_components/filters/filter-button";
 import FilterLayer from "./_components/filters/filter-layer";
-import CreatePostLayer from "./_create/create-post-layer";
 
 export default async function Page() {
   const { data, isSuccess, error } = await safe(webServerORPC.feed.getFeed({}));
@@ -12,7 +11,7 @@ export default async function Page() {
       <div className="fixed inset-0 flex flex-col items-center justify-center">
         <span className="mt-10 font-bold text-5xl text-foreground">Failed to load feed</span>
         <span className="mt-10 font-bold text-3xl text-foreground">There was a (catastrophic!) problem when fetching the feed</span>
-        <span className="mt-10 font-bold text-3xl ">
+        <span className="mt-10 font-bold text-3xl">
           Please report this to our{" "}
           <a href="https://github.com/swapparel/swapparel/issues" className="underline">
             GitHub Issues
@@ -32,7 +31,6 @@ export default async function Page() {
   // TODO: customize scroll bar
   return (
     <>
-      <CreatePostLayer />
       <div className="absolute z-1 m-3">
         <FilterButton className="fixed" />
       </div>
