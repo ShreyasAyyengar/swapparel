@@ -33,7 +33,7 @@ function formatRelativeTime(date: Date | string) {
   if (diffMins < MINUTES_PER_HOUR) return `${diffMins}m ago`;
   if (diffHours < HOURS_PER_DAY) return `${diffHours}h ago`;
   if (diffDays < DAYS_PER_WEEK) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
+  return date.toLocaleString();
 }
 
 function getNotificationIcon(type: string) {
