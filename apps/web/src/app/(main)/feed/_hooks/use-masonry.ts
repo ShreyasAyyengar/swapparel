@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export function useMasonry({ gap = 16 }: { gap: number }) {
-  // TODO<Alex>: store latest children's position in a column and then place every new children under old children. Once that specific child is placed, fade in the new child. This prevents group fade ins and prolonged opacity-0's
+  // TODO<Alex>: store latest children's position in a column and incrementally place only new children, skipping already-positioned children entirely. This prevents O(n) re-layout on every image load as the feed grows long.
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadingImagesRef = useRef(new Map<HTMLImageElement, () => void>());
+  const predictedHeightsRef = useRef(new Map<HTMLImageElement, number>());
   const layoutRequestRef = useRef<number | null>(null);
   const newChildrenRef = useRef<Set<HTMLElement>>(new Set());
   const [loadedImages, setLoadedImages] = useState(0);
@@ -34,7 +35,25 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
       const y = columnHeights[shortestColumnIndex];
 
       child.style.transform = `translate(${x}px, ${y}px)`;
-      columnHeights[shortestColumnIndex] += child.offsetHeight + gap;
+
+      let itemHeight = child.offsetHeight;
+      const img = child.querySelector("img");
+      if (img && loadingImagesRef.current.has(img)) {
+        const attrW = img.getAttribute("width");
+        const attrH = img.getAttribute("height");
+        if (attrW && attrH) {
+          const w = Number.parseInt(attrW, 10);
+          const h = Number.parseInt(attrH, 10);
+          if (w > 0 && h > 0) {
+            const imgWidth = img.getBoundingClientRect().width || columnWidth;
+            const expectedImgHeight = imgWidth * (h / w);
+            predictedHeightsRef.current.set(img, expectedImgHeight);
+            itemHeight = itemHeight - img.offsetHeight + expectedImgHeight;
+          }
+        }
+      }
+
+      columnHeights[shortestColumnIndex] += itemHeight + gap;
     });
 
     container.style.height = `${Math.max(...columnHeights)}px`;
@@ -53,55 +72,35 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   const handleImageLoad = useCallback(
     (img: HTMLImageElement) => {
       loadingImagesRef.current.delete(img);
-      setLoadedImages((prev) => {
-        const newCount = prev + 1;
-
-        // When we hit 20 loaded images, show the first 20 children
-        if (newCount >= 20) {
-          scheduleLayout();
-
-          requestAnimationFrame(() => {
-            const container = containerRef.current;
-            if (!container) return;
-
-            // Convert Set to Array and get first 20
-            const newChildrenArray = Array.from(newChildrenRef.current);
-            const first20 = newChildrenArray.slice(0, 20);
-
-            // Update opacity for first 20 children
-            first20.forEach((child) => {
-              child.classList.remove("opacity-0");
-              child.classList.add("opacity-100");
-            });
-
-            // Remove the first 20 from the Set
-            first20.forEach((child) => {
-              newChildrenRef.current.delete(child);
-            });
-          });
-        }
-
-        return newCount;
-      });
-
-      // When ALL images are loaded, show any remaining children
       if (loadingImagesRef.current.size === 0) {
         scheduleLayout();
-
-        requestAnimationFrame(() => {
-          const container = containerRef.current;
-          if (!container) return;
-
-          // Only update opacity for remaining new children
-          newChildrenRef.current.forEach((child) => {
-            child.classList.remove("opacity-0");
-            child.classList.add("opacity-100");
-          });
-
-          // Clear the set after updating
-          newChildrenRef.current.clear();
-        });
       }
+      const predicted = predictedHeightsRef.current.get(img);
+      if (predicted !== undefined) {
+        predictedHeightsRef.current.delete(img);
+        // const actual = img.getBoundingClientRect().height;
+        // if (Math.abs(Math.round(actual) - Math.round(predicted)) > 2) {
+        //   scheduleLayout();
+        // }
+      } else {
+        scheduleLayout();
+      }
+
+      const container = containerRef.current;
+      if (container) {
+        for (const child of container.children) {
+          if ((child as HTMLElement).contains(img) && newChildrenRef.current.has(child as HTMLElement)) {
+            requestAnimationFrame(() => {
+              (child as HTMLElement).classList.remove("opacity-0");
+              (child as HTMLElement).classList.add("opacity-100");
+              newChildrenRef.current.delete(child as HTMLElement);
+            });
+            break;
+          }
+        }
+      }
+
+      setLoadedImages((prev) => prev + 1);
     },
     [scheduleLayout]
   );
@@ -142,7 +141,6 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
     const container = containerRef.current;
     if (!container) return;
 
-    // 🔥 Force layout when returning to route
     requestAnimationFrame(() => {
       setupImageListeners(container);
       scheduleLayout();
@@ -189,6 +187,7 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
               img.removeEventListener("error", handler);
               loadingImagesRef.current.delete(img);
             }
+            predictedHeightsRef.current.delete(img);
           });
         });
       }
