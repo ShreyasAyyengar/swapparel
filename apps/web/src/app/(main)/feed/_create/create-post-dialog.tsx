@@ -9,7 +9,7 @@ export default function CreatePostDialog() {
   const [isCreating, setIsCreating] = useQueryState("create");
 
   return (
-    <Dialog>
+    <Dialog open={isCreating !== null} onOpenChange={(open) => setIsCreating(open ? "true" : null)}>
       <DialogTrigger asChild>
         <CreatePostHeaderButton />
       </DialogTrigger>

@@ -1,5 +1,6 @@
 "use client";
 
+import type { postSchema } from "@swapparel/contracts";
 import { userFormPostSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
@@ -7,9 +8,11 @@ import { FieldGroup } from "@swapparel/shad-ui/components/field";
 import { Separator } from "@swapparel/shad-ui/components/separator";
 import { cn } from "@swapparel/shad-ui/lib/utils";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { z } from "zod";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
+import { useFetchedPostsStore } from "../_hooks/use-posts-store";
 import ColorField from "./_fields/colour-field";
 import DescriptionField from "./_fields/description-field";
 import GarmentField from "./_fields/garment-field";
@@ -19,6 +22,9 @@ import MaterialField from "./_fields/material-field";
 import PriceField from "./_fields/price-field";
 import SizeField from "./_fields/size-field";
 import TitleField from "./_fields/title-field";
+
+type FeedPage = { posts: z.infer<typeof postSchema>[]; nextAvailablePost: string | undefined };
+type FeedQueryData = InfiniteData<FeedPage>;
 
 export type CreatePostFormValues = z.input<typeof userFormPostSchema>;
 export const { fieldContext, formContext, useFieldContext } = createFormHookContexts();
@@ -41,12 +47,20 @@ export const { useAppForm } = createFormHook({
 });
 
 export default function CreatePostForm({ closeAction }: { closeAction: () => void }) {
-  // TODO<Alex>: add new post to feed
+  const queryClient = useQueryClient();
 
   const createPostMutation = useMutation(
     webClientORPC.posts.createPost.mutationOptions({
-      onSuccess: async () => {
+      onSuccess: async ({ id }) => {
         closeAction();
+
+        const newPost = await queryClient.fetchQuery(webClientORPC.posts.getPost.queryOptions({ input: { _id: id } }));
+
+        useFetchedPostsStore.setState((state) => ({
+          fetchedPosts: [newPost, ...state.fetchedPosts],
+        }));
+
+        await queryClient.invalidateQueries({ queryKey: [["posts", "getPosts"]] });
       },
     })
   );
