@@ -9,7 +9,6 @@ export default function DescriptionField() {
   return (
     <Field data-invalid={isInvalid}>
       <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-      {/* TODO: wrap in scroll area*/}
       <Textarea
         id={field.name}
         name={field.name}
