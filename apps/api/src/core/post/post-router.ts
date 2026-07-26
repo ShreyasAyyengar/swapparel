@@ -119,7 +119,7 @@ export const postRouter = {
   }),
 
   getPosts: publicProcedure.posts.getPosts.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR }, context }) => {
-    const posts = await PostService.find({ createdBy: input.createdBy });
+    const posts = await PostService.find({ createdBy: input.createdBy, archived: { $ne: true } });
     await Promise.all(
       posts.map(async (post) => {
         post.images = await hydrateR2Keys(post.images);
@@ -204,6 +204,7 @@ export const postRouter = {
           hashtags: [],
           thumbnailHeight: +h,
           thumbnailWidth: +w,
+          archived: false,
         };
         documents.push(randomPostData);
       }

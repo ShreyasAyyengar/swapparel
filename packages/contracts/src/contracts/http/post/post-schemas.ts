@@ -120,6 +120,7 @@ export const postSchema = z.object({
     )
     .default([]),
   price: z.coerce.number().min(1).max(PRICE_MAX).optional(),
+  archived: z.boolean().default(false),
 });
 
 export const userFormPostSchema = z.object({

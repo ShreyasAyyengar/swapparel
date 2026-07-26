@@ -16,13 +16,13 @@ export const transactionRouter = {
       const buyer = context.user;
 
       const [sellerPost, buyerPosts] = await Promise.all([
-        PostService.findById(input.sellerPostId).select("_id title createdBy").lean(),
+        PostService.findById(input.sellerPostId).select("_id title createdBy archived").lean(),
 
         PostService.find({
           _id: { $in: input.buyerPostIds },
           createdBy: buyer.email,
         })
-          .select("_id title createdBy")
+          .select("_id title createdBy archived")
           .lean(),
       ]);
 
@@ -41,6 +41,19 @@ export const transactionRouter = {
       if (buyerPosts.length !== input.buyerPostIds.length) {
         throw UNPROCESSABLE_CONTENT({
           data: { message: "One or more buyer post IDs do not exist or do not belong to the authenticated user." },
+        });
+      }
+
+      if (sellerPost.archived) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "Cannot start a trade with an archived post." },
+        });
+      }
+
+      const archivedBuyerPost = buyerPosts.find((p) => p.archived);
+      if (archivedBuyerPost) {
+        throw UNPROCESSABLE_CONTENT({
+          data: { message: "Cannot start a trade with an archived post." },
         });
       }
 
@@ -252,6 +265,21 @@ export const transactionRouter = {
                 actorName: buyerName,
               }),
             ]);
+
+            const completedPostIds = [...transaction.sellerPosts.map((p) => p.postId), ...transaction.buyerPosts.map((p) => p.postId)];
+
+            await Promise.all([
+              PostService.updateMany({ _id: { $in: completedPostIds } }, { $set: { archived: true } }),
+              TransactionService.updateMany(
+                { status: "ongoing", _id: { $ne: input._id } },
+                {
+                  $pull: {
+                    sellerPosts: { postId: { $in: completedPostIds } },
+                    buyerPosts: { postId: { $in: completedPostIds } },
+                  },
+                }
+              ),
+            ]);
           }
         }
 
@@ -284,11 +312,16 @@ export const transactionRouter = {
         const buyerPostIds = input.updatedBuyerPosts.map((item) => item.postId);
         // TODO: this is a bit scuffed because emails change. ideally only compare identities using userIds.
         const buyerPostsExist = await PostService.find({ _id: { $in: buyerPostIds }, createdBy: transaction.buyer.emailSnapshot })
-          .select("_id")
+          .select("_id archived")
           .lean();
         if (buyerPostsExist.length !== buyerPostIds.length) {
           throw UNPROCESSABLE_CONTENT({
             data: { message: "One or more buyer post IDs do not exist." },
+          });
+        }
+        if (buyerPostsExist.some((p) => p.archived)) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "Cannot add an archived post to a trade." },
           });
         }
       }
@@ -302,11 +335,16 @@ export const transactionRouter = {
 
         const sellerPostIds = input.updatedSellerPosts.map((item) => item.postId);
         const sellerPostsExist = await PostService.find({ _id: { $in: sellerPostIds }, createdBy: transaction.seller.emailSnapshot })
-          .select("_id")
+          .select("_id archived")
           .lean();
         if (sellerPostsExist.length !== sellerPostIds.length) {
           throw UNPROCESSABLE_CONTENT({
             data: { message: "One or more seller post IDs do not exist." },
+          });
+        }
+        if (sellerPostsExist.some((p) => p.archived)) {
+          throw UNPROCESSABLE_CONTENT({
+            data: { message: "Cannot add an archived post to a trade." },
           });
         }
       }
@@ -323,6 +361,27 @@ export const transactionRouter = {
       try {
         const update = input.location === null ? { $set: updateData, $unset: { location: 1 } } : { $set: updateData };
         await TransactionService.updateOne({ _id: input._id }, update);
+
+        if (input.status === "completed") {
+          const completedPostIds = [
+            ...(input.updatedSellerPosts ?? transaction.sellerPosts).map((p) => p.postId),
+            ...(input.updatedBuyerPosts ?? transaction.buyerPosts).map((p) => p.postId),
+          ];
+
+          await Promise.all([
+            PostService.updateMany({ _id: { $in: completedPostIds } }, { $set: { archived: true } }),
+            TransactionService.updateMany(
+              { status: "ongoing", _id: { $ne: input._id } },
+              {
+                $pull: {
+                  sellerPosts: { postId: { $in: completedPostIds } },
+                  buyerPosts: { postId: { $in: completedPostIds } },
+                },
+              }
+            ),
+          ]);
+        }
+
         return { success: true };
       } catch (error) {
         throw INTERNAL_SERVER_ERROR({

@@ -9,7 +9,10 @@ export const feedRouter = {
     const limit = input.amount;
 
     // start *at* nextAvailablePost because it was not returned previously
-    const documentQuery = PostService.find(input.nextAvailablePost ? { _id: { $lte: input.nextAvailablePost } } : {})
+    const documentQuery = PostService.find({
+      archived: { $ne: true },
+      ...(input.nextAvailablePost ? { _id: { $lte: input.nextAvailablePost } } : {}),
+    })
       .sort({ _id: -1 })
       .limit(limit + 1); // +1 to compute nextAvailablePost (next page start)
 

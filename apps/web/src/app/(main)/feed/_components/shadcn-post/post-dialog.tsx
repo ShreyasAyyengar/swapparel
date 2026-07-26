@@ -352,13 +352,19 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
             </AlertDialog>
           )}
 
-          <TradeDialog
-            postData={postData}
-            canSeeButton={canSeeButton}
-            onTradeSuccess={async () => {
-              await setPostId(null);
-            }}
-          />
+          {postData.archived ? (
+            <Button className="w-full bg-muted text-muted-foreground cursor-not-allowed" disabled>
+              Archived post
+            </Button>
+          ) : (
+            <TradeDialog
+              postData={postData}
+              canSeeButton={canSeeButton}
+              onTradeSuccess={async () => {
+                await setPostId(null);
+              }}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>
