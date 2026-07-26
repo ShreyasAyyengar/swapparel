@@ -21,9 +21,9 @@ const DAYS_PER_WEEK = 7;
 const MAX_UNREAD_BADGE_COUNT = 9;
 const MILLISECONDS_PER_SECOND = 1000;
 
-function formatRelativeTime(date: Date) {
+function formatRelativeTime(date: Date | string) {
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = now.getTime() - new Date(date).getTime();
   const diffSecs = Math.floor(diffMs / MILLISECONDS_PER_SECOND);
   const diffMins = Math.floor(diffSecs / SECONDS_PER_MINUTE);
   const diffHours = Math.floor(diffMins / MINUTES_PER_HOUR);
@@ -33,7 +33,7 @@ function formatRelativeTime(date: Date) {
   if (diffMins < MINUTES_PER_HOUR) return `${diffMins}m ago`;
   if (diffHours < HOURS_PER_DAY) return `${diffHours}h ago`;
   if (diffDays < DAYS_PER_WEEK) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
+  return date.toLocaleString();
 }
 
 function getNotificationIcon(type: string) {
