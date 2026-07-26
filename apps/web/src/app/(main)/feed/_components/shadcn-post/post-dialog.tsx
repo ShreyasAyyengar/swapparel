@@ -34,6 +34,7 @@ import { authClient } from "../../../../../lib/auth-client";
 import { webClientORPC } from "../../../../../lib/orpc-web-client";
 import sendToProfilePage from "../../../profile/_components/helper-functions";
 import { useFetchedPostsStore } from "../../_hooks/use-posts-store";
+import ReportForm from "../../_report/report-form";
 import CommentBox from "./comments/comment-box";
 import { CommentContext } from "./comments/comment-context";
 import TradeDialog from "./trade-dialog";
@@ -44,6 +45,7 @@ type PostDialogProps = {
 };
 
 export default function PostDialog({ postData, className }: PostDialogProps) {
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [postId, setPostId] = useQueryState("id", parseAsString);
@@ -97,7 +99,7 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
         setDialogOpen(false);
         setDeleteDialogOpen(false);
       },
-    }),
+    })
   );
 
   useEffect(() => {
@@ -183,10 +185,27 @@ export default function PostDialog({ postData, className }: PostDialogProps) {
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
-          <DialogTitle>
-            {postData.title} <span className="font-normal text-sm">- {postData.createdBy}</span>
-          </DialogTitle>
-          {/* <DialogDescription>{postData.createdBy}</DialogDescription> */}
+          <div className="flex items-center justify-between pr-6">
+            <DialogTitle>
+              {postData.title} <span className="font-normal text-sm">- {postData.createdBy}</span>
+            </DialogTitle>
+
+            {canSeeButton && (
+              <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="cursor-pointer text-muted-foreground">
+                    Report
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Report this post</DialogTitle>
+                  </DialogHeader>
+                  <ReportForm reportedPostId={postData._id} closeAction={() => setReportDialogOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </DialogHeader>
         <div className="relative text-foreground">
           <div className="mb-5 grid grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
