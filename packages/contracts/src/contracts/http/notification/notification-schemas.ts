@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// TODO: change to union types
 export const notificationTypeSchema = z.enum(["trade_request", "trade_completed", "new_message"]);
 
 export const notificationSchema = z.object({
