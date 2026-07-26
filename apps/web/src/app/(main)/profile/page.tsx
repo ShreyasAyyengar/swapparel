@@ -47,9 +47,8 @@ export default function Page() {
 
   const { data: posts } = useQuery(
     webClientORPC.posts.getPosts.queryOptions({
-      enabled: !isAuthPending,
-      // biome-ignore lint/style/noNonNullAssertion: only runs if authData is not null
-      input: { createdBy: profileQuery ? profileQuery : authData!.user.email },
+      enabled: profileQuery !== null || (!isAuthPending && authData !== null),
+      input: { createdBy: profileQuery ?? authData?.user.email ?? '' },
     })
   );
 
