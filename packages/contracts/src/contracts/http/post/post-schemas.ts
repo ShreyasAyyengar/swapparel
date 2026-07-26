@@ -108,7 +108,9 @@ export const postSchema = z.object({
   size: z.enum(SIZES, "One provided size must be selected."),
   material: z.array(z.enum(MATERIALS)).min(1, "At least one provided material must be selected."),
 // TODO this needs to be renamed at some point to reflect the fact that it's an S3 key not a hydrated URL
-images: z.array(z.string().min(1)).min(1, "At least one image key is required."),
+  images: z.array(z.string().min(1)).min(1, "At least one image key is required."),
+  thumbnailWidth: z.number().positive().optional(),
+  thumbnailHeight: z.number().positive().optional(),
   hashtags: z
     .array(
       z
