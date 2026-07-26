@@ -5,6 +5,7 @@ import { v7 as uuidv7 } from "uuid";
 import { protectedProcedure, publicProcedure } from "../../libs/orpc-procedures";
 import { R2 } from "../../libs/r2-client";
 import { CommentService } from "../comments/comment-service";
+import { PostReportService } from "../reporting/post-report-service";
 import { TransactionService } from "../swap/transaction-service";
 import { UserService } from "../users/user-service";
 import { convertToJpeg, getBlockingLabel, hydrateR2Keys, moderateImage, uploadToR2 } from "./image-processing";
@@ -104,7 +105,8 @@ export const postRouter = {
         { $set: { status: "cancelled" } }
       );
 
-      await Promise.all(post.images.map((imageKey) => R2.delete(imageKey)));
+      const existingReport = await PostReportService.findOne({ reportedPostId: input.id });
+      if (!existingReport) await Promise.all(post.images.map((imageKey) => R2.delete(imageKey)));
 
       const postDeleteRes = await PostService.deleteOne({ _id: input.id });
       return { success: postDeleteRes.deletedCount === 1 };
