@@ -2,7 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 import { postReportSchema, userReportSchema } from "./report-schemas";
 
-export const createUserReport = {
+export const userReportContract = {
   createReport: oc
     .route({
       method: "POST",
@@ -25,7 +25,44 @@ export const createUserReport = {
           message: z.string(),
         }),
       },
-      BAD_REQUEST: {
+      CONFLICT: {
+        data: z.object({
+          message: z.string(),
+          issues: z.array(z.any()).optional(),
+        }),
+      },
+      INTERNAL_SERVER_ERROR: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+    }),
+};
+
+export const postReportContract = {
+  createReport: oc
+    .route({
+      method: "POST",
+    })
+    .input(
+      postReportSchema.pick({
+        reportedPostId: true,
+        reason: true,
+        description: true,
+      })
+    )
+    .output(
+      z.object({
+        id: z.uuidv7(),
+      })
+    )
+    .errors({
+      NOT_FOUND: {
+        data: z.object({
+          message: z.string(),
+        }),
+      },
+      CONFLICT: {
         data: z.object({
           message: z.string(),
           issues: z.array(z.any()).optional(),
