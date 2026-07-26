@@ -148,15 +148,17 @@ export function useMasonry({ gap = 16 }: { gap: number }) {
   }, [scheduleLayout, setupImageListeners]);
 
   useEffect(() => {
-    const handleResize = () => {
-      //NOTE: this may lead to optimization issues
-      scheduleLayout();
-    };
+    const container = containerRef.current;
+    if (!container) return;
 
-    window.addEventListener("resize", handleResize);
+    const observer = new ResizeObserver(() => {
+      scheduleLayout();
+    });
+
+    observer.observe(container);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      observer.disconnect();
     };
   }, [scheduleLayout]);
 

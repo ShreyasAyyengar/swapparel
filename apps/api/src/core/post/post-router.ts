@@ -138,6 +138,22 @@ export const postRouter = {
     return post;
   }),
 
+  getPostsByIds: publicProcedure.posts.getPostsByIds.handler(async ({ input, errors: { NOT_FOUND, INTERNAL_SERVER_ERROR } }) => {
+    const posts = await PostService.find({ _id: { $in: input.ids } }).lean();
+
+    if (posts.length === 0) {
+      throw NOT_FOUND({ data: { message: "No posts found for the given IDs." } });
+    }
+
+    await Promise.all(
+      posts.map(async (post) => {
+        post.images = await hydrateR2Keys(post.images);
+      })
+    );
+
+    return posts;
+  }),
+
   addMockPost: publicProcedure.posts.addMockPost.handler(async ({ input, errors, context }) => {
     try {
       const documents = [];

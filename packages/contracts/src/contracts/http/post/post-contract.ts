@@ -75,6 +75,21 @@ export const postContract = {
       INTERNAL_SERVER_ERROR: {},
     }),
 
+  getPostsByIds: oc
+    .route({
+      method: "GET",
+    })
+    .input(
+      z.object({
+        ids: z.array(z.uuidv7()).min(1),
+      })
+    )
+    .output(z.array(postSchema))
+    .errors({
+      NOT_FOUND: {},
+      INTERNAL_SERVER_ERROR: {},
+    }),
+
   addMockPost: oc
     .route({
       method: "GET",

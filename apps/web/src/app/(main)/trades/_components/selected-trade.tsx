@@ -1,16 +1,18 @@
-import { PUBLIC_LOCATIONS, type transactionSchema } from "@swapparel/contracts";
+import { PUBLIC_LOCATIONS, type postSchema, type transactionSchema } from "@swapparel/contracts";
 import { Button } from "@swapparel/shad-ui/components/button";
 import { Calendar } from "@swapparel/shad-ui/components/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@swapparel/shad-ui/components/dialog";
 import { Input } from "@swapparel/shad-ui/components/input";
 import { Label } from "@swapparel/shad-ui/components/label";
 import { cn } from "@swapparel/shad-ui/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Check, Clock3, LoaderCircle, MapPin, Pencil, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CalendarDays, Check, Clock3, Eye, LoaderCircle, MapPin, Pencil, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import type { z } from "zod";
 import { socketClientORPC } from "../../../../lib/orpc-socket-web-client";
 import { webClientORPC } from "../../../../lib/orpc-web-client";
+import MasonryLayout from "../../feed/_components/post/masonry-layout";
+import PostDialog from "../../feed/_components/shadcn-post/post-dialog";
 import Chat from "./chat";
 import RatingDialog from "./dialogs/rating-dialog";
 
@@ -24,6 +26,7 @@ export default function SelectedTrade({
   transaction: z.infer<typeof transactionSchema>;
 }) {
   const [editorOpen, setEditorOpen] = useState(false);
+  const [viewItemsOpen, setViewItemsOpen] = useState(false);
   const [draftDate, setDraftDate] = useState<Date>(new Date(transaction.scheduledFor));
   const [draftLocation, setDraftLocation] = useState(transaction.location ?? "");
   const [customLocation, setCustomLocation] = useState(
@@ -31,6 +34,37 @@ export default function SelectedTrade({
   );
   const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
+
+  const allPostIds = useMemo(
+    () => [
+      ...transaction.sellerPosts.map((p) => p.postId),
+      ...transaction.buyerPosts.map((p) => p.postId),
+    ],
+    [transaction]
+  );
+
+  const { data: viewItemsPosts } = useQuery(
+    webClientORPC.posts.getPostsByIds.queryOptions({
+      input: { ids: allPostIds },
+      enabled: viewItemsOpen,
+    })
+  );
+
+  const sellerViewItems = useMemo(
+    () =>
+      transaction.sellerPosts
+        .map((sp) => viewItemsPosts?.find((p) => p._id === sp.postId))
+        .filter((p): p is z.infer<typeof postSchema> => !!p),
+    [transaction.sellerPosts, viewItemsPosts]
+  );
+
+  const buyerViewItems = useMemo(
+    () =>
+      transaction.buyerPosts
+        .map((bp) => viewItemsPosts?.find((p) => p._id === bp.postId))
+        .filter((p): p is z.infer<typeof postSchema> => !!p),
+    [transaction.buyerPosts, viewItemsPosts]
+  );
   const scheduledFor = new Date(transaction.scheduledFor);
   const isCustomLocation = !!draftLocation && !publicLocationNames.includes(draftLocation);
   const selectedLocation = isCustomLocation ? customLocation : draftLocation;
@@ -132,24 +166,35 @@ export default function SelectedTrade({
             <p className="font-semibold">Trade conversation</p>
             <p className="text-muted-foreground text-xs">Messages and meetup details are specific to this trade.</p>
           </div>
-          {transaction.status === "ongoing" ? (
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => {
-                resetDraft();
-                setEditorOpen(true);
-              }}
+              onClick={() => setViewItemsOpen(true)}
             >
-              <Pencil />
-              Edit meetup
+              <Eye />
+              View items
             </Button>
-          ) : transaction.status === "completed" ? (
-            <RatingDialog transaction={transaction} />
-          ) : (
-            <p className="text-muted-foreground text-sm">Trade was cancelled</p>
-          )}
+            {transaction.status === "ongoing" ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  resetDraft();
+                  setEditorOpen(true);
+                }}
+              >
+                <Pencil />
+                Edit meetup
+              </Button>
+            ) : transaction.status === "completed" ? (
+              <RatingDialog transaction={transaction} />
+            ) : (
+              <p className="text-muted-foreground text-sm">Trade was cancelled</p>
+            )}
+          </div>
         </div>
         <div className="mt-3 grid gap-2 rounded-xl border border-border bg-muted/30 p-3 sm:grid-cols-2">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -177,6 +222,46 @@ export default function SelectedTrade({
       </header>
 
       <Chat transaction={transaction} />
+
+      <Dialog open={viewItemsOpen} onOpenChange={setViewItemsOpen}>
+        <DialogContent className="flex max-h-[90dvh] flex-col overflow-y-auto sm:max-h-[90dvh] sm:max-w-[90vw]">
+          <DialogHeader>
+            <DialogTitle>Items in this trade</DialogTitle>
+          </DialogHeader>
+          <div className="grid flex-1 gap-6 md:grid-cols-2">
+            <section className="rounded-lg border border-border p-3">
+              <h3 className="mb-3 font-semibold text-sm">Seller's offers</h3>
+              <MasonryLayout gap={12}>
+                {sellerViewItems.map((post) => (
+                  <PostDialog
+                    key={post._id}
+                    postData={post}
+                    className="border border-border bg-card"
+                  />
+                ))}
+              </MasonryLayout>
+              {sellerViewItems.length === 0 && (
+                <p className="text-muted-foreground text-sm">No items to display.</p>
+              )}
+            </section>
+            <section className="rounded-lg border border-border p-3">
+              <h3 className="mb-3 font-semibold text-sm">Buyer's offers</h3>
+              <MasonryLayout gap={12}>
+                {buyerViewItems.map((post) => (
+                  <PostDialog
+                    key={post._id}
+                    postData={post}
+                    className="border border-border bg-card"
+                  />
+                ))}
+              </MasonryLayout>
+              {buyerViewItems.length === 0 && (
+                <p className="text-muted-foreground text-sm">No items to display.</p>
+              )}
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={editorOpen}
