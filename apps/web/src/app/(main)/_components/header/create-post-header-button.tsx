@@ -19,7 +19,7 @@ export default function CreatePostHeaderButton() {
     } else {
       authClient.signIn.social({
         provider: "google",
-        callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/feed?create`,
+        callbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/?create`,
         errorCallbackURL: `${env.NEXT_PUBLIC_WEBSITE_URL}/auth/error`,
       });
     }

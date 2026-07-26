@@ -1,1 +1,1 @@
-# [swapparel.app](https://swapparel.app/feed)
+# [swapparel.app](https://swapparel.app)
