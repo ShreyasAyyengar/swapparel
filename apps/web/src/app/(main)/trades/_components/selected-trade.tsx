@@ -36,10 +36,7 @@ export default function SelectedTrade({
   const queryClient = useQueryClient();
 
   const allPostIds = useMemo(
-    () => [
-      ...transaction.sellerPosts.map((p) => p.postId),
-      ...transaction.buyerPosts.map((p) => p.postId),
-    ],
+    () => [...transaction.sellerPosts.map((p) => p.postId), ...transaction.buyerPosts.map((p) => p.postId)],
     [transaction]
   );
 
@@ -52,17 +49,13 @@ export default function SelectedTrade({
 
   const sellerViewItems = useMemo(
     () =>
-      transaction.sellerPosts
-        .map((sp) => viewItemsPosts?.find((p) => p._id === sp.postId))
-        .filter((p): p is z.infer<typeof postSchema> => !!p),
+      transaction.sellerPosts.map((sp) => viewItemsPosts?.find((p) => p._id === sp.postId)).filter((p): p is z.infer<typeof postSchema> => !!p),
     [transaction.sellerPosts, viewItemsPosts]
   );
 
   const buyerViewItems = useMemo(
     () =>
-      transaction.buyerPosts
-        .map((bp) => viewItemsPosts?.find((p) => p._id === bp.postId))
-        .filter((p): p is z.infer<typeof postSchema> => !!p),
+      transaction.buyerPosts.map((bp) => viewItemsPosts?.find((p) => p._id === bp.postId)).filter((p): p is z.infer<typeof postSchema> => !!p),
     [transaction.buyerPosts, viewItemsPosts]
   );
   const scheduledFor = new Date(transaction.scheduledFor);
@@ -167,12 +160,7 @@ export default function SelectedTrade({
             <p className="text-muted-foreground text-xs">Messages and meetup details are specific to this trade.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setViewItemsOpen(true)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => setViewItemsOpen(true)}>
               <Eye />
               View items
             </Button>
@@ -229,34 +217,30 @@ export default function SelectedTrade({
             <DialogTitle>Items in this trade</DialogTitle>
           </DialogHeader>
           <div className="grid flex-1 gap-6 md:grid-cols-2">
-            <section className="rounded-lg border border-border p-3">
-              <h3 className="mb-3 font-semibold text-sm">Seller's offers</h3>
+            <section className="flex flex-col items-center justify-center rounded-lg border border-border p-3">
+              <h3 className="mb-3 font-semibold text-sm">{transaction.seller.emailSnapshot} offers</h3>
               <MasonryLayout gap={12}>
                 {sellerViewItems.map((post) => (
-                  <PostDialog
-                    key={post._id}
-                    postData={post}
-                    className="border border-border bg-card"
-                  />
+                  <PostDialog key={post._id} postData={post} className="border border-border bg-card" />
                 ))}
               </MasonryLayout>
               {sellerViewItems.length === 0 && (
-                <p className="text-muted-foreground text-sm">No items to display.</p>
+                <div className="flex h-full w-full flex-1 items-center justify-center">
+                  <p className="text-muted-foreground text-sm">No items to display.</p>
+                </div>
               )}
             </section>
-            <section className="rounded-lg border border-border p-3">
-              <h3 className="mb-3 font-semibold text-sm">Buyer's offers</h3>
+            <section className="flex flex-col items-center justify-center rounded-lg border border-border p-3">
+              <h3 className="mb-3 font-semibold text-sm">{transaction.buyer.emailSnapshot} offers</h3>
               <MasonryLayout gap={12}>
                 {buyerViewItems.map((post) => (
-                  <PostDialog
-                    key={post._id}
-                    postData={post}
-                    className="border border-border bg-card"
-                  />
+                  <PostDialog key={post._id} postData={post} className="border border-border bg-card" />
                 ))}
               </MasonryLayout>
               {buyerViewItems.length === 0 && (
-                <p className="text-muted-foreground text-sm">No items to display.</p>
+                <div className="flex h-full w-full flex-1 items-center justify-center">
+                  <p className="text-muted-foreground text-sm">No items to display.</p>
+                </div>
               )}
             </section>
           </div>
